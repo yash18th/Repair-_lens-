@@ -352,7 +352,11 @@ export function getNearbyShops(category = 'phone', filter = 'all', userLocation 
 }
 
 export async function fetchNearbyShops(category = 'phone', userLocation = { lat: 12.9784, lng: 77.6408 }) {
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  const apiBase = import.meta.env.VITE_API_BASE_URL || (
+    typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+      ? '/api'
+      : 'http://localhost:4000'
+  );
 
   try {
     const response = await fetch(`${apiBase}/nearby`, {

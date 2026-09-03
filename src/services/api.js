@@ -484,7 +484,11 @@ export const SAMPLE_PRESETS = [
 export async function analyzeImage(anglePhotos, presetId = null, selectedCategory = 'general') {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+  const apiBase = import.meta.env.VITE_API_BASE_URL || (
+    typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+      ? '/api'
+      : 'http://localhost:4000'
+  );
 
   try {
     const firstPhoto = Object.values(anglePhotos || {}).find(Boolean);
