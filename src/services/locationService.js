@@ -290,23 +290,95 @@ export function getCurrentPositionPromise() {
   });
 }
 
-export function getNearbyShops(category = 'phone', filter = 'all') {
-  // STRICT CATEGORY FILTERING: Only return shops matching the requested category
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const toRad = (value) => (value * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getCityCoordinates(cityName) {
+  const cityMap = {
+    Bengaluru: { lat: 12.9784, lng: 77.6408 },
+    'New Delhi': { lat: 28.6139, lng: 77.2090 },
+    Mumbai: { lat: 19.0760, lng: 72.8777 },
+    Hyderabad: { lat: 17.3850, lng: 78.4867 },
+    Chennai: { lat: 13.0827, lng: 80.2707 },
+    default: { lat: 12.9784, lng: 77.6408 }
+  };
+
+  return cityMap[cityName] || cityMap.default;
+}
+
+export function getNearbyShops(category = 'phone', filter = 'all', userLocation = { lat: 12.9784, lng: 77.6408 }) {
   let shops = MOCK_REPAIR_SHOPS.filter(s => s.category === category);
-  
+
   if (shops.length === 0) {
     shops = MOCK_REPAIR_SHOPS.filter(s => s.category === 'general');
   }
 
+  const userLat = Number(userLocation?.lat) || 12.9784;
+  const userLng = Number(userLocation?.lng) || 77.6408;
+
+  shops = shops.map((shop) => {
+    const cityCoords = getCityCoordinates(shop.city || 'Bengaluru');
+    const distanceFromUser = haversineKm(userLat, userLng, cityCoords.lat, cityCoords.lng);
+    const approxDistance = Math.max(0.5, Number((distanceFromUser + (shop.distanceKm || 0) * 0.35).toFixed(1)));
+
+    return {
+      ...shop,
+      distanceFromUser: approxDistance,
+      displayDistanceKm: approxDistance
+    };
+  });
+
   if (filter === 'express') {
-    return [...shops].sort((a, b) => a.distanceKm - b.distanceKm);
+    return [...shops].sort((a, b) => a.distanceFromUser - b.distanceFromUser);
   } else if (filter === 'price') {
     return [...shops].sort((a, b) => a.priceEstimate - b.priceEstimate);
   } else if (filter === 'rating') {
-    return [...shops].sort((a, b) => b.rating - a.rating);
+    return [...shops].sort((a, b) => b.rating - a.rating || a.distanceFromUser - b.distanceFromUser);
   } else if (filter === 'authorised') {
-    return shops.filter(s => s.isAuthorised);
+    return [...shops].filter(s => s.isAuthorised).sort((a, b) => a.distanceFromUser - b.distanceFromUser);
   }
 
-  return shops;
+  return [...shops].sort((a, b) => a.distanceFromUser - b.distanceFromUser);
+}
+
+export async function fetchNearbyShops(category = 'phone', userLocation = { lat: 12.9784, lng: 77.6408 }) {
+  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
+  try {
+    const response = await fetch(`${apiBase}/nearby`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        category,
+        latitude: Number(userLocation?.lat) || 12.9784,
+        longitude: Number(userLocation?.lng) || 77.6408,
+        radius: 5000
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Nearby API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const shops = Array.isArray(data.shops) ? data.shops : [];
+
+    if (shops.length > 0) {
+      return shops.sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0));
+    }
+  } catch (error) {
+    console.warn('Live nearby-store lookup failed, using local list fallback:', error.message);
+  }
+
+  return getNearbyShops(category, 'all', userLocation);
 }

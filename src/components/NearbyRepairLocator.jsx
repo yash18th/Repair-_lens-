@@ -12,20 +12,20 @@ import {
   RefreshCw,
   Map
 } from 'lucide-react';
-import { getNearbyShops, getCurrentPositionPromise } from '../services/locationService';
+import { fetchNearbyShops, getCurrentPositionPromise } from '../services/locationService';
 
 export default function NearbyRepairLocator({ category = 'phone' }) {
   const [activeFilter, setActiveFilter] = useState('rating');
   const [isLocating, setIsLocating] = useState(false);
+  const [isLoadingShops, setIsLoadingShops] = useState(false);
   const [userLocation, setUserLocation] = useState({
     name: 'Indiranagar, Bengaluru',
     lat: 12.9784,
     lng: 77.6408,
     isGPS: false
   });
+  const [shops, setShops] = useState([]);
   const [bookingToast, setBookingToast] = useState(null);
-
-  const shops = getNearbyShops(category, activeFilter);
 
   const categoryQueryMap = {
     phone: 'best rated mobile phone smartphone repair shop',
@@ -55,22 +55,52 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
         console.warn('Reverse geocode error:', err);
       }
 
-      setUserLocation({
+      const nextLocation = {
         name: locationName,
         lat: pos.lat,
         lng: pos.lng,
         isGPS: true
-      });
+      };
+
+      setUserLocation(nextLocation);
+      return nextLocation;
     } catch (error) {
       console.warn('GPS location request declined or timed out:', error);
+      return userLocation;
     } finally {
       setIsLocating(false);
     }
   };
 
   useEffect(() => {
-    detectLiveLocation();
-  }, []);
+    const loadNearby = async () => {
+      setIsLoadingShops(true);
+      try {
+        const resolvedLocation = await detectLiveLocation();
+        const results = await fetchNearbyShops(category, resolvedLocation || userLocation);
+
+        let filtered = results;
+        if (activeFilter === 'express') {
+          filtered = [...results].sort((a, b) => (a.distanceKm || a.displayDistanceKm || 0) - (b.distanceKm || b.displayDistanceKm || 0));
+        } else if (activeFilter === 'price') {
+          filtered = [...results].sort((a, b) => a.priceEstimate - b.priceEstimate);
+        } else if (activeFilter === 'rating') {
+          filtered = [...results].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        } else if (activeFilter === 'authorised') {
+          filtered = [...results].filter((shop) => shop.isAuthorised);
+        }
+
+        setShops(filtered);
+      } catch (error) {
+        console.warn('Unable to load nearby shops:', error);
+        setShops([]);
+      } finally {
+        setIsLoadingShops(false);
+      }
+    };
+
+    loadNearby();
+  }, [category, activeFilter]);
 
   const openGoogleMapsLiveSearch = () => {
     const query = encodeURIComponent(`${currentCategoryQuery} near ${userLocation.name}`);
@@ -164,6 +194,12 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
       </div>
 
       {/* Service Centre Cards Grid */}
+      {isLoadingShops && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-xs text-slate-300">
+          Finding the nearest repair shops around your location...
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {shops.map((shop) => (
           <div
@@ -179,7 +215,7 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
                   </h4>
                   <p className="text-xs text-slate-400 flex items-center space-x-1 mt-0.5">
                     <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                    <span>{shop.locality} • {shop.distanceKm} km away</span>
+                    <span>{shop.locality} • {shop.displayDistanceKm ?? shop.distanceKm} km away</span>
                   </p>
                 </div>
 
@@ -234,7 +270,7 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
               </button>
 
               <a
-                href={`https://www.google.com/maps/search/${encodeURIComponent(`${currentCategoryQuery} ${shop.name} ${shop.address}`)}`}
+                href={`https://www.google.com/maps/search/${encodeURIComponent(`${currentCategoryQuery} near ${shop.locality} ${shop.city}`)}/@${userLocation.lat},${userLocation.lng},12z`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition-colors flex items-center justify-center space-x-1 text-center"
