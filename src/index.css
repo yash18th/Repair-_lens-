@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased;
+  }
+}
+
+/* Custom glowing effects and animations */
+.glow-effect {
+  box-shadow: 0 0 50px -10px rgba(59, 130, 246, 0.25);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 30px -5px rgba(59, 130, 246, 0.15);
+}
+
+/* Custom scanline animation for scanning effect */
+@keyframes laser-scan {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0.8;
+  }
+}
+
+.animate-laser-scan {
+  animation: laser-scan 2.5s ease-in-out infinite alternate;
+}
