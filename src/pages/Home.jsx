@@ -71,18 +71,6 @@ const CATEGORY_INFO = {
       'Clear lighting on affected component'
     ]
   },
-  general: {
-    title: 'General Mechanical Hardware Studio',
-    icon: '🛠️',
-    badge: 'Custom Hardware & Tool Specialist',
-    description: 'Our mechanical fatigue models analyze structural housing stress fractures, fatigue striations, surface oxidation, and fastener hole whitening.',
-    whatToCapture: [
-      'Close-up of fatigue crack or stress fracture',
-      'Full overview of tool / hardware casing',
-      'Serial plate or specification tag',
-      'Angle showing fracture or strain zone'
-    ]
-  }
 };
 
 export default function Home({

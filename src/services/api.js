@@ -8,8 +8,7 @@ export const ITEM_CATEGORIES = [
   { id: 'phone', label: 'Smartphone & Tablet', icon: '📱', desc: 'Display glass, touch screen, frame, battery' },
   { id: 'electronics', label: 'Electronics & PCB', icon: '💻', desc: 'Motherboards, VRM chips, burnt capacitors' },
   { id: 'auto', label: 'Automotive Bodywork', icon: '🚗', desc: 'Bumper scrapes, clearcoat, paint touchup' },
-  { id: 'appliance', label: 'Home Appliance', icon: '🔌', desc: 'Washing machines, seals, motors, leaks' },
-  { id: 'general', label: 'General / Custom Item', icon: '🛠️', desc: 'Other mechanical or household parts' }
+  { id: 'appliance', label: 'Home Appliance', icon: '🔌', desc: 'Washing machines, seals, motors, leaks' }
 ];
 
 export const ANGLE_TYPES = [
@@ -481,7 +480,7 @@ export const SAMPLE_PRESETS = [
   }
 ];
 
-export async function analyzeImage(anglePhotos, presetId = null, selectedCategory = 'general') {
+export async function analyzeImage(anglePhotos, presetId = null, selectedCategory = 'phone') {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
   const apiBase = import.meta.env.VITE_API_BASE_URL || (
@@ -927,83 +926,11 @@ export async function analyzeImage(anglePhotos, presetId = null, selectedCategor
       }
     },
 
-    general: {
-      problemTitle: 'Structural Casing Fracture & Surface Wear — Mechanical Hardware',
-      problemDescription:
-        'The uploaded item shows a combination of structural casing fracture along a stress-concentration zone and surface material fatigue wear. The fracture pattern is consistent with repeated cyclic loading rather than a single high-energy impact, suggesting a gradual failure mode common in plastic or aluminium housings of power tools, garden equipment, or furniture hardware.',
-      severity: 'Medium',
-      severityLevel: 2,
-      detectedDamage: 'Casing Stress Fracture + Surface Oxidation / Wear Layer',
-      likelyCause: 'Cyclic mechanical fatigue from repeated loading — vibration, repeated impacts, or improper torque application on fastener points',
-      evidence: [
-        'Crack propagation pattern shows classic fatigue striations radiating from a notch or bore edge',
-        'Surface oxidation or chalking visible on outer polymer/metal surface — UV and moisture degradation',
-        'No evidence of single catastrophic impact — fracture is progressive',
-        'Fastener holes adjacent to crack show stress-whitening in polymer or fretting marks in metal'
-      ],
-      whatWeCannotSee: 'Internal load-bearing structural integrity and hidden cracks at mating surfaces cannot be confirmed without disassembly and dye-penetrant inspection.',
-      risksIfUnfixed: [
-        'Crack will propagate further under continued load, causing catastrophic failure.',
-        'If load-bearing, complete fracture risks injury to operator.',
-        'Moisture ingress through crack will accelerate corrosion on metal components.',
-        'Adjacent fasteners will take increased load — progressive failure cascade likely.'
-      ],
-      extractedModel: { brand: 'Mechanical Hardware / Tool', modelName: 'Structural Casing Assembly', modelNumber: 'Check body for moulded part number', serial: 'Stamped on metal components or label', specs: 'Polymer / Die-cast aluminium / Steel casing' },
-      solutionTitle: 'Structural Crack Arrest + Component Replacement or Reinforcement',
-      solutionDescription: 'For non-load-bearing cases: drill a small stop-hole at the crack tip (arrests further propagation), apply structural adhesive (JB Weld or Araldite 2011), and reinforce with fibreglass cloth. For load-bearing casing: source and replace the fractured component entirely — continued use is a safety risk.',
-      recommendation: 'DIY Repair or Local Workshop',
-      complexity: 'Moderate',
-      diySuitabilityScore: 71,
-      timeEstimate: '1 – 3 hours + 24h cure',
-      toolsRequired: [
-        '2mm drill bit + handheld drill (stop-hole)',
-        'JB Weld SteelStik or Araldite 2011 structural epoxy',
-        'Fibreglass cloth patches (for load reinforcement)',
-        'Angle grinder / Dremel (surface prep)',
-        'IPA wipe cloths (degreasing)',
-        'Sandpaper 80-grit (surface key)',
-        'Replacement part (if available via OEM or 3D print)'
-      ],
-      steps: [
-        { title: 'Identify Crack Extent Under Bright Light', description: 'Flex the component slightly and observe crack under a bright torch. Mark both ends of the crack with a marker. Do not use the item until repair is complete if it is load-bearing.' },
-        { title: 'Drill Stop-Holes at Crack Tips', description: 'Using a 2mm drill bit, drill a small hole at each end of the crack (1mm beyond the crack tip). This arrests further crack propagation by eliminating the stress concentration point.' },
-        { title: 'Prepare Crack Surfaces', description: 'Open the crack slightly and clean interior surfaces with IPA 99%. Sand the crack margins to 80-grit roughness for adhesive bond key.' },
-        { title: 'Apply Structural Epoxy', description: 'Mix JB Weld or Araldite 2011 per instructions (1:1 ratio). Work into crack with toothpick or thin blade. Wipe flush. Apply bead along crack surface for backing.' },
-        { title: 'Reinforce with Fibreglass Patch (If Load-Bearing)', description: 'Cut 2 overlapping fibreglass cloth patches slightly larger than crack. Saturate with epoxy resin and press over crack. Squeegee out air bubbles. Apply a second layer 90° to first.' },
-        { title: 'Allow Full Cure', description: 'Allow 24–48 hours at room temperature for full cure. Do not load the repair during this period. Mild heat (40°C hair dryer) accelerates cure if required.' },
-        { title: 'Grind Flush & Sand Smooth', description: 'Once cured, grind the epoxy patch flush with the surface using an angle grinder or Dremel. Sand to 400 grit and finish with spray paint or epoxy coat.' }
-      ],
-      costIntelligence: {
-        totalEstimate: { min: 300, max: 2500 },
-        confidenceLabel: 'Medium',
-        breakdown: [
-          { label: 'Replacement Part or Repair Materials', amount: 600 },
-          { label: 'Labour (Workshop or Technician)', amount: 800 },
-          { label: 'Consumables (Epoxy, Fibreglass, IPA)', amount: 200 },
-          { label: 'GST (18%)', amount: 288, isGST: true },
-          { label: 'Estimated Total', amount: 1888, isTotal: true }
-        ],
-        localPrices: [
-          { type: 'authorized', label: 'OEM / Brand Service Centre', min: 1500, max: 4000, note: 'Contact brand for replacement casing part. Most power tool brands have sub-dealers in major cities.' },
-          { type: 'garage', label: 'Local Workshop / Fabricator', min: 500, max: 2000, note: 'Hardware workshops / fabrication shops in industrial areas can weld, epoxy, or machine a replacement.' },
-          { type: 'diy', label: 'DIY Epoxy Repair', min: 150, max: 500, note: 'JB Weld / Araldite from Flipkart or local hardware store. Effective for non-load-bearing repairs.' }
-        ]
-      },
-      damageMap: {
-        totalRegionsDetected: 2,
-        imageUrl: firstPhotoUrl,
-        regions: [
-          { id: 'gn-1', label: 'Primary Stress Fracture Zone', type: 'primary', severity: 'Medium', position: { top: '28%', left: '28%', width: '44%', height: '40%' }, description: 'Propagating fatigue crack with striations. Crack tip must be arrested before further use.', actionRequired: 'Drill stop-holes and apply structural epoxy immediately. Replace if load-bearing.' },
-          { id: 'gn-2', label: 'Surface Oxidation / UV Degradation', type: 'secondary', severity: 'Low', position: { top: '15%', left: '65%', width: '28%', height: '35%' }, description: 'Chalky or oxidised outer surface from UV and moisture exposure.', actionRequired: 'Sand, prime and apply UV-stable topcoat after structural repair is complete.' },
-          { id: 'gn-3', label: 'Unaffected Core Structure', type: 'intact', severity: 'Intact', position: { top: '65%', left: '10%', width: '65%', height: '26%' }, description: 'Main structural body shows no deformation or secondary cracking.', actionRequired: 'No action required.' }
-        ]
-      }
-    }
   };
 
   // Select the right profile
-  const cat = ['phone','electronics','auto','appliance','general'].includes(selectedCategory)
-    ? selectedCategory : 'general';
+  const supportedCategories = ['phone', 'electronics', 'auto', 'appliance'];
+  const cat = supportedCategories.includes(selectedCategory) ? selectedCategory : 'phone';
   const p = profiles[cat];
 
   return {

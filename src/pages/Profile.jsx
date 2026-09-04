@@ -54,18 +54,21 @@ export default function Profile({ onSelectCategoryAndNavigate }) {
           {ITEM_CATEGORIES.map((cat) => (
             <div
               key={cat.id}
-              onClick={() => onSelectCategoryAndNavigate(cat.id)}
-              className="cursor-pointer rounded-2xl p-5 border border-slate-800 hover:border-purple-500/60 bg-slate-900/80 hover:bg-slate-900 transition-all duration-300 space-y-3 relative overflow-hidden group hover:scale-[1.02] shadow-xl"
+              className="rounded-2xl p-5 border border-slate-800 bg-slate-900/80 transition-all duration-300 space-y-3 relative overflow-hidden group hover:scale-[1.02] hover:border-purple-500/60 hover:bg-slate-900 shadow-xl"
             >
               <div className="flex items-center justify-between">
                 <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
                   {cat.icon}
                 </div>
 
-                <span className="px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 font-bold text-xs border border-purple-500/30 flex items-center space-x-1 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                <button
+                  type="button"
+                  onClick={() => onSelectCategoryAndNavigate(cat.id)}
+                  className="px-3 py-1.5 rounded-full bg-purple-600/20 text-purple-300 font-bold text-xs border border-purple-500/30 flex items-center space-x-1 hover:bg-purple-600 hover:text-white transition-colors"
+                >
                   <span>Open Studio</span>
                   <ChevronRight className="w-3.5 h-3.5" />
-                </span>
+                </button>
               </div>
 
               <div className="space-y-1">
