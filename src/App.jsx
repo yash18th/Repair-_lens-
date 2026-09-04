@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Results from './pages/Results';
 import HistoryPage from './pages/History';
 import Profile from './pages/Profile';
+import CategoryAccess from './pages/CategoryAccess';
 import SettingsPage from './pages/Settings';
 import { analyzeImage } from './services/api';
 
@@ -226,6 +227,12 @@ export default function App() {
 
           {activeTab === 'profile' && (
             <Profile
+              onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
+            />
+          )}
+
+          {activeTab === 'category-access' && (
+            <CategoryAccess
               onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
             />
           )}

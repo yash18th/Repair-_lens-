@@ -12,13 +12,15 @@ import {
   Layers,
   HelpCircle,
   LogOut,
-  X
+  X,
+  Grid3X3
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchChange, mobileOpen, onCloseMobile }) {
   const NAV_ITEMS = [
     { id: 'studio', label: 'Home / Studio', icon: Home, badge: null },
     { id: 'profile', label: 'Profile', icon: User, badge: null },
+    { id: 'category-access', label: 'Category Access', icon: Grid3X3, badge: null },
     { id: 'history', label: 'Scan History', icon: History, badge: '3' },
     { id: 'settings', label: 'Settings', icon: Settings, badge: null },
   ];

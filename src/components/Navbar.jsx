@@ -8,6 +8,8 @@ export default function Navbar({ activeTab, onReset, currentView, onToggleMobile
         return 'Scan History & Blueprints';
       case 'profile':
         return 'User Account Profile';
+      case 'category-access':
+        return 'Category Access';
       case 'settings':
         return 'Platform Settings';
       case 'studio':
