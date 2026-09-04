@@ -5,7 +5,6 @@ import Home from './pages/Home';
 import Results from './pages/Results';
 import HistoryPage from './pages/History';
 import Profile from './pages/Profile';
-import CategoryAccess from './pages/CategoryAccess';
 import SettingsPage from './pages/Settings';
 import { analyzeImage } from './services/api';
 
@@ -166,7 +165,22 @@ export default function App() {
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
-    if (tabId === 'studio' && !analysisResult) {
+
+    if (tabId === 'studio') {
+      setCurrentView('home');
+      return;
+    }
+
+    if (tabId === 'phone' || tabId === 'electronics' || tabId === 'appliance') {
+      setSelectedCategory(tabId);
+      setAngles(INITIAL_ANGLES);
+      setAnalysisResult(null);
+      setPresetUsed(null);
+      setCurrentView('studio-category');
+      return;
+    }
+
+    if (!analysisResult) {
       setCurrentView('home');
     }
   };
@@ -193,7 +207,7 @@ export default function App() {
         />
 
         <main className="flex-1">
-          {activeTab === 'studio' && (
+          {(activeTab === 'studio' || activeTab === 'phone' || activeTab === 'electronics' || activeTab === 'appliance') && (
             currentView === 'results' ? (
               <Results
                 analysisResult={analysisResult}
@@ -231,16 +245,8 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'category-access' && (
-            <CategoryAccess
-              onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
-            />
-          )}
-
           {activeTab === 'settings' && (
-            <SettingsPage
-              onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
-            />
+            <SettingsPage />
           )}
         </main>
 
