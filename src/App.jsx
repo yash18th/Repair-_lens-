@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Results from './pages/Results';
 import HistoryPage from './pages/History';
-import KnowledgeBase from './pages/KnowledgeBase';
 import Profile from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import { analyzeImage } from './services/api';
@@ -221,12 +220,6 @@ export default function App() {
           {activeTab === 'history' && (
             <HistoryPage
               onSelectPreset={handleSelectSamplePreset}
-              searchQuery={searchQuery}
-            />
-          )}
-
-          {activeTab === 'knowledge' && (
-            <KnowledgeBase
               searchQuery={searchQuery}
             />
           )}

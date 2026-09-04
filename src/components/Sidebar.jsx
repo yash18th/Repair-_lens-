@@ -3,7 +3,6 @@ import {
   Home, 
   User, 
   History, 
-  BookOpen, 
   Settings, 
   Search, 
   Wrench, 
@@ -21,7 +20,6 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
     { id: 'studio', label: 'Home / Studio', icon: Home, badge: null },
     { id: 'profile', label: 'Profile', icon: User, badge: null },
     { id: 'history', label: 'Scan History', icon: History, badge: '3' },
-    { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, badge: 'New' },
     { id: 'settings', label: 'Settings', icon: Settings, badge: null },
   ];
 
