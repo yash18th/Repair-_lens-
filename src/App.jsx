@@ -225,7 +225,9 @@ export default function App() {
           )}
 
           {activeTab === 'profile' && (
-            <Profile />
+            <Profile
+              onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
+            />
           )}
 
           {activeTab === 'settings' && (

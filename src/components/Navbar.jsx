@@ -6,8 +6,6 @@ export default function Navbar({ activeTab, onReset, currentView, onToggleMobile
     switch (activeTab) {
       case 'history':
         return 'Scan History & Blueprints';
-      case 'knowledge':
-        return 'DIY Repair Knowledge Base';
       case 'profile':
         return 'User Account Profile';
       case 'settings':
