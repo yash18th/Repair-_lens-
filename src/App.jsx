@@ -186,7 +186,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen bg-[#0d1117] text-slate-100 flex flex-col selection:bg-[#6b7cff] selection:text-white">
       
       <Sidebar
         activeTab={activeTab}
@@ -250,11 +250,11 @@ export default function App() {
           )}
         </main>
 
-        <footer className="glass-panel border-t border-slate-800/80 py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-slate-400">
+        <footer className="border-t border-slate-800/80 bg-[#111821]/80 py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-slate-400">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-slate-200">RepairLens Dashboard</span>
-              <span>— AI-Guided Camera Engine</span>
+              <span className="font-semibold text-slate-200">RepairLens Dashboard</span>
+              <span className="text-slate-500">— Diagnostic Platform</span>
             </div>
             <div className="text-slate-500 text-[11px]">
               Vite + React 18 + Tailwind CSS

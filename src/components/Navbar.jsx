@@ -46,15 +46,15 @@ export default function Navbar({ activeTab, onReset, currentView, onToggleMobile
 
           {/* Right Action Icons & Status */}
           <div className="flex items-center space-x-3">
-            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 mr-1.5 animate-ping"></span>
-              SaaS Demo V1
+            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-1.5"></span>
+              Live Dashboard
             </span>
 
             {/* Quick Action Button */}
             <button
               onClick={onReset}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition-colors flex items-center space-x-1 shadow-md shadow-purple-600/20"
+              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 transition-colors flex items-center space-x-1 border border-slate-700"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Diagnosis</span>
