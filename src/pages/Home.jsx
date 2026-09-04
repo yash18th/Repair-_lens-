@@ -110,52 +110,14 @@ export default function Home({
           </p>
         </section>
 
-        {/* Step 1: Category Cards Grid (Click opens dedicated category page) */}
-        <section className="max-w-5xl mx-auto space-y-5">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
-              <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
-              <span>Choose an Item Category to Open Dedicated Studio</span>
-            </div>
-            <span className="text-[11px] text-slate-500">Click any category below to begin</span>
-          </div>
-
-          {/* 5-Card Dashboard Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ITEM_CATEGORIES.map((cat) => {
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => onSelectCategoryAndNavigate(cat.id)}
-                  className="cursor-pointer rounded-2xl p-5 border border-slate-800 hover:border-purple-500/60 bg-slate-900/80 hover:bg-slate-900 transition-all duration-300 space-y-3 relative overflow-hidden group hover:scale-[1.02] shadow-xl"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                      {cat.icon}
-                    </div>
-
-                    <span className="px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 font-bold text-xs border border-purple-500/30 flex items-center space-x-1 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                      <span>Open Studio</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="font-extrabold text-white text-lg group-hover:text-purple-300 transition-colors">
-                      {cat.label}
-                    </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {cat.desc}
-                    </p>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-purple-400 font-semibold">
-                    <span>⚡ Dedicated Vision Model</span>
-                    <span>Instant AI Diagnosis</span>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Category selection moved to Profile dashboard */}
+        <section className="max-w-5xl mx-auto glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Category dashboard is available in Profile</span>
+            </span>
+            <span className="text-[11px] text-slate-500">Use Profile to open the studio</span>
           </div>
         </section>
 
