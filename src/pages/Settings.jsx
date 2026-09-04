@@ -54,39 +54,34 @@ export default function SettingsPage({ onSelectCategoryAndNavigate }) {
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
             <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
-            <span>Choose an Item Category to Open Dedicated Studio</span>
+            <span>Item Category Buttons</span>
           </div>
-          <span className="text-[11px] text-slate-500">Click any category below to begin</span>
+          <span className="text-[11px] text-slate-500">Choose a category</span>
         </div>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {ITEM_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => onSelectCategoryAndNavigate(cat.id)}
-              className="group w-full flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900"
+              className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900"
             >
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-xl flex-shrink-0">
                   {cat.icon}
                 </div>
 
                 <div className="min-w-0">
                   <div className="font-extrabold text-white text-lg group-hover:text-purple-300 transition-colors">{cat.label}</div>
-                  <div className="text-sm text-slate-400 truncate">{cat.desc}</div>
+                  <div className="text-xs text-slate-400 truncate">{cat.desc}</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <span className="hidden sm:inline-flex items-center gap-2 text-[11px] font-semibold text-purple-300">
-                  <span>⚡ Dedicated Vision Model</span>
-                </span>
-                <span className="inline-flex items-center gap-2 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 text-xs font-bold">
-                  Open Studio
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 text-xs font-bold flex-shrink-0">
+                Open
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
             </button>
           ))}
         </div>
