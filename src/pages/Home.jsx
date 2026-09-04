@@ -2,7 +2,7 @@ import React from 'react';
 import ImageUploader from '../components/ImageUploader';
 import ImagePreview from '../components/ImagePreview';
 import LoadingState from '../components/LoadingState';
-import { SAMPLE_PRESETS, ITEM_CATEGORIES } from '../services/api';
+import { ITEM_CATEGORIES } from '../services/api';
 import { 
   Sparkles, 
   ShieldCheck, 
@@ -83,7 +83,6 @@ export default function Home({
   onRemoveAngle,
   onClearAllAngles,
   onAnalyze,
-  onSelectSamplePreset,
   isAnalyzing
 }) {
   const hasAnyPhoto = Object.values(angles).some(Boolean);
@@ -118,41 +117,6 @@ export default function Home({
               <span>Category dashboard is available in Profile</span>
             </span>
             <span className="text-[11px] text-slate-500">Use Profile to open the studio</span>
-          </div>
-        </section>
-
-        {/* 1-Click Demo Presets */}
-        <section className="max-w-5xl mx-auto glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Eye className="w-4 h-4 text-purple-400" />
-              <span>Or Try 1-Click Sample Scenarios</span>
-            </span>
-            <span className="text-[11px] text-slate-500">Instant Demo Reports</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {SAMPLE_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => onSelectSamplePreset(preset)}
-                className="group relative overflow-hidden rounded-xl border border-slate-800 hover:border-purple-500/50 bg-slate-900/80 p-3.5 text-left transition-all duration-200 hover:scale-[1.02] flex items-center space-x-3"
-              >
-                <img
-                  src={preset.imageUrl}
-                  alt={preset.name}
-                  className="w-14 h-14 rounded-lg object-cover flex-shrink-0 group-hover:opacity-90"
-                />
-                <div className="overflow-hidden space-y-0.5">
-                  <span className="text-xs font-bold text-white block truncate group-hover:text-purple-300">
-                    {preset.name}
-                  </span>
-                  <span className="text-[11px] text-slate-400 block truncate">
-                    {preset.categoryLabel}
-                  </span>
-                </div>
-              </button>
-            ))}
           </div>
         </section>
 

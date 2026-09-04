@@ -1,9 +1,10 @@
 import React from 'react';
-import { Settings, Cpu, Shield, Bell, Moon, Sliders } from 'lucide-react';
+import { Settings, Cpu, ChevronRight } from 'lucide-react';
+import { ITEM_CATEGORIES } from '../services/api';
 
-export default function SettingsPage() {
+export default function SettingsPage({ onSelectCategoryAndNavigate }) {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       
       <div className="border-b border-slate-800 pb-6 space-y-2">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20 mb-1">
@@ -15,8 +16,6 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
-        
-        {/* AI Vision Pipeline Settings */}
         <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
           <h3 className="text-base font-bold text-white flex items-center space-x-2">
             <Cpu className="w-4 h-4 text-purple-400" />
@@ -49,9 +48,49 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-
       </div>
 
+      <div className="space-y-5">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
+            <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
+            <span>Choose an Item Category to Open Dedicated Studio</span>
+          </div>
+          <span className="text-[11px] text-slate-500">Click any category below to begin</span>
+        </div>
+
+        <div className="space-y-3">
+          {ITEM_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onSelectCategoryAndNavigate(cat.id)}
+              className="group w-full flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+                  {cat.icon}
+                </div>
+
+                <div className="min-w-0">
+                  <div className="font-extrabold text-white text-lg group-hover:text-purple-300 transition-colors">{cat.label}</div>
+                  <div className="text-sm text-slate-400 truncate">{cat.desc}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="hidden sm:inline-flex items-center gap-2 text-[11px] font-semibold text-purple-300">
+                  <span>⚡ Dedicated Vision Model</span>
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 text-xs font-bold">
+                  Open Studio
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

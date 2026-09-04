@@ -231,7 +231,9 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <SettingsPage />
+            <SettingsPage
+              onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
+            />
           )}
         </main>
 
