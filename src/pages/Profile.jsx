@@ -1,6 +1,12 @@
 import React from 'react';
-import { Mail, ChevronRight } from 'lucide-react';
+import { Mail, ChevronRight, Home, User, Settings } from 'lucide-react';
 import { ITEM_CATEGORIES } from '../services/api';
+
+const DASHBOARD_ITEMS = [
+  { id: 'home', label: 'Home', icon: Home, description: 'Overview and studio entry' },
+  { id: 'profile', label: 'Profile', icon: User, description: 'Your account and metrics' },
+  { id: 'settings', label: 'Settings', icon: Settings, description: 'Preferences and controls' }
+];
 
 export default function Profile({ onSelectCategoryAndNavigate }) {
   return (
@@ -45,46 +51,72 @@ export default function Profile({ onSelectCategoryAndNavigate }) {
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
             <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
+            <span>Dashboard</span>
+          </div>
+          <span className="text-[11px] text-slate-500">Quick access</span>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {DASHBOARD_ITEMS.map(({ id, label, icon: Icon, description }) => (
+            <button
+              key={id}
+              type="button"
+              className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900 min-w-[180px] flex-1"
+              aria-label={`${label}: ${description}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-purple-300" />
+                </div>
+                <div>
+                  <div className="text-base font-extrabold text-white group-hover:text-purple-300 transition-colors">{label}</div>
+                  <div className="text-[11px] text-slate-400">{description}</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-purple-300" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-5">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
+            <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
             <span>Choose an Item Category to Open Dedicated Studio</span>
           </div>
           <span className="text-[11px] text-slate-500">Click any category below to begin</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-3">
           {ITEM_CATEGORIES.map((cat) => (
-            <div
+            <button
               key={cat.id}
-              className="rounded-2xl p-5 border border-slate-800 bg-slate-900/80 transition-all duration-300 space-y-3 relative overflow-hidden group hover:scale-[1.02] hover:border-purple-500/60 hover:bg-slate-900 shadow-xl"
+              type="button"
+              onClick={() => onSelectCategoryAndNavigate(cat.id)}
+              className="group w-full flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900"
             >
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
                   {cat.icon}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => onSelectCategoryAndNavigate(cat.id)}
-                  className="px-3 py-1.5 rounded-full bg-purple-600/20 text-purple-300 font-bold text-xs border border-purple-500/30 flex items-center space-x-1 hover:bg-purple-600 hover:text-white transition-colors"
-                >
-                  <span>Open Studio</span>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-white text-lg group-hover:text-purple-300 transition-colors">{cat.label}</div>
+                  <div className="text-sm text-slate-400 truncate">{cat.desc}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="hidden sm:inline-flex items-center gap-2 text-[11px] font-semibold text-purple-300">
+                  <span>⚡ Dedicated Vision Model</span>
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 text-xs font-bold">
+                  Open Studio
                   <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+                </span>
               </div>
-
-              <div className="space-y-1">
-                <h3 className="font-extrabold text-white text-lg group-hover:text-purple-300 transition-colors">
-                  {cat.label}
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {cat.desc}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-purple-400 font-semibold">
-                <span>⚡ Dedicated Vision Model</span>
-                <span>Instant AI Diagnosis</span>
-              </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
