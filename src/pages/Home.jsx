@@ -88,80 +88,80 @@ export default function Home({
   const hasAnyPhoto = Object.values(angles).some(Boolean);
   const activeCategoryInfo = CATEGORY_INFO[selectedCategory] || CATEGORY_INFO.phone;
 
-  // ─── PAGE 1: CATEGORY SELECTION HUB (currentView === 'home') ─────────────
   if (currentView === 'home') {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 animate-fadeIn">
-        
-        {/* Hero Banner */}
-        <section className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20 shadow-inner">
-            <Sparkles className="w-4 h-4 text-purple-400 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>Next-Gen Damage Diagnostics Portal</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 animate-fadeIn">
+        <section className="space-y-6">
+          <div className="inline-flex items-center space-x-2 px-2.5 py-1.5 rounded-md border border-[#2a303a] bg-[#151922] text-[11px] font-medium uppercase tracking-[0.12em] text-slate-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#6b7cff]"></span>
+            <span>Diagnostic Workspace</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            Select item category & get repair blueprints <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">instantly.</span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            Choose your device or hardware category below to open a dedicated AI diagnosis studio with tailored evidence breakdowns and Indian ₹ cost intelligence.
-          </p>
-        </section>
-
-        {/* Category selection moved to Profile dashboard */}
-        <section className="max-w-5xl mx-auto glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>Category dashboard is available in Profile</span>
-            </span>
-            <span className="text-[11px] text-slate-500">Use Profile to open the studio</span>
+          <div className="max-w-3xl space-y-3">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em] text-white">
+              Select a device category
+            </h1>
+            <p className="text-sm text-slate-400 leading-6">
+              Choose a category to begin diagnostics, identify probable faults, and review recommended repair actions.
+            </p>
           </div>
         </section>
 
-        {/* Feature Highlights Grid */}
-        <section id="features" className="max-w-5xl mx-auto space-y-8 pt-6 border-t border-slate-900">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Clear & Actionable Diagnosis</h2>
-            <p className="text-sm text-slate-400">Everything you need to decide whether to DIY or hire a professional</p>
+        <section className="space-y-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">Primary Modules</div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
-              <Camera className="w-8 h-8 text-blue-400" />
-              <h4 className="font-bold text-white">Visual Damage Analysis</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Clear breakdown of what is broken and root causes of material strain.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            {ITEM_CATEGORIES.filter((category) => ['phone', 'electronics', 'appliance'].includes(category.id)).map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => onSelectCategoryAndNavigate(category.id)}
+                className="group flex items-center justify-between gap-4 rounded-xl border border-[#2a303a] bg-[#191d24] px-4 py-4 text-left transition-all duration-200 hover:border-[#3a4658] hover:bg-[#1d222b]"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-lg border border-[#2a303a] bg-[#121821] flex items-center justify-center text-xl text-slate-100">
+                    {category.icon}
+                  </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
-              <Layers className="w-8 h-8 text-indigo-400" />
-              <h4 className="font-bold text-white">Side-by-Side Blueprint</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Problem vs. Solution card layouts showing risk factors and tools required.
-              </p>
-            </div>
+                  <div className="min-w-0">
+                    <div className="text-lg font-medium tracking-[-0.02em] text-white group-hover:text-slate-100">
+                      {category.label}
+                    </div>
+                    <div className="mt-0.5 text-xs text-slate-400 truncate">
+                      {category.desc}
+                    </div>
+                  </div>
+                </div>
 
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
-              <FileCheck2 className="w-8 h-8 text-violet-400" />
-              <h4 className="font-bold text-white">Cost & Time Estimates</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Compare DIY component price ranges against professional service quotes.
-              </p>
-            </div>
-
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 space-y-3">
-              <ShieldCheck className="w-8 h-8 text-emerald-400" />
-              <h4 className="font-bold text-white">Interactive Repair Steps</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Step-by-step repair checklists with completion progress tracking.
-              </p>
-            </div>
+                <span className="inline-flex items-center text-slate-300 group-hover:text-white transition-transform duration-200 group-hover:translate-x-0.5">
+                  <ChevronRight className="w-4 h-4" />
+                </span>
+              </button>
+            ))}
           </div>
         </section>
 
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4 border-t border-[#2a303a]">
+          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
+            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Recent Activity</div>
+            <div className="text-sm text-slate-200">No recent scans</div>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
+            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Quick Actions</div>
+            <div className="space-y-2 text-sm text-slate-200">
+              <div>Start new diagnosis</div>
+              <div>Review saved reports</div>
+            </div>
+          </div>
+
+          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
+            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Status</div>
+            <div className="text-sm text-slate-200">Ready for inspection</div>
+          </div>
+        </section>
       </div>
     );
   }

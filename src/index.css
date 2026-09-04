@@ -3,18 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #0d1117;
-  --bg-surface: #111821;
-  --bg-surface-strong: #151d2a;
-  --bg-muted: #1a2431;
-  --border-soft: rgba(148, 163, 184, 0.18);
-  --border-strong: rgba(148, 163, 184, 0.24);
-  --text-primary: #edf2f7;
-  --text-secondary: #a7b0be;
-  --text-muted: #7b8796;
+  --bg-primary: #0f1115;
+  --bg-sidebar: #151922;
+  --bg-surface: #191d24;
+  --bg-surface-alt: #1d222b;
+  --bg-subtle: #212832;
+  --border-soft: #2a303a;
+  --border-strong: #343d4a;
+  --text-primary: #f1f3f5;
+  --text-secondary: #a1acbb;
+  --text-muted: #7f8a9a;
   --accent: #6b7cff;
-  --accent-soft: rgba(107, 124, 255, 0.12);
-  --shadow-soft: 0 8px 24px rgba(2, 6, 23, 0.22);
+  --accent-soft: rgba(107, 124, 255, 0.1);
+  --shadow-soft: 0 10px 30px rgba(8, 11, 17, 0.2);
 }
 
 @layer base {
@@ -23,9 +24,9 @@
   }
 
   body {
-    @apply bg-[#0d1117] text-slate-100 antialiased;
-    background-image: radial-gradient(circle at top, rgba(107, 124, 255, 0.06), transparent 38%);
+    @apply bg-[#0f1115] text-slate-100 antialiased;
     color: var(--text-primary);
+    background-image: none;
   }
 
   * {
@@ -41,18 +42,18 @@
 }
 
 .glass-panel {
-  background: rgba(17, 24, 39, 0.8);
+  background: rgba(25, 29, 36, 0.94);
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-soft);
 }
 
 .glass-panel-hover:hover {
   border-color: var(--border-strong);
-  background: rgba(21, 29, 42, 0.9);
+  background: rgba(29, 34, 43, 0.96);
 }
 
 .glow-effect {
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
 }
 
 @keyframes laser-scan {
@@ -72,3 +73,4 @@
 .animate-laser-scan {
   animation: laser-scan 2.5s ease-in-out infinite alternate;
 }
+

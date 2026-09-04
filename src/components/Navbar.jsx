@@ -38,7 +38,7 @@ export default function Navbar({ activeTab, onReset, currentView, onToggleMobile
             </button>
 
             <div>
-              <h2 className="text-base font-black text-white flex items-center space-x-2">
+              <h2 className="text-base font-semibold tracking-[-0.02em] text-white flex items-center space-x-2">
                 <span>{getTabTitle()}</span>
               </h2>
             </div>
@@ -46,15 +46,14 @@ export default function Navbar({ activeTab, onReset, currentView, onToggleMobile
 
           {/* Right Action Icons & Status */}
           <div className="flex items-center space-x-3">
-            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-1.5"></span>
-              Live Dashboard
+            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#1a1f28] text-slate-300 border border-[#2a303a]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#6b7cff] mr-1.5"></span>
+              Service Desk
             </span>
 
-            {/* Quick Action Button */}
             <button
               onClick={onReset}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 transition-colors flex items-center space-x-1 border border-slate-700"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#1a1f28] hover:bg-[#212832] text-slate-100 transition-colors flex items-center space-x-1 border border-[#2a303a]"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">New Diagnosis</span>
