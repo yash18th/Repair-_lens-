@@ -21,13 +21,15 @@ import {
 export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchChange, mobileOpen, onCloseMobile }) {
   const NAV_ITEMS = [
     { id: 'studio', label: 'Home', icon: Home, badge: null },
-    { id: 'phone', label: 'Smartphone & Tablet', icon: Smartphone, badge: null },
-    { id: 'electronics', label: 'Electronics & PCB', icon: Monitor, badge: null },
-    { id: 'appliance', label: 'Home Appliance', icon: Plug, badge: null },
+    { id: 'phone', label: 'Smartphone & Tablet', icon: Smartphone, badge: null, description: 'Mobile device diagnostics' },
+    { id: 'electronics', label: 'Electronics & PCB', icon: Monitor, badge: null, description: 'Board-level diagnostics' },
+    { id: 'appliance', label: 'Home Appliance', icon: Plug, badge: null, description: 'Electrical systems & motors' },
     { id: 'profile', label: 'Profile', icon: User, badge: null },
     { id: 'history', label: 'Scan History', icon: History, badge: '3' },
     { id: 'settings', label: 'Settings', icon: Settings, badge: null },
   ];
+
+  const isCategoryItem = (id) => ['phone', 'electronics', 'appliance'].includes(id);
 
   return (
     <>
@@ -90,6 +92,7 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const categoryItem = isCategoryItem(item.id);
 
               return (
                 <button
@@ -98,27 +101,59 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
                     onTabChange(item.id);
                     if (onCloseMobile) onCloseMobile();
                   }}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all duration-200 group ${
-                    isActive
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-md shadow-purple-600/10'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                  className={`w-full text-left transition-all duration-200 group ${
+                    categoryItem
+                      ? `flex items-start justify-between gap-3 rounded-2xl border px-3 py-3 ${
+                          isActive
+                            ? 'bg-slate-800/90 border-violet-500/40 text-white'
+                            : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                        }`
+                      : `flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold ${
+                          isActive
+                            ? 'bg-slate-800/90 text-white border border-slate-700'
+                            : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                        }`
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-slate-200'
-                    }`} />
-                    <span>{item.label}</span>
+                  <div className={`flex items-start ${categoryItem ? 'gap-3' : 'space-x-3'}`}>
+                    <div className={`flex items-center justify-center rounded-xl border transition-all duration-200 ${
+                      categoryItem
+                        ? isActive
+                          ? 'w-10 h-10 border-violet-500/40 bg-violet-500/10 text-violet-200'
+                          : 'w-10 h-10 border-slate-700 bg-slate-950/80 text-slate-200 group-hover:border-slate-600'
+                        : `w-4 h-4 ${
+                            isActive ? 'text-violet-300' : 'text-slate-400 group-hover:text-slate-200'
+                          }`
+                    }`}>
+                      <Icon className={categoryItem ? 'w-4 h-4' : 'w-4 h-4'} />
+                    </div>
+
+                    <div className={categoryItem ? 'min-w-0 flex-1' : ''}>
+                      <div className={`font-medium tracking-[-0.01em] ${categoryItem ? 'text-[13px] text-white leading-tight' : 'text-xs font-semibold leading-none'}`}>
+                        {item.label}
+                      </div>
+                      {categoryItem && (
+                        <div className="mt-1 text-[10px] text-slate-400 leading-relaxed">
+                          {item.description}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {item.badge && (
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                       isActive
-                        ? 'bg-purple-500/30 text-purple-200'
+                        ? 'bg-violet-500/15 text-violet-200 border border-violet-500/30'
                         : 'bg-slate-800 text-slate-400'
                     }`}>
                       {item.badge}
                     </span>
+                  )}
+
+                  {categoryItem && !item.badge && (
+                    <ChevronRight className={`w-3.5 h-3.5 mt-1 transition-transform duration-200 ${
+                      isActive ? 'text-violet-200' : 'text-slate-500 group-hover:text-slate-300'
+                    } group-hover:translate-x-0.5`} />
                   )}
                 </button>
               );
