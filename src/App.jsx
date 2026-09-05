@@ -409,6 +409,27 @@ function RepairLensDashboard() {
     openAuthGate({ category, view: 'studio-category' });
   };
 
+  const handleNewDiagnosis = () => {
+    if (!isAuthenticated) {
+      const target = { category: selectedCategory, view: 'studio-category' };
+      window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({
+        path: '/dashboard',
+        tab: 'studio',
+        category: target.category,
+        view: target.view,
+      }));
+      navigate('/login', { replace: false });
+      return;
+    }
+
+    setSelectedCategory(selectedCategory);
+    setAngles(INITIAL_ANGLES);
+    setAnalysisResult(null);
+    setPresetUsed(null);
+    setCurrentView('studio-category');
+    setActiveTab('studio');
+  };
+
   return (
     <div className="premium-shell min-h-screen flex flex-col selection:bg-[#b08a4a] selection:text-[#252321]">
       <AuthGateModal
@@ -436,9 +457,15 @@ function RepairLensDashboard() {
       <div className="lg:pl-72 flex flex-col min-h-screen transition-all duration-300">
         <Navbar
           activeTab={activeTab}
-          onReset={handleReset}
+          isAuthenticated={isAuthenticated}
           currentView={currentView}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
+          onNewDiagnosis={handleNewDiagnosis}
+          onSignIn={() => navigate('/login', { replace: false })}
+          onOpenProfile={() => {
+            setActiveTab('profile');
+            setCurrentView('home');
+          }}
         />
 
         <main className="flex-1 bg-[var(--bg-primary)]">
