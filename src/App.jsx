@@ -373,6 +373,12 @@ function RepairLensDashboard() {
   };
 
   const handleTabChange = (tabId) => {
+    if ((tabId === 'history' || tabId === 'profile' || tabId === 'settings') && !isAuthenticated) {
+      window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({ path: '/dashboard', tab: tabId }));
+      navigate('/login', { replace: false });
+      return;
+    }
+
     setActiveTab(tabId);
 
     if (tabId === 'studio') {
@@ -396,7 +402,7 @@ function RepairLensDashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
+    navigate('/dashboard', { replace: true });
   };
 
   const handleStartDiagnosisRequest = (category = selectedCategory) => {
@@ -410,6 +416,8 @@ function RepairLensDashboard() {
         pendingTarget={pendingDiagnosisTarget || { category: selectedCategory, view: 'studio-category' }}
         onClose={() => setAuthGateOpen(false)}
         onSelectAuthMode={(route) => {
+          const target = pendingDiagnosisTarget || { category: selectedCategory, view: 'studio-category' };
+          window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({ path: '/dashboard', tab: 'studio', category: target.category, view: target.view }));
           navigate(route, { replace: false });
         }}
         onContinueAfterAuth={() => {
@@ -504,8 +512,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<RepairLensDashboard />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<RepairLensDashboard />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

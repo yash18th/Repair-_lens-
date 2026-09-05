@@ -51,6 +51,17 @@ export default function Register() {
 
   React.useEffect(() => {
     if (isAuthenticated) {
+      try {
+        const redirect = JSON.parse(window.sessionStorage.getItem('repairlens.redirectAfterAuth') || 'null');
+        if (redirect?.path) {
+          window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
+          navigate(redirect.path, { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.warn('Unable to read redirectAfterAuth:', error);
+      }
+
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
@@ -79,6 +90,17 @@ export default function Register() {
     });
 
     if (result.ok) {
+      try {
+        const redirect = JSON.parse(window.sessionStorage.getItem('repairlens.redirectAfterAuth') || 'null');
+        if (redirect?.path) {
+          window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
+          navigate(redirect.path, { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.warn('Unable to read redirectAfterAuth:', error);
+      }
+
       navigate('/dashboard', { replace: true });
     } else {
       setErrors({
@@ -192,7 +214,7 @@ export default function Register() {
 
           <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
             <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Frontend-only auth placeholder</span>
+            <span>Secure diagnostic access</span>
           </div>
         </div>
       </div>
