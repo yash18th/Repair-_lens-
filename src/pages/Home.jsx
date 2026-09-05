@@ -30,11 +30,12 @@ const CATEGORY_INFO = {
       'Clear focus on damaged traces',
     ],
   },
-  auto: {
-    title: 'Automotive Bodywork',
+  computer: { title: 'Computers & Laptops', icon: '💻', badge: 'Computer diagnostics', description: 'Assess visible screen, keyboard, hinge, casing, port and board damage.', whatToCapture: ['Close-up of damaged area', 'Full device view', 'Model label', 'Side angle'] },
+  vehicles: {
+    title: 'Vehicles',
     icon: '🚗',
     badge: 'Paint & panel evaluation',
-    description: 'Review bumper scratches, paint transfer, impact damage, and depth-related bodywork issues.',
+    description: 'Review visible body, bumper, light, glass and tyre damage. Hidden mechanical faults require physical inspection.',
     whatToCapture: [
       'Close-up of scratch or dent',
       'Overview of the panel surface',
@@ -42,6 +43,7 @@ const CATEGORY_INFO = {
       'Side angle for depth evaluation',
     ],
   },
+  other: { title: 'Other', icon: '📦', badge: 'Visual repair assessment', description: 'Assess visibly damaged repairable items.', whatToCapture: ['Close-up', 'Full object', 'Model label if available', 'Another angle'] },
   appliance: {
     title: 'Home Appliance',
     icon: '🔌',

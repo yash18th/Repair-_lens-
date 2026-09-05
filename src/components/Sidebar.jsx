@@ -11,20 +11,23 @@ import {
   Smartphone,
   Monitor,
   Plug,
+  Car,
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchChange, mobileOpen, onCloseMobile }) {
   const NAV_ITEMS = [
     { id: 'studio', label: 'Home', icon: Home },
     { id: 'phone', label: 'Smartphone & Tablet', icon: Smartphone, description: 'Mobile diagnostics' },
+    { id: 'computer', label: 'Computers & Laptops', icon: Monitor, description: 'Computer diagnostics' },
     { id: 'electronics', label: 'Electronics & PCB', icon: Monitor, description: 'Board diagnostics' },
     { id: 'appliance', label: 'Home Appliance', icon: Plug, description: 'Electrical systems' },
+    { id: 'vehicles', label: 'Vehicles', icon: Car, description: 'Visible vehicle damage' },
     { id: 'history', label: 'Scan History', icon: History },
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const isCategoryItem = (id) => ['phone', 'electronics', 'appliance'].includes(id);
+  const isCategoryItem = (id) => ['phone', 'computer', 'electronics', 'appliance', 'vehicles'].includes(id);
 
   return (
     <>

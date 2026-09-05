@@ -2,9 +2,7 @@ import React from 'react';
 import { Grid3X3, ChevronRight } from 'lucide-react';
 import { ITEM_CATEGORIES } from '../services/api';
 
-const CATEGORY_ACCESS_ITEMS = ITEM_CATEGORIES.filter((cat) =>
-  ['phone', 'electronics', 'appliance'].includes(cat.id)
-);
+const CATEGORY_ACCESS_ITEMS = ITEM_CATEGORIES;
 
 export default function CategoryAccess({ onSelectCategoryAndNavigate }) {
   return (
