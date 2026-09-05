@@ -198,7 +198,7 @@ function RepairLensDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-slate-100 flex flex-col selection:bg-[#6b7cff] selection:text-white">
+    <div className="premium-shell min-h-screen flex flex-col selection:bg-[#b08a4a] selection:text-[#252321]">
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -208,7 +208,7 @@ function RepairLensDashboard() {
         onCloseMobile={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="lg:pl-64 flex flex-col min-h-screen transition-all duration-300">
+      <div className="lg:pl-72 flex flex-col min-h-screen transition-all duration-300">
         <Navbar
           activeTab={activeTab}
           onReset={handleReset}
@@ -216,7 +216,7 @@ function RepairLensDashboard() {
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
         />
 
-        <main className="flex-1">
+        <main className="flex-1 bg-[var(--bg-primary)]">
           {(activeTab === 'studio' || activeTab === 'phone' || activeTab === 'electronics' || activeTab === 'appliance') && (
             currentView === 'results' ? (
               <Results
@@ -261,13 +261,13 @@ function RepairLensDashboard() {
           )}
         </main>
 
-        <footer className="border-t border-slate-800/80 bg-[#111821]/80 py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-slate-400">
+        <footer className="border-t border-[var(--border-soft)] bg-[var(--bg-secondary)] py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-[var(--text-secondary)]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-slate-200">RepairLens Dashboard</span>
-              <span className="text-slate-500">— Diagnostic Platform</span>
+              <span className="font-semibold text-[var(--text-primary)]">RepairLens Dashboard</span>
+              <span className="text-[var(--text-secondary)]">— Diagnostic Platform</span>
             </div>
-            <div className="text-slate-500 text-[11px]">
+            <div className="text-[var(--text-muted)] text-[11px]">
               Vite + React 18 + Tailwind CSS
             </div>
           </div>

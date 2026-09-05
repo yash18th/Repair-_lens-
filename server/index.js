@@ -1,9 +1,15 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { classifyDamageImage } from './model.js';
 import { buildOverpassQuery, normalizeNearbyStore, buildGooglePlacesKeyword, normalizeGooglePlace } from './nearby.js';
+import authRoutes from './src/routes/authRoutes.js';
+import scanRoutes from './src/routes/scanRoutes.js';
+import searchRoutes from './src/routes/searchRoutes.js';
+import savedRoutes from './src/routes/savedRoutes.js';
+import profileRoutes from './src/routes/profileRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,8 +17,18 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const distPath = path.resolve(__dirname, '../dist');
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/scans', scanRoutes);
+app.use('/api/searches', searchRoutes);
+app.use('/api/saved', savedRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'repairlens-model-api' });

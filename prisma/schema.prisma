@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  name         String
+  email        String          @unique
+  passwordHash String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  scans        Scan[]
+  searches     SearchHistory[]
+  savedScans   SavedDiagnosis[]
+  categoryUsages CategoryUsage[]
+  profile      Profile?
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String?
+  location  String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Scan {
+  id                  String          @id @default(cuid())
+  userId              String
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category            String
+  deviceType          String
+  problemDescription  String
+  uploadedImageUrl    String?
+  diagnosis           String
+  confidence          Float?
+  recommendation      String?
+  estimatedRepairCost String?
+  createdAt           DateTime        @default(now())
+  savedDiagnoses      SavedDiagnosis[]
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query     String
+  category  String
+  createdAt DateTime @default(now())
+}
+
+model SavedDiagnosis {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model CategoryUsage {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   String
+  usageCount Int      @default(1)
+  lastUsedAt DateTime @default(now())
+}

@@ -5,3 +5,16 @@ dist/
 .env.*.local
 .DS_Store
 *.log
+.vercel
+.env*
+
+node_modules/
+dist/
+.env
+.env.local
+node_modules/
+.env
+.env.local
+node_modules/
+.env
+.env.local

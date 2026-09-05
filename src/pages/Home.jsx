@@ -3,73 +3,56 @@ import ImageUploader from '../components/ImageUploader';
 import ImagePreview from '../components/ImagePreview';
 import LoadingState from '../components/LoadingState';
 import { ITEM_CATEGORIES } from '../services/api';
-import { 
-  Sparkles, 
-  ShieldCheck, 
-  Eye, 
-  Layers, 
-  Camera, 
-  FileCheck2, 
-  ArrowLeft, 
-  ChevronRight, 
-  Check, 
-  HelpCircle,
-  Wrench,
-  Smartphone,
-  Laptop,
-  Car,
-  Plug,
-  Hammer
-} from 'lucide-react';
+import { ArrowLeft, ChevronRight, Check } from 'lucide-react';
 
 const CATEGORY_INFO = {
   phone: {
-    title: 'Smartphone & Tablet AI Diagnosis Studio',
+    title: 'Smartphone & Tablet',
     icon: '📱',
-    badge: 'OLED & Display Specialist',
-    description: 'Our computer vision engine for smartphones inspects front display glass shatter, OLED ink-bleed, touch digitiser responsiveness, and aluminum bezel frame dents.',
+    badge: 'Display & component diagnostics',
+    description: 'Inspect display damage, battery faults, charging issues, and frame stress with structured multi-angle analysis.',
     whatToCapture: [
       'Close-up of glass crack or display shatter',
-      'Clear overview of front display screen',
-      'Model number sticker or back glass tag',
-      'Good lighting with minimal surface glare'
-    ]
+      'Clear overview of the device face',
+      'Model number sticker or rear label',
+      'Good lighting with minimal glare',
+    ],
   },
   electronics: {
-    title: 'Electronics & PCB Circuit Board Studio',
+    title: 'Electronics & PCB',
     icon: '💻',
-    badge: 'Micro-Soldering & Component Rework',
-    description: 'Our PCB diagnostic models inspect power delivery IC thermal burns, VRM MOSFET carbonisation, SMD capacitor cracks, and multi-layer copper trace delamination.',
+    badge: 'Circuit board diagnostics',
+    description: 'Assess burned components, capacitor faults, VRM failure, and board-level issues through focused imaging.',
     whatToCapture: [
       'Close-up of burnt IC or charred component',
-      'Top-down view of PCB motherboard',
+      'Top-down PCB layout photo',
       'Silkscreen part number or board revision tag',
-      'Clear focus on damaged circuit traces'
-    ]
+      'Clear focus on damaged traces',
+    ],
   },
   auto: {
-    title: 'Automotive Bodywork & Denting Studio',
+    title: 'Automotive Bodywork',
     icon: '🚗',
-    badge: 'Paint & Bodywork Specialist',
-    description: 'Our automotive vision models measure bumper dent depth, clearcoat scratch abrasion, foreign paint transfer, and plastic valence flexion from curb contact.',
+    badge: 'Paint & panel evaluation',
+    description: 'Review bumper scratches, paint transfer, impact damage, and depth-related bodywork issues.',
     whatToCapture: [
-      'Close-up of scratch, dent, or scuff mark',
-      'Overview of bumper or door panel section',
-      'Door jamb VIN tag for paint code matching',
-      'Side perspective showing dent depth'
-    ]
+      'Close-up of scratch or dent',
+      'Overview of the panel surface',
+      'VIN tag or paint-code reference',
+      'Side angle for depth evaluation',
+    ],
   },
   appliance: {
-    title: 'Home Appliance Diagnostic Studio',
+    title: 'Home Appliance',
     icon: '🔌',
-    badge: 'Washing Machine & Appliance Specialist',
-    description: 'Our appliance vision engine inspects front-load door bellow seal cracking, mould colonisation, rear spider bearing rust, and water leakage stains.',
+    badge: 'Motor and electrical diagnostics',
+    description: 'Examine seals, wiring, leakage points, and component wear for practical repair recommendations.',
     whatToCapture: [
-      'Close-up of cracked rubber seal or rust',
-      'Front overview of appliance/machine',
-      'Rating tag with model code (e.g. WW65R)',
-      'Clear lighting on affected component'
-    ]
+      'Close-up of sealed joint or rust',
+      'Front overview of the appliance',
+      'Model label with ratings',
+      'Clear lighting on the affected area',
+    ],
   },
 };
 
@@ -83,7 +66,7 @@ export default function Home({
   onRemoveAngle,
   onClearAllAngles,
   onAnalyze,
-  isAnalyzing
+  isAnalyzing,
 }) {
   const hasAnyPhoto = Object.values(angles).some(Boolean);
   const activeCategoryInfo = CATEGORY_INFO[selectedCategory] || CATEGORY_INFO.phone;
@@ -91,125 +74,136 @@ export default function Home({
   if (currentView === 'home') {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 animate-fadeIn">
-        <section className="space-y-6">
-          <div className="inline-flex items-center space-x-2 px-2.5 py-1.5 rounded-md border border-[#2a303a] bg-[#151922] text-[11px] font-medium uppercase tracking-[0.12em] text-slate-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#6b7cff]"></span>
+        <section className="space-y-6 py-4 sm:py-8">
+          <div className="eyebrow">
+            <span className="gold-dot"></span>
             <span>Diagnostic Workspace</span>
           </div>
 
-          <div className="max-w-3xl space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.04em] text-white">
-              Select a device category
+          <div className="max-w-4xl space-y-4">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl leading-[0.9] text-[var(--text-primary)] display-serif">
+              Diagnose with<br />
+              <span className="font-sans text-[var(--text-primary)] text-4xl sm:text-5xl md:text-6xl tracking-[-0.04em] font-medium">
+                clarity & precision.
+              </span>
             </h1>
-            <p className="text-sm text-slate-400 leading-6">
-              Choose a category to begin diagnostics, identify probable faults, and review recommended repair actions.
+            <p className="max-w-xl text-base text-[var(--text-secondary)] leading-7">
+              Professional device diagnostics, repair intelligence, and actionable insights for the real-world issues your team needs to solve.
             </p>
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <button type="button" className="premium-button" onClick={() => onSelectCategoryAndNavigate('phone')}>
+                Start a diagnosis
+              </button>
+              <button type="button" className="premium-button-secondary" onClick={() => onSelectCategoryAndNavigate('electronics')}>
+                View categories
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="space-y-6">
+        <section className="space-y-6 pt-6 border-t border-[var(--border-soft)]">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400">Primary Modules</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
+              Primary modules
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            {ITEM_CATEGORIES.filter((category) => ['phone', 'electronics', 'appliance'].includes(category.id)).map((category) => (
+          <div className="space-y-4">
+            {ITEM_CATEGORIES.filter((category) => ['phone', 'electronics', 'appliance'].includes(category.id)).map((category, index) => (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => onSelectCategoryAndNavigate(category.id)}
-                className="group flex items-center justify-between gap-4 rounded-xl border border-[#2a303a] bg-[#191d24] px-4 py-4 text-left transition-all duration-200 hover:border-[#3a4658] hover:bg-[#1d222b]"
+                className="category-card group w-full px-4 sm:px-5 py-4 sm:py-5 text-left transition-all duration-180"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-lg border border-[#2a303a] bg-[#121821] flex items-center justify-center text-xl text-slate-100">
-                    {category.icon}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4 min-w-0">
+                    <div className="text-[13px] font-semibold text-[var(--accent)] tracking-[0.14em] uppercase pt-1">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xl sm:text-2xl font-medium tracking-[-0.03em] text-[var(--text-primary)]">
+                        {category.label}
+                      </div>
+                      <div className="mt-1 text-sm text-[var(--text-secondary)] leading-6 max-w-2xl">
+                        {category.desc}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="min-w-0">
-                    <div className="text-lg font-medium tracking-[-0.02em] text-white group-hover:text-slate-100">
-                      {category.label}
-                    </div>
-                    <div className="mt-0.5 text-xs text-slate-400 truncate">
-                      {category.desc}
-                    </div>
+                  <div className="flex items-center gap-3 text-[var(--text-primary)]">
+                    <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">View category</span>
+                    <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-transform duration-180 group-hover:translate-x-0.5" />
                   </div>
                 </div>
-
-                <span className="inline-flex items-center text-slate-300 group-hover:text-white transition-transform duration-200 group-hover:translate-x-0.5">
-                  <ChevronRight className="w-4 h-4" />
-                </span>
               </button>
             ))}
           </div>
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4 border-t border-[#2a303a]">
-          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
-            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Recent Activity</div>
-            <div className="text-sm text-slate-200">No recent scans</div>
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-6 border-t border-[var(--border-soft)]">
+          <div className="small-stat p-4">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Recent activity</div>
+            <div className="text-sm text-[var(--text-primary)]">No recent scans</div>
           </div>
 
-          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
-            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Quick Actions</div>
-            <div className="space-y-2 text-sm text-slate-200">
+          <div className="small-stat p-4">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Quick actions</div>
+            <div className="space-y-2 text-sm text-[var(--text-primary)]">
               <div>Start new diagnosis</div>
               <div>Review saved reports</div>
             </div>
           </div>
 
-          <div className="glass-panel rounded-xl p-4 border border-[#2a303a]">
-            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400 mb-3">Status</div>
-            <div className="text-sm text-slate-200">Ready for inspection</div>
+          <div className="small-stat p-4">
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Status</div>
+            <div className="text-sm text-[var(--text-primary)]">Ready for inspection</div>
           </div>
         </section>
       </div>
     );
   }
 
-  // ─── PAGE 2: DEDICATED CATEGORY STUDIO PAGE (currentView === 'studio-category') ───
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 animate-fadeIn">
-      
-      {/* Top Breadcrumb Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#2a303a]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-soft)]">
         <button
           onClick={onBackToCategories}
-          className="inline-flex items-center space-x-2 text-sm font-medium text-slate-300 hover:text-white transition-colors bg-[#191d24] px-4 py-2 rounded-lg border border-[#2a303a]"
+          className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border-soft)] bg-[var(--bg-surface)] px-3 py-2"
         >
-          <ArrowLeft className="w-4 h-4 text-slate-300" />
+          <ArrowLeft className="w-4 h-4" />
           <span>Back to categories</span>
         </button>
 
-        <div className="flex items-center space-x-2 text-xs text-slate-400">
+        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
           <span>Active context:</span>
-          <span className="px-2.5 py-1 rounded-full bg-[#1d222b] text-slate-200 border border-[#2a303a] flex items-center space-x-1">
+          <span className="px-2.5 py-1 border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] flex items-center gap-2">
             <span>{activeCategoryInfo.icon}</span>
             <span>{activeCategoryInfo.badge}</span>
           </span>
         </div>
       </div>
 
-      <div className="glass-panel p-6 sm:p-8 rounded-xl border border-[#2a303a] bg-[#191d24] space-y-4">
+      <div className="premium-panel p-6 sm:p-8 space-y-4">
         <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 rounded-xl bg-[#121821] border border-[#2a303a] flex items-center justify-center text-3xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-soft)] flex items-center justify-center text-3xl flex-shrink-0">
             {activeCategoryInfo.icon}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] text-white">
+            <h1 className="text-3xl sm:text-4xl text-[var(--text-primary)] display-serif">
               {activeCategoryInfo.title}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-1 max-w-3xl">
+            <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-1 max-w-3xl">
               {activeCategoryInfo.description}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Upload & Diagnosis Section */}
       <section className="space-y-6">
         <div className="flex items-center justify-between px-1">
-          <div className="flex items-center space-x-2 text-xs font-medium uppercase tracking-[0.12em] text-slate-400">
-            <span className="w-5 h-5 rounded-full bg-[#1d222b] border border-[#2a303a] text-slate-200 flex items-center justify-center text-[11px] font-medium">2</span>
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
+            <span className="w-5 h-5 rounded-full border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] flex items-center justify-center">2</span>
             <span>Upload damage photo</span>
           </div>
         </div>
@@ -218,9 +212,7 @@ export default function Home({
           <LoadingState angles={angles} />
         ) : (
           <div className="space-y-6">
-            
-            {/* Single Uploader Card */}
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800">
+            <div className="premium-panel p-6 sm:p-8">
               <ImageUploader
                 angles={angles}
                 selectedCategory={selectedCategory}
@@ -229,7 +221,6 @@ export default function Home({
               />
             </div>
 
-            {/* Photo Preview & Analysis CTA */}
             {hasAnyPhoto && (
               <ImagePreview
                 angles={angles}
@@ -238,11 +229,9 @@ export default function Home({
                 onClearAll={onClearAllAngles}
               />
             )}
-
           </div>
         )}
       </section>
-
     </div>
   );
 }

@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 
-const SESSION_KEY = 'repairlens.mock.auth.session';
-const MOCK_AUTH_MODE = 'mock-frontend-only';
-
+const SESSION_KEY = 'repairlens.auth.session';
 const AuthContext = createContext(null);
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 function readSessionState() {
   if (typeof window === 'undefined') {
@@ -14,9 +14,25 @@ function readSessionState() {
     const rawValue = window.sessionStorage.getItem(SESSION_KEY);
     return rawValue ? JSON.parse(rawValue) : null;
   } catch (error) {
-    console.warn('Unable to read mock auth session:', error);
+    console.warn('Unable to read auth session:', error);
     return null;
   }
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    ...options,
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Request failed');
+  }
+
+  return payload;
 }
 
 export function AuthProvider({ children }) {
@@ -28,8 +44,7 @@ export function AuthProvider({ children }) {
         status: 'logged_in',
         user: existing.user,
         error: null,
-        isMockAuth: true,
-        mode: MOCK_AUTH_MODE,
+        isMockAuth: false,
       };
     }
 
@@ -37,12 +52,11 @@ export function AuthProvider({ children }) {
       status: 'logged_out',
       user: null,
       error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
+      isMockAuth: false,
     };
   });
 
-  const persistSession = (nextState) => {
+  const persistSession = useCallback((nextState) => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -50,17 +64,33 @@ export function AuthProvider({ children }) {
     if (nextState && nextState.status === 'logged_in' && nextState.user) {
       window.sessionStorage.setItem(
         SESSION_KEY,
-        JSON.stringify({
-          user: nextState.user,
-          mode: MOCK_AUTH_MODE,
-          isMockAuth: true,
-        })
+        JSON.stringify({ user: nextState.user })
       );
       return;
     }
 
     window.sessionStorage.removeItem(SESSION_KEY);
-  };
+  }, []);
+
+  const hydrateSession = useCallback(async () => {
+    try {
+      const payload = await fetchJson(`${apiBaseUrl}/api/auth/me`);
+      const user = payload.user || null;
+
+      if (!user) {
+        setAuthState({ status: 'logged_out', user: null, error: null, isMockAuth: false });
+        persistSession(null);
+        return;
+      }
+
+      const nextState = { status: 'logged_in', user, error: null, isMockAuth: false };
+      setAuthState(nextState);
+      persistSession(nextState);
+    } catch (error) {
+      setAuthState({ status: 'logged_out', user: null, error: null, isMockAuth: false });
+      persistSession(null);
+    }
+  }, [persistSession]);
 
   const login = async ({ email, password }) => {
     const normalizedEmail = String(email || '').trim();
@@ -71,8 +101,7 @@ export function AuthProvider({ children }) {
         status: 'login_error',
         user: null,
         error: 'Please enter your email address and password.',
-        isMockAuth: true,
-        mode: MOCK_AUTH_MODE,
+        isMockAuth: false,
       };
       setAuthState(nextState);
       return { ok: false, error: nextState.error };
@@ -82,43 +111,50 @@ export function AuthProvider({ children }) {
       status: 'logging_in',
       user: null,
       error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
+      isMockAuth: false,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    try {
+      const payload = await fetchJson(`${apiBaseUrl}/api/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({ email: normalizedEmail, password: normalizedPassword }),
+      });
 
-    const user = {
-      name: normalizedEmail.split('@')[0] || 'RepairLens User',
-      email: normalizedEmail,
-    };
+      const user = payload.user || null;
+      const nextState = {
+        status: user ? 'logged_in' : 'login_error',
+        user,
+        error: user ? null : payload.message || 'Unable to sign in.',
+        isMockAuth: false,
+      };
 
-    const nextState = {
-      status: 'logged_in',
-      user,
-      error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
-    };
-
-    setAuthState(nextState);
-    persistSession(nextState);
-
-    return { ok: true, user };
+      setAuthState(nextState);
+      persistSession(nextState);
+      return { ok: Boolean(user), user, error: nextState.error };
+    } catch (error) {
+      const nextState = {
+        status: 'login_error',
+        user: null,
+        error: error.message || 'Unable to sign in. Please try again.',
+        isMockAuth: false,
+      };
+      setAuthState(nextState);
+      return { ok: false, error: nextState.error };
+    }
   };
 
-  const register = async ({ fullName, email, password }) => {
+  const register = async ({ fullName, email, password, confirmPassword }) => {
     const name = String(fullName || '').trim();
     const normalizedEmail = String(email || '').trim();
     const normalizedPassword = String(password || '');
+    const normalizedConfirmPassword = String(confirmPassword || '');
 
-    if (!name || !normalizedEmail || !normalizedPassword) {
+    if (!name || !normalizedEmail || !normalizedPassword || !normalizedConfirmPassword) {
       const nextState = {
         status: 'registration_error',
         user: null,
         error: 'Please complete all required fields.',
-        isMockAuth: true,
-        mode: MOCK_AUTH_MODE,
+        isMockAuth: false,
       };
       setAuthState(nextState);
       return { ok: false, error: nextState.error };
@@ -128,44 +164,65 @@ export function AuthProvider({ children }) {
       status: 'registering',
       user: null,
       error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
+      isMockAuth: false,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    try {
+      const payload = await fetchJson(`${apiBaseUrl}/api/auth/register`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name,
+          email: normalizedEmail,
+          password: normalizedPassword,
+          confirmPassword: normalizedConfirmPassword,
+        }),
+      });
 
-    const user = {
-      name,
-      email: normalizedEmail,
-    };
+      const user = payload.user || null;
+      const nextState = {
+        status: user ? 'logged_in' : 'registration_error',
+        user,
+        error: user ? null : payload.message || 'Unable to create your account.',
+        isMockAuth: false,
+      };
 
-    const nextState = {
-      status: 'logged_in',
-      user,
-      error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
-    };
-
-    setAuthState(nextState);
-    persistSession(nextState);
-
-    return { ok: true, user };
+      setAuthState(nextState);
+      persistSession(nextState);
+      return { ok: Boolean(user), user, error: nextState.error };
+    } catch (error) {
+      const nextState = {
+        status: 'registration_error',
+        user: null,
+        error: error.message || 'Unable to create your account right now.',
+        isMockAuth: false,
+      };
+      setAuthState(nextState);
+      return { ok: false, error: nextState.error };
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetchJson(`${apiBaseUrl}/api/auth/logout`, { method: 'POST' });
+    } catch (error) {
+      console.warn('Logout request failed:', error.message);
+    }
+
     const nextState = {
       status: 'logged_out',
       user: null,
       error: null,
-      isMockAuth: true,
-      mode: MOCK_AUTH_MODE,
+      isMockAuth: false,
     };
 
     setAuthState(nextState);
     persistSession(null);
     return { ok: true };
   };
+
+  React.useEffect(() => {
+    hydrateSession();
+  }, [hydrateSession]);
 
   const value = useMemo(
     () => ({
@@ -176,10 +233,11 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
-      authMode: MOCK_AUTH_MODE,
-      isMockAuth: true,
+      authMode: 'real-backend',
+      isMockAuth: false,
+      hydrateSession,
     }),
-    [authState]
+    [authState, hydrateSession]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
