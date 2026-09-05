@@ -45,7 +45,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
     setError('');
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/scans/history`, {
+      const response = await fetch(`${apiBaseUrl}/api/scans`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -101,8 +101,9 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
 
   const renderCard = (item) => {
     const severity = item.severity || 'Medium';
-    const cost = item.estimatedRepairCost || item.estimatedCost || '—';
+    const cost = item.estimatedRepairCost || item.estimatedCost || item.costMin && item.costMax ? `$${item.costMin} - $${item.costMax}` : '—';
     const diyScore = typeof item.diySuitability === 'number' ? `${item.diySuitability}%` : '—';
+    const imageCount = Number(item.imageCount || 0);
 
     return (
       <div
@@ -115,7 +116,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)]">
               <span className="rounded-full border border-[rgba(99,102,241,0.35)] bg-[rgba(99,102,241,0.08)] px-2 py-1 text-[var(--text-primary)] font-mono tracking-[0.12em]">
-                #{item.id?.slice(0, 8)?.toUpperCase() || 'RL-HISTORY'}
+                {item.reportId || `#${item.id?.slice(0, 8)?.toUpperCase() || 'RL-HISTORY'}`}
               </span>
             </div>
             <div className={`rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] ${severityStyles[severity] || severityStyles.Medium}`}>
@@ -127,6 +128,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
             <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">{formatDateTime(item.createdAt)}</div>
             <div className="text-lg font-semibold tracking-[-0.04em] text-white">{item.category || 'Smartphone & Tablet'}</div>
             <div className="text-sm text-[var(--text-secondary)]">{item.deviceName || item.deviceType || 'Unspecified device'}</div>
+            <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">{imageCount} image{imageCount === 1 ? '' : 's'} analyzed</div>
           </div>
 
           <div className="space-y-3 border-t border-[var(--border-soft)] pt-3">
@@ -253,7 +255,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
             <h3 className="text-2xl font-bold tracking-[-0.05em] text-white">No diagnostics yet</h3>
             <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">Your completed diagnoses will appear here.</p>
           </div>
-          <button type="button" onClick={onStartDiagnosis || (() => window.location.reload())} className="premium-button inline-flex items-center gap-2">
+          <button type="button" onClick={() => (onStartDiagnosis ? onStartDiagnosis('phone') : window.location.reload())} className="premium-button inline-flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>Start a Diagnosis</span>
           </button>

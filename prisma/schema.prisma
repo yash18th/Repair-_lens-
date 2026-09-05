@@ -34,6 +34,7 @@ model Profile {
 
 model Scan {
   id                  String          @id @default(cuid())
+  reportId            String          @unique
   userId              String
   user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   category            String
@@ -48,7 +49,11 @@ model Scan {
   recommendation      String?
   estimatedRepairCost String?
   estimatedCost       String?
+  costMin             String?
+  costMax             String?
   diySuitability      Int?
+  imageCount          Int             @default(0)
+  analysisData        Json?
   createdAt           DateTime        @default(now())
   savedDiagnoses      SavedDiagnosis[]
 }

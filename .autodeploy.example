@@ -1,0 +1,2 @@
+# Copy this file to .autodeploy.lock only when manually holding a deployment.
+# The script creates and removes this file automatically.

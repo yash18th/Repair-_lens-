@@ -24,7 +24,7 @@ const CATEGORY_INFO = {
     badge: 'Circuit board diagnostics',
     description: 'Assess burned components, capacitor faults, VRM failure, and board-level issues through focused imaging.',
     whatToCapture: [
-      'Close-up of burnt IC or charred component',
+      'Close-up of burnt IC    ii.  or charred component',
       'Top-down PCB layout photo',
       'Silkscreen part number or board revision tag',
       'Clear focus on damaged traces',
@@ -66,6 +66,7 @@ export default function Home({
   onRemoveAngle,
   onClearAllAngles,
   onAnalyze,
+  onStartDiagnosisRequest,
   isAnalyzing,
 }) {
   const hasAnyPhoto = Object.values(angles).some(Boolean);
@@ -85,14 +86,18 @@ export default function Home({
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] text-[var(--text-primary)] tracking-[-0.07em] font-black">
                 Diagnose with
                 <span className="block bg-[linear-gradient(135deg,#f8fafc_0%,#c7d2fe_28%,#8b5cf6_62%,#22d3ee_100%)] bg-clip-text text-transparent">
-                  precision engineered.
+                  precision engineered. ⚡.
                 </span>
               </h1>
               <p className="max-w-xl text-base text-[var(--text-secondary)] leading-7">
                 Professional device diagnostics, repair intelligence, and actionable insights for the real-world issues your team needs to solve.
               </p>
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <button type="button" className="premium-button" onClick={() => onSelectCategoryAndNavigate('phone')}>
+                <button
+                  type="button"
+                  className="premium-button"
+                  onClick={() => (onStartDiagnosisRequest ? onStartDiagnosisRequest('phone') : onSelectCategoryAndNavigate('phone'))}
+                >
                   Start a diagnosis
                 </button>
                 <button type="button" className="premium-button-secondary" onClick={() => onSelectCategoryAndNavigate('electronics')}>

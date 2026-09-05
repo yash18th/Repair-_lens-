@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { LockKeyhole, Sparkles, X } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -9,7 +10,6 @@ import Profile from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import ProtectedRoute from './components/auth/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import { analyzeImage } from './services/api';
 
@@ -19,6 +19,79 @@ const INITIAL_ANGLES = {
   label: null,
   altAngle: null
 };
+
+function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onContinueAfterAuth }) {
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleAuthRoute = (route) => {
+    const payload = pendingTarget || { category: 'phone', view: 'studio-category' };
+    window.sessionStorage.setItem('repairlens.pendingDiagnosis', JSON.stringify(payload));
+    onClose();
+    onSelectAuthMode(route);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 py-8 backdrop-blur-sm">
+      <div className="w-full max-w-lg overflow-hidden rounded-[26px] border border-[rgba(99,102,241,0.3)] bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(8,11,22,0.98))] shadow-[0_30px_80px_rgba(15,23,42,0.7)]">
+        <div className="border-b border-[rgba(148,163,184,0.18)] p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-purple-500/30 bg-[rgba(139,92,246,0.12)] text-purple-300">
+                <LockKeyhole className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-300">Secure Access</div>
+                <h3 className="mt-1 text-xl font-bold tracking-[-0.05em] text-white">Sign in to start your diagnosis</h3>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-[rgba(148,163,184,0.2)] bg-white/5 p-2 text-slate-300 transition-colors hover:text-white"
+              aria-label="Close authentication prompt"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-6 p-5 sm:p-6">
+          <div className="flex items-center gap-2 rounded-2xl border border-violet-500/20 bg-[rgba(59,130,246,0.08)] px-3 py-2 text-sm text-slate-200">
+            <Sparkles className="h-4 w-4 text-violet-300" />
+            <span>Create an account or sign in to save your diagnostic reports and scan history.</span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => handleAuthRoute('/login')}
+              className="premium-button justify-center"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAuthRoute('/register')}
+              className="premium-button-secondary justify-center"
+            >
+              Create Account
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl border border-[rgba(148,163,184,0.2)] bg-transparent px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:text-white"
+          >
+            Continue Browsing
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function RepairLensDashboard() {
   const [activeTab, setActiveTab] = useState('studio');
@@ -30,8 +103,43 @@ function RepairLensDashboard() {
   const [presetUsed, setPresetUsed] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [authGateOpen, setAuthGateOpen] = useState(false);
+  const [pendingDiagnosisTarget, setPendingDiagnosisTarget] = useState(null);
   const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    try {
+      const storedTarget = window.sessionStorage.getItem('repairlens.pendingDiagnosis');
+      if (!storedTarget) {
+        return;
+      }
+
+      const parsed = JSON.parse(storedTarget);
+      if (parsed?.category) {
+        setSelectedCategory(parsed.category);
+        setCurrentView(parsed.view || 'studio-category');
+        setActiveTab('studio');
+      }
+
+      window.sessionStorage.removeItem('repairlens.pendingDiagnosis');
+    } catch (error) {
+      console.warn('Unable to restore pending diagnosis target:', error.message);
+      window.sessionStorage.removeItem('repairlens.pendingDiagnosis');
+    }
+  }, []);
+
+  const openAuthGate = (target = { category: selectedCategory, view: 'studio-category' }) => {
+    if (isAuthenticated) {
+      setSelectedCategory(target.category || selectedCategory);
+      setCurrentView(target.view || 'studio-category');
+      setActiveTab('studio');
+      return;
+    }
+
+    setPendingDiagnosisTarget(target);
+    setAuthGateOpen(true);
+  };
 
   const handleSelectCategoryAndNavigate = (catId) => {
     setSelectedCategory(catId);
@@ -68,6 +176,11 @@ function RepairLensDashboard() {
   };
 
   const handleSelectSamplePreset = (preset) => {
+    if (!isAuthenticated) {
+      openAuthGate({ category: preset.category || 'phone', view: 'studio-category' });
+      return;
+    }
+
     const formattedAngles = {
       closeup: preset.angles.closeup ? { name: preset.angles.closeup.name, previewUrl: preset.angles.closeup.url, type: 'JPG' } : null,
       fullView: preset.angles.fullView ? { name: preset.angles.fullView.name, previewUrl: preset.angles.fullView.url, type: 'JPG' } : null,
@@ -83,6 +196,11 @@ function RepairLensDashboard() {
   };
 
   const handleUploadTargetAngle = async (slotId) => {
+    if (!isAuthenticated) {
+      openAuthGate({ category: selectedCategory, view: 'studio-category' });
+      return;
+    }
+
     const categoryTargetPhotos = {
       phone: {
         name: 'Phone Side Frame Angle.jpg',
@@ -134,6 +252,11 @@ function RepairLensDashboard() {
   };
 
   const handleAnalyzeWithPreset = async (presetAngles, presetId, category) => {
+    if (!isAuthenticated) {
+      openAuthGate({ category: category || selectedCategory, view: 'studio-category' });
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
       const result = await analyzeImage(presetAngles, presetId, category);
@@ -166,7 +289,15 @@ function RepairLensDashboard() {
         auto: 'Automotive Bodywork',
       }[category] || 'Smartphone & Tablet';
 
+      const imageCount = Object.values(angles || {}).filter(Boolean).length || 1;
+      const firstImage = Object.values(angles || {}).find(Boolean);
+      const estimateString = result.estimatedCost?.formatted || (typeof result.estimatedCost === 'string' ? result.estimatedCost : null);
+      const costMin = typeof result.estimatedCost?.min === 'number' ? String(result.estimatedCost.min) : null;
+      const costMax = typeof result.estimatedCost?.max === 'number' ? String(result.estimatedCost.max) : null;
+      const reportId = result.reportId || `RL-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
       const payload = {
+        reportId,
         category: categoryLabel,
         deviceType: result.extractedModel?.modelName || 'Unknown device',
         deviceName: result.extractedModel?.modelName || result.problemTitle || 'Unknown device',
@@ -174,24 +305,48 @@ function RepairLensDashboard() {
         problemDescription: result.problemDescription || result.problemTitle || 'Issue detected',
         diagnosis: result.problemTitle || result.detectedDamage || 'Diagnostic completed',
         severity: result.severity || 'Medium',
+        confidence: typeof result.confidenceEngine?.diagnosisConfidence === 'number' ? result.confidenceEngine.diagnosisConfidence : (result.confidence ?? 0),
         recommendation: result.recommendation || null,
-        estimatedRepairCost: result.estimatedCost?.formatted || (typeof result.estimatedCost === 'string' ? result.estimatedCost : null),
-        estimatedCost: result.estimatedCost?.formatted || (typeof result.estimatedCost === 'string' ? result.estimatedCost : null),
+        estimatedRepairCost: estimateString,
+        estimatedCost: estimateString,
+        costMin,
+        costMax,
         diySuitability: typeof result.diySuitabilityScore === 'number' ? result.diySuitabilityScore : null,
+        imageCount,
+        uploadedImageUrl: firstImage?.previewUrl || null,
+        analysisData: {
+          presetUsed: presetUsed || null,
+          selectedCategory: category,
+          timestamp: result.timestamp || new Date().toISOString(),
+          detectedDamage: result.detectedDamage || null,
+          damageMap: result.damageMap || null,
+          extractedModel: result.extractedModel || null,
+          recommendation: result.recommendation || null,
+        },
       };
 
-      await fetch(`${apiBase}/api/scans`, {
+      const response = await fetch(`${apiBase}/api/scans`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+
+      const responseData = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        console.warn('Unable to save diagnostic history:', responseData.message || 'Save failed');
+      }
     } catch (error) {
       console.warn('Unable to save diagnostic history:', error.message);
     }
   };
 
   const handleAnalyze = async () => {
+    if (!isAuthenticated) {
+      openAuthGate({ category: selectedCategory, view: 'studio-category' });
+      return;
+    }
+
     const hasAnyPhoto = Object.values(angles).some(Boolean);
     if (!hasAnyPhoto) return;
 
@@ -244,8 +399,23 @@ function RepairLensDashboard() {
     navigate('/login', { replace: true });
   };
 
+  const handleStartDiagnosisRequest = (category = selectedCategory) => {
+    openAuthGate({ category, view: 'studio-category' });
+  };
+
   return (
     <div className="premium-shell min-h-screen flex flex-col selection:bg-[#b08a4a] selection:text-[#252321]">
+      <AuthGateModal
+        isOpen={authGateOpen}
+        pendingTarget={pendingDiagnosisTarget || { category: selectedCategory, view: 'studio-category' }}
+        onClose={() => setAuthGateOpen(false)}
+        onSelectAuthMode={(route) => {
+          navigate(route, { replace: false });
+        }}
+        onContinueAfterAuth={() => {
+          setAuthGateOpen(false);
+        }}
+      />
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -284,6 +454,7 @@ function RepairLensDashboard() {
                 onClearAllAngles={handleClearAllAngles}
                 onAnalyze={handleAnalyze}
                 onSelectSamplePreset={handleSelectSamplePreset}
+                onStartDiagnosisRequest={handleStartDiagnosisRequest}
                 isAnalyzing={isAnalyzing}
               />
             )
@@ -293,6 +464,7 @@ function RepairLensDashboard() {
             <HistoryPage
               onSelectPreset={handleSelectSamplePreset}
               searchQuery={searchQuery}
+              onStartDiagnosis={handleStartDiagnosisRequest}
             />
           )}
 
@@ -331,16 +503,9 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <RepairLensDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
-      <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+      <Route path="/dashboard" element={<RepairLensDashboard />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

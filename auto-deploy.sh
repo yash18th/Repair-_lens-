@@ -1,10 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-git add .
+REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$REPO_ROOT"
 
-if git diff --cached --quiet; then
-    exit 0
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "[auto-deploy] ERROR: This directory is not a git repository." >&2
+  exit 1
 fi
 
-git commit -m "Auto update RepairLens"
-git push origin main
+node ./scripts/auto-deploy.js
+exit "$?"
