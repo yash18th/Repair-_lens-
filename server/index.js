@@ -11,6 +11,7 @@ import savedRoutes from './src/routes/savedRoutes.js';
 import profileRoutes from './src/routes/profileRoutes.js';
 import diagnosisRoutes from './src/routes/diagnosisRoutes.js';
 import { analyzeUploadedImage } from './src/services/diagnosisAI.js';
+import { requireAuth } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,11 +74,12 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
-app.post('/api/nearby', async (req, res) => {
+app.post(['/api/nearby', '/api/nearby-shops'], requireAuth, async (req, res) => {
   try {
-    const { category = 'phone', latitude = 12.9784, longitude = 77.6408, radius = 5000 } = req.body || {};
+    const { category, latitude, longitude, radius = 5000 } = req.body || {};
     const userLat = Number(latitude);
     const userLng = Number(longitude);
+    if (!category || !Number.isFinite(userLat) || !Number.isFinite(userLng)) return res.status(400).json({ success: false, message: 'A category and valid user location are required.' });
     const googleApiKey = process.env.GOOGLE_PLACES_API_KEY;
 
     if (googleApiKey) {
@@ -130,14 +132,9 @@ app.post('/api/nearby', async (req, res) => {
       fallback: shops.length === 0
     });
   } catch (error) {
-    return res.status(200).json({
+    return res.status(502).json({
       success: false,
-      source: 'fallback',
-      category: req.body?.category || 'phone',
-      userLocation: {
-        lat: Number(req.body?.latitude || 12.9784),
-        lng: Number(req.body?.longitude || 77.6408)
-      },
+      source: 'places-unavailable', category: req.body?.category,
       shops: [],
       error: error.message
     });
