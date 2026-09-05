@@ -54,6 +54,8 @@ model Scan {
   diySuitability      Int?
   imageCount          Int             @default(0)
   analysisData        Json?
+  latitude            Float?
+  longitude           Float?
   createdAt           DateTime        @default(now())
   savedDiagnoses      SavedDiagnosis[]
 }
@@ -64,6 +66,8 @@ model SearchHistory {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   query     String
   category  String
+  latitude  Float?
+  longitude Float?
   createdAt DateTime @default(now())
 }
 
