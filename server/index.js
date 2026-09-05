@@ -3,13 +3,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { classifyDamageImage } from './model.js';
 import { buildOverpassQuery, normalizeNearbyStore, buildGooglePlacesKeyword, normalizeGooglePlace } from './nearby.js';
 import authRoutes from './src/routes/authRoutes.js';
 import scanRoutes from './src/routes/scanRoutes.js';
 import searchRoutes from './src/routes/searchRoutes.js';
 import savedRoutes from './src/routes/savedRoutes.js';
 import profileRoutes from './src/routes/profileRoutes.js';
+import diagnosisRoutes from './src/routes/diagnosisRoutes.js';
+import { analyzeUploadedImage } from './src/services/diagnosisAI.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,7 @@ app.use('/api/scans', scanRoutes);
 app.use('/api/searches', searchRoutes);
 app.use('/api/saved', savedRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/diagnosis', diagnosisRoutes);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'repairlens-model-api' });
@@ -37,17 +39,33 @@ app.get('/health', (_req, res) => {
 app.post('/api/analyze', async (req, res) => {
   try {
     const payload = req.body || {};
-    const result = classifyDamageImage(payload.image || payload || {});
+    const source = payload.imageDataUrl || payload.image?.dataUrl || payload.image?.previewUrl || payload.image?.imageUrl || '';
 
-    res.json({
+    if (!source) {
+      return res.status(400).json({ success: false, message: 'No image was provided for analysis.' });
+    }
+
+    const diagnosis = await analyzeUploadedImage({
+      imageDataUrl: source,
+      fileName: payload.fileName || payload.image?.name || 'uploaded-image',
+      category: payload.category || payload.image?.category,
+      userDescription: payload.userDescription || payload.description || '',
+      deviceBrand: payload.deviceBrand || payload.brand || '',
+      deviceModel: payload.deviceModel || payload.model || '',
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+    });
+
+    return res.json({
       success: true,
       isMockData: false,
-      source: 'deployed-dataset-model',
-      model: 'repairlens-damage-model-v1',
-      result
+      source: 'repairlens-ai-service',
+      model: 'repairlens-ai-v1',
+      result: diagnosis,
+      diagnosis,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Image analysis failed',
       detail: error.message
