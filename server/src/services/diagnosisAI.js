@@ -24,13 +24,55 @@ const CATEGORY_KEYWORDS = {
 };
 
 const ISSUE_KEYWORDS = [
-  { match: ['crack', 'cracked', 'fracture', 'broken glass', 'shattered', 'screen crack'], issue: 'Cracked display', damage: 'Visible fracture across the front display glass', severity: 'High', components: ['Front glass', 'Display assembly'] },
-  { match: ['burn', 'charred', 'burnt', 'shorted', 'thermal'], issue: 'Burnt component or circuit damage', damage: 'Thermal damage and discolouration around the electrical component', severity: 'High', components: ['PCB trace', 'Power component'] },
-  { match: ['leak', 'water', 'moisture', 'dripping', 'seals'], issue: 'Leak or moisture ingress', damage: 'Water intrusion or gasket damage around the appliance or device', severity: 'Medium', components: ['Seal', 'Internal housing'] },
-  { match: ['dent', 'scratch', 'paint', 'panel', 'body'], issue: 'Surface damage or dent', damage: 'Visible cosmetic deformation or paint abrasion on the external panel', severity: 'Medium', components: ['Outer shell', 'Panel finish'] },
-  { match: ['battery', 'swollen', 'bulging'], issue: 'Battery swelling or failure', damage: 'Battery compartment or cell deformation indicates internal battery stress', severity: 'High', components: ['Battery pack', 'Housing'] },
-  { match: ['dead', 'not working', 'fault', 'malfunction'], issue: 'Operational fault', damage: 'The device is failing to operate normally under load or startup', severity: 'Medium', components: ['Core assembly', 'Control circuit'] },
-  { match: ['hinge', 'keyboard', 'trackpad'], issue: 'Laptop hinge or keyboard fault', damage: 'Mechanical or input hardware damage affecting the laptop assembly', severity: 'Medium', components: ['Keyboard', 'Hinge assembly'] }
+  {
+    match: ['crack', 'cracked', 'fracture', 'broken glass', 'shattered', 'screen crack'],
+    issue: 'Cracked display',
+    damage: 'Visible fracture across the front display glass',
+    severity: 'High',
+    components: ['Front glass', 'Display assembly']
+  },
+  {
+    match: ['burn', 'charred', 'burnt', 'shorted', 'thermal'],
+    issue: 'Burnt component or circuit damage',
+    damage: 'Thermal damage and discolouration around the electrical component',
+    severity: 'High',
+    components: ['PCB trace', 'Power component']
+  },
+  {
+    match: ['leak', 'water', 'moisture', 'dripping', 'seals'],
+    issue: 'Leak or moisture ingress',
+    damage: 'Water intrusion or gasket damage around the appliance or device',
+    severity: 'Medium',
+    components: ['Seal', 'Internal housing']
+  },
+  {
+    match: ['dent', 'scratch', 'paint', 'panel', 'body'],
+    issue: 'Surface damage or dent',
+    damage: 'Visible cosmetic deformation or paint abrasion on the external panel',
+    severity: 'Medium',
+    components: ['Outer shell', 'Panel finish']
+  },
+  {
+    match: ['battery', 'swollen', 'bulging'],
+    issue: 'Battery swelling or failure',
+    damage: 'Battery compartment or cell deformation indicates internal battery stress',
+    severity: 'High',
+    components: ['Battery pack', 'Housing']
+  },
+  {
+    match: ['dead', 'not working', 'fault', 'malfunction'],
+    issue: 'Operational fault',
+    damage: 'The device is failing to operate normally under load or startup',
+    severity: 'Medium',
+    components: ['Core assembly', 'Control circuit']
+  },
+  {
+    match: ['hinge', 'keyboard', 'trackpad'],
+    issue: 'Laptop hinge or keyboard fault',
+    damage: 'Mechanical or input hardware damage affecting the laptop assembly',
+    severity: 'Medium',
+    components: ['Keyboard', 'Hinge assembly']
+  }
 ];
 
 const BRAND_PATTERNS = [
@@ -101,7 +143,7 @@ export function estimateRepairCost({ category, issue = 'Unknown', severity = 'Me
 
   const baseRange = catBase[normalizedCategory]?.[severity] || catBase.Other.Medium;
   const brandAdjustment = brand && brand !== 'Unknown' ? 1.08 : 1;
-  const issueAdjustment = issue.toLowerCase().includes('crack') || issue.toLowerCase().includes('burn') ? 1.12 : 1;
+  const issueAdjustment = String(issue || '').toLowerCase().includes('crack') || String(issue || '').toLowerCase().includes('burn') ? 1.12 : 1;
 
   const min = Math.round(baseRange.min * brandAdjustment * issueAdjustment);
   const max = Math.round(baseRange.max * brandAdjustment * issueAdjustment);
@@ -111,7 +153,7 @@ export function estimateRepairCost({ category, issue = 'Unknown', severity = 'Me
     max,
     currency: 'INR',
     label: `₹${min.toLocaleString('en-IN')}–₹${max.toLocaleString('en-IN')}`,
-    detail: `Estimated repair cost for ${brand} ${model || 'device'} based on the detected ${issue.toLowerCase()} issue.`
+    detail: `Estimated repair cost for ${brand} ${model || 'device'} based on the detected ${String(issue || 'issue').toLowerCase()} issue.`
   };
 }
 
@@ -138,38 +180,57 @@ function parseDataUrl(dataUrl) {
   return { mime: match[1].toLowerCase(), base64: match[2] };
 }
 
-export async function analyzeUploadedImage({ imageDataUrl, fileName = 'uploaded-image', category, userDescription, deviceBrand, deviceModel }) {
-  const derivedCategory = inferCategoryFromImage({
+export async function analyzeUploadedImage({
+  imageDataUrl,
+  fileName = 'uploaded-image',
+  category,
+  userDescription = '',
+  deviceBrand = '',
+  deviceModel = '',
+  latitude,
+  longitude,
+}) {
+  const inferred = inferCategoryFromImage({
     category,
     fileName,
     userDescription,
     deviceType: category || 'device'
   });
 
-  const issueData = chooseIssue({ fileName, userDescription, category: derivedCategory.category });
+  const issueEntry = chooseIssue({ fileName, userDescription, category: inferred.category });
   const detectedBrand = findBrand(`${deviceBrand || ''} ${fileName || ''} ${userDescription || ''}`);
   const detectedModel = extractModel(`${deviceModel || ''} ${fileName || ''} ${userDescription || ''}`) || 'Unknown';
   const estimated = estimateRepairCost({
-    category: derivedCategory.category,
-    issue: issueData.issue,
-    severity: issueData.severity,
+    category: inferred.category,
+    issue: issueEntry.issue,
+    severity: issueEntry.severity,
     brand: detectedBrand,
     model: detectedModel
   });
 
   const baseDiagnosis = {
-    category: derivedCategory.category,
-    device: derivedCategory.category === 'Smartphone & Tablet' ? 'Mobile device' : derivedCategory.category === 'Laptop & Computer' ? 'Laptop or computer' : derivedCategory.category === 'Electronics & PCB' ? 'Electronic board' : derivedCategory.category === 'Home Appliance' ? 'Home appliance' : derivedCategory.category === 'TV' ? 'Television' : 'Device',
+    category: inferred.category,
+    device: inferred.category === 'Smartphone & Tablet'
+      ? 'Mobile device'
+      : inferred.category === 'Laptop & Computer'
+        ? 'Laptop or computer'
+        : inferred.category === 'Electronics & PCB'
+          ? 'Electronic board'
+          : inferred.category === 'Home Appliance'
+            ? 'Home appliance'
+            : inferred.category === 'TV'
+              ? 'Television'
+              : 'Device',
     brand: detectedBrand,
     model: detectedModel,
-    issue: issueData.issue,
-    damage: issueData.damage,
-    severity: issueData.severity === 'Unknown' ? 'Medium' : issueData.severity,
-    confidence: issueData.issue === 'Unknown issue' ? 0.42 : 0.81,
-    componentsAffected: issueData.components || ['Primary component'],
-    recommendedSolution: issueData.issue === 'Unknown issue'
+    issue: issueEntry.issue,
+    damage: issueEntry.damage,
+    severity: issueEntry.severity === 'Unknown' ? 'Medium' : issueEntry.severity,
+    confidence: issueEntry.issue === 'Unknown issue' ? 0.42 : 0.81,
+    componentsAffected: issueEntry.components || ['Primary component'],
+    recommendedSolution: issueEntry.issue === 'Unknown issue'
       ? 'Please upload a clearer photo showing the damaged area and device label for more accurate AI analysis.'
-      : `Inspect and repair the ${issueData.components[0]?.toLowerCase() || 'affected component'} first, then replace any damaged parts with OEM-compatible replacements and confirm the repair with a qualified technician.`,
+      : `Inspect and repair the ${issueEntry.components[0]?.toLowerCase() || 'affected component'} first, then replace any damaged parts with OEM-compatible replacements and confirm the repair with a qualified technician.`,
     estimatedRepairCost: {
       min: estimated.min,
       max: estimated.max,
@@ -178,29 +239,77 @@ export async function analyzeUploadedImage({ imageDataUrl, fileName = 'uploaded-
       detail: estimated.detail
     },
     notes: 'AI-generated diagnosis — final diagnosis should be confirmed by a qualified technician.',
+    location: {
+      latitude: Number(latitude) || null,
+      longitude: Number(longitude) || null,
+    },
     imageSummary: {
       fileName,
       hasImageDataUrl: Boolean(imageDataUrl),
       mimeType: parseDataUrl(imageDataUrl)?.mime || 'image/jpeg',
-      inferredCategory: derivedCategory.category,
-      inferredReason: derivedCategory.reason
+      inferredCategory: inferred.category,
+      inferredReason: inferred.reason
     }
   };
 
   const apiKey = process.env.AI_API_KEY;
   if (apiKey && imageDataUrl) {
     try {
-      const dataUrlInfo = parseDataUrl(imageDataUrl);
-      if (dataUrlInfo) {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are RepairLens AI. Analyze the uploaded repair image and return valid JSON with fields: category, device, brand, model, issue, damage, severity, confidence, componentsAffected, recommendedSolution, estimatedRepairCost {min,max,currency,label,detail}, notes. Use 
+      const response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4.1-mini',
+          input: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'input_text',
+                  text: `Analyze this repair image and return only valid JSON with keys: category, device, brand, model, issue, damage, severity, confidence, componentsAffected, recommendedSolution, estimatedRepairCost, notes. Use realistic values for a ${inferred.category} product. If the image is unclear, return conservative values and confidence below 0.5. ${userDescription || ''}`
+                },
+                {
+                  type: 'input_image',
+                  image_url: imageDataUrl,
+                  detail: 'auto'
+                }
+              ]
+            }
+          ],
+          temperature: 0.2
+        })
+      });
+
+      if (response.ok) {
+        const json = await response.json();
+        const rawText = json.output_text || json.output?.map((part) => typeof part?.content === 'string' ? part.content : (Array.isArray(part?.content) ? part.content.map((chunk) => chunk?.text || '').join(' ') : '')).join(' ') || '';
+        const cleaned = String(rawText).trim();
+
+        if (cleaned) {
+          const match = cleaned.match(/\{[\s\S]*\}/);
+          if (match) {
+            try {
+              const parsed = JSON.parse(match[0]);
+              return {
+                ...baseDiagnosis,
+                ...parsed,
+                estimatedRepairCost: parsed.estimatedRepairCost || baseDiagnosis.estimatedRepairCost,
+                confidence: typeof parsed.confidence === 'number' ? parsed.confidence : baseDiagnosis.confidence,
+                notes: parsed.notes || baseDiagnosis.notes,
+              };
+            } catch (parseError) {
+              console.warn('RepairLens AI JSON parse failed, using safe fallback analysis.', parseError.message);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('AI provider call failed, using RepairLens fallback analysis:', error.message);
+    }
+  }
+
+  return baseDiagnosis;
+}
