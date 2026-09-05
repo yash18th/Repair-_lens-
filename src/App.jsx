@@ -111,21 +111,32 @@ function RepairLensDashboard() {
   useEffect(() => {
     try {
       const storedTarget = window.sessionStorage.getItem('repairlens.pendingDiagnosis');
-      if (!storedTarget) {
-        return;
+      if (storedTarget) {
+        const parsed = JSON.parse(storedTarget);
+        if (parsed?.category) {
+          setSelectedCategory(parsed.category);
+          setCurrentView(parsed.view || 'studio-category');
+          setActiveTab('studio');
+        }
+        window.sessionStorage.removeItem('repairlens.pendingDiagnosis');
       }
 
-      const parsed = JSON.parse(storedTarget);
-      if (parsed?.category) {
-        setSelectedCategory(parsed.category);
-        setCurrentView(parsed.view || 'studio-category');
-        setActiveTab('studio');
+      const redirectTarget = window.sessionStorage.getItem('repairlens.redirectAfterAuth');
+      if (redirectTarget) {
+        const parsedRedirect = JSON.parse(redirectTarget);
+        if (parsedRedirect?.tab) {
+          setActiveTab(parsedRedirect.tab);
+          if (parsedRedirect.tab === 'studio' && parsedRedirect.category) {
+            setSelectedCategory(parsedRedirect.category);
+            setCurrentView(parsedRedirect.view || 'studio-category');
+          }
+        }
+        window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
       }
-
-      window.sessionStorage.removeItem('repairlens.pendingDiagnosis');
     } catch (error) {
-      console.warn('Unable to restore pending diagnosis target:', error.message);
+      console.warn('Unable to restore saved auth target:', error.message);
       window.sessionStorage.removeItem('repairlens.pendingDiagnosis');
+      window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
     }
   }, []);
 
@@ -412,6 +423,7 @@ function RepairLensDashboard() {
   const handleNewDiagnosis = () => {
     if (!isAuthenticated) {
       const target = { category: selectedCategory, view: 'studio-category' };
+      window.sessionStorage.setItem('repairlens.pendingDiagnosis', JSON.stringify(target));
       window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({
         path: '/dashboard',
         tab: 'studio',
