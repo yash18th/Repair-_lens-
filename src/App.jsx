@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -6,6 +7,10 @@ import Results from './pages/Results';
 import HistoryPage from './pages/History';
 import Profile from './pages/Profile';
 import SettingsPage from './pages/Settings';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 import { analyzeImage } from './services/api';
 
 const INITIAL_ANGLES = {
@@ -15,9 +20,9 @@ const INITIAL_ANGLES = {
   altAngle: null
 };
 
-export default function App() {
+function RepairLensDashboard() {
   const [activeTab, setActiveTab] = useState('studio');
-  const [currentView, setCurrentView] = useState('home'); // 'home' | 'studio-category' | 'results'
+  const [currentView, setCurrentView] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState('phone');
   const [angles, setAngles] = useState(INITIAL_ANGLES);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -25,6 +30,8 @@ export default function App() {
   const [presetUsed, setPresetUsed] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleSelectCategoryAndNavigate = (catId) => {
     setSelectedCategory(catId);
@@ -185,9 +192,13 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-[#0d1117] text-slate-100 flex flex-col selection:bg-[#6b7cff] selection:text-white">
-      
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -198,7 +209,6 @@ export default function App() {
       />
 
       <div className="lg:pl-64 flex flex-col min-h-screen transition-all duration-300">
-        
         <Navbar
           activeTab={activeTab}
           onReset={handleReset}
@@ -242,6 +252,7 @@ export default function App() {
           {activeTab === 'profile' && (
             <Profile
               onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
+              onLogout={handleLogout}
             />
           )}
 
@@ -261,9 +272,28 @@ export default function App() {
             </div>
           </div>
         </footer>
-
       </div>
-
     </div>
+  );
+}
+
+export default function App() {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <RepairLensDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+    </Routes>
   );
 }
