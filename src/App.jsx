@@ -31,7 +31,7 @@ function RepairLensDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
 
   const handleSelectCategoryAndNavigate = (catId) => {
     setSelectedCategory(catId);
@@ -124,6 +124,7 @@ function RepairLensDashboard() {
     try {
       const result = await analyzeImage(updatedAngles, null, selectedCategory);
       setAnalysisResult(result);
+      await saveDiagnosisHistory(result, selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {
@@ -137,11 +138,56 @@ function RepairLensDashboard() {
     try {
       const result = await analyzeImage(presetAngles, presetId, category);
       setAnalysisResult(result);
+      await saveDiagnosisHistory(result, category || selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to analyze images:', error);
       setIsAnalyzing(false);
+    }
+  };
+
+  const saveDiagnosisHistory = async (result, category = selectedCategory) => {
+    if (!result || !result.success || !result.problemTitle || !isAuthenticated) {
+      return;
+    }
+
+    try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || (
+        typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+          ? '/api'
+          : 'http://localhost:4000'
+      );
+
+      const categoryLabel = {
+        phone: 'Smartphone & Tablet',
+        electronics: 'Electronics & PCB',
+        appliance: 'Home Appliance',
+        auto: 'Automotive Bodywork',
+      }[category] || 'Smartphone & Tablet';
+
+      const payload = {
+        category: categoryLabel,
+        deviceType: result.extractedModel?.modelName || 'Unknown device',
+        deviceName: result.extractedModel?.modelName || result.problemTitle || 'Unknown device',
+        issueDescription: result.problemDescription || result.problemTitle || 'Issue detected',
+        problemDescription: result.problemDescription || result.problemTitle || 'Issue detected',
+        diagnosis: result.problemTitle || result.detectedDamage || 'Diagnostic completed',
+        severity: result.severity || 'Medium',
+        recommendation: result.recommendation || null,
+        estimatedRepairCost: result.estimatedCost?.formatted || (typeof result.estimatedCost === 'string' ? result.estimatedCost : null),
+        estimatedCost: result.estimatedCost?.formatted || (typeof result.estimatedCost === 'string' ? result.estimatedCost : null),
+        diySuitability: typeof result.diySuitabilityScore === 'number' ? result.diySuitabilityScore : null,
+      };
+
+      await fetch(`${apiBase}/api/scans`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.warn('Unable to save diagnostic history:', error.message);
     }
   };
 
@@ -153,6 +199,7 @@ function RepairLensDashboard() {
     try {
       const result = await analyzeImage(angles, presetUsed, selectedCategory);
       setAnalysisResult(result);
+      await saveDiagnosisHistory(result, selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {

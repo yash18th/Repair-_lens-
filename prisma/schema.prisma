@@ -38,12 +38,17 @@ model Scan {
   user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   category            String
   deviceType          String
+  deviceName          String?
+  issueDescription    String
   problemDescription  String
   uploadedImageUrl    String?
   diagnosis           String
+  severity            String?
   confidence          Float?
   recommendation      String?
   estimatedRepairCost String?
+  estimatedCost       String?
+  diySuitability      Int?
   createdAt           DateTime        @default(now())
   savedDiagnoses      SavedDiagnosis[]
 }

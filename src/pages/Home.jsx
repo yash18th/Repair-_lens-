@@ -74,34 +74,36 @@ export default function Home({
   if (currentView === 'home') {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 animate-fadeIn">
-        <section className="space-y-6 py-4 sm:py-8">
-          <div className="eyebrow">
-            <span className="gold-dot"></span>
-            <span>Diagnostic Workspace</span>
-          </div>
+        <section className="hero-panel premium-panel tech-grid relative overflow-hidden rounded-[22px] p-6 sm:p-8 lg:p-10">
+          <div className="relative z-10 space-y-6">
+            <div className="eyebrow">
+              <span className="gold-dot"></span>
+              <span>Diagnostic Workspace</span>
+            </div>
 
-          <div className="max-w-4xl space-y-4">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl leading-[0.9] text-[var(--text-primary)] display-serif">
-              Diagnose with<br />
-              <span className="font-sans text-[var(--text-primary)] text-4xl sm:text-5xl md:text-6xl tracking-[-0.04em] font-medium">
-                clarity & precision.
-              </span>
-            </h1>
-            <p className="max-w-xl text-base text-[var(--text-secondary)] leading-7">
-              Professional device diagnostics, repair intelligence, and actionable insights for the real-world issues your team needs to solve.
-            </p>
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button type="button" className="premium-button" onClick={() => onSelectCategoryAndNavigate('phone')}>
-                Start a diagnosis
-              </button>
-              <button type="button" className="premium-button-secondary" onClick={() => onSelectCategoryAndNavigate('electronics')}>
-                View categories
-              </button>
+            <div className="max-w-4xl space-y-4">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] text-[var(--text-primary)] tracking-[-0.07em] font-black">
+                Diagnose with
+                <span className="block bg-[linear-gradient(135deg,#f8fafc_0%,#c7d2fe_28%,#8b5cf6_62%,#22d3ee_100%)] bg-clip-text text-transparent">
+                  precision engineered.
+                </span>
+              </h1>
+              <p className="max-w-xl text-base text-[var(--text-secondary)] leading-7">
+                Professional device diagnostics, repair intelligence, and actionable insights for the real-world issues your team needs to solve.
+              </p>
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <button type="button" className="premium-button" onClick={() => onSelectCategoryAndNavigate('phone')}>
+                  Start a diagnosis
+                </button>
+                <button type="button" className="premium-button-secondary" onClick={() => onSelectCategoryAndNavigate('electronics')}>
+                  View categories
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="space-y-6 pt-6 border-t border-[var(--border-soft)]">
+        <section className="space-y-6 pt-2">
           <div className="flex items-center justify-between gap-4">
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
               Primary modules
@@ -118,11 +120,11 @@ export default function Home({
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4 min-w-0">
-                    <div className="text-[13px] font-semibold text-[var(--accent)] tracking-[0.14em] uppercase pt-1">
+                    <div className="text-[13px] font-semibold bg-[linear-gradient(135deg,#22d3ee,#8b5cf6)] bg-clip-text text-transparent tracking-[0.14em] uppercase pt-1">
                       {String(index + 1).padStart(2, '0')}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xl sm:text-2xl font-medium tracking-[-0.03em] text-[var(--text-primary)]">
+                      <div className="text-xl sm:text-2xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
                         {category.label}
                       </div>
                       <div className="mt-1 text-sm text-[var(--text-secondary)] leading-6 max-w-2xl">

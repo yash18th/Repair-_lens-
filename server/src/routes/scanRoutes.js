@@ -8,13 +8,18 @@ const router = express.Router();
 
 const scanSchema = z.object({
   category: z.string().min(1),
-  deviceType: z.string().min(1),
-  problemDescription: z.string().min(1),
+  deviceType: z.string().min(1).optional(),
+  deviceName: z.string().min(1).optional(),
+  issueDescription: z.string().min(1).optional(),
+  problemDescription: z.string().min(1).optional(),
   uploadedImageUrl: z.string().url().optional().or(z.literal('')),
-  diagnosis: z.string().min(1),
+  diagnosis: z.string().min(1).optional(),
   confidence: z.number().min(0).max(100).optional(),
   recommendation: z.string().optional(),
   estimatedRepairCost: z.string().optional(),
+  estimatedCost: z.string().optional(),
+  severity: z.string().optional(),
+  diySuitability: z.number().min(0).max(100).optional(),
 });
 
 router.post('/', requireAuth, async (req, res) => {
@@ -25,17 +30,25 @@ router.post('/', requireAuth, async (req, res) => {
       return errorResponse(res, parsed.error.issues[0]?.message || 'Invalid scan data', 400);
     }
 
+    const issueDescription = parsed.data.issueDescription || parsed.data.problemDescription || 'Diagnostic issue observation';
+    const diagnosis = parsed.data.diagnosis || parsed.data.problemDescription || 'Diagnostic completed';
+    const deviceType = parsed.data.deviceType || parsed.data.deviceName || 'Device';
     const scan = await prisma.scan.create({
       data: {
         userId: req.user.id,
         category: parsed.data.category,
-        deviceType: parsed.data.deviceType,
-        problemDescription: parsed.data.problemDescription,
+        deviceType,
+        deviceName: parsed.data.deviceName || deviceType,
+        issueDescription,
+        problemDescription: parsed.data.problemDescription || issueDescription,
         uploadedImageUrl: parsed.data.uploadedImageUrl || null,
-        diagnosis: parsed.data.diagnosis,
+        diagnosis,
+        severity: parsed.data.severity || 'Medium',
         confidence: parsed.data.confidence ?? null,
         recommendation: parsed.data.recommendation || null,
-        estimatedRepairCost: parsed.data.estimatedRepairCost || null,
+        estimatedRepairCost: parsed.data.estimatedRepairCost || parsed.data.estimatedCost || null,
+        estimatedCost: parsed.data.estimatedCost || parsed.data.estimatedRepairCost || null,
+        diySuitability: parsed.data.diySuitability ?? null,
       },
     });
 
@@ -53,8 +66,22 @@ router.get('/', requireAuth, async (req, res) => {
     });
 
     return successResponse(res, { scans });
-  } catch (error) {
+  }
+  catch (error) {
     return errorResponse(res, 'Something went wrong while loading scans', 500);
+  }
+});
+
+router.get('/history', requireAuth, async (req, res) => {
+  try {
+    const scans = await prisma.scan.findMany({
+      where: { userId: req.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return successResponse(res, { history: scans, scans });
+  } catch (error) {
+    return errorResponse(res, 'Something went wrong while loading your diagnostic history', 500);
   }
 });
 
