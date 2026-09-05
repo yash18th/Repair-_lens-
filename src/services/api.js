@@ -489,102 +489,129 @@ export async function analyzeImage(anglePhotos, presetId = null, selectedCategor
       : 'http://localhost:4000'
   );
 
+  const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+    if (!file) return resolve('');
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Failed to read uploaded image.'));
+    reader.readAsDataURL(file);
+  });
+
   try {
     const firstPhoto = Object.values(anglePhotos || {}).find(Boolean);
+    const firstImageFile = firstPhoto?.file || null;
+    const imageDataUrl = firstImageFile ? await readFileAsDataUrl(firstImageFile) : (firstPhoto?.previewUrl || '');
+
     const payload = {
-      filename: firstPhoto?.name || 'uploaded-damage-image',
+      fileName: firstPhoto?.name || 'uploaded-damage-image',
       category: selectedCategory,
-      imageUrl: firstPhoto?.previewUrl || ''
+      userDescription: `Repair diagnosis for ${selectedCategory} device`,
+      deviceBrand: '',
+      deviceModel: '',
+      imageDataUrl
     };
 
-    const response = await fetch(`${apiBase}/analyze`, {
+    const response = await fetch(`${apiBase}/api/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: payload })
+      body: JSON.stringify(payload)
     });
 
     if (response.ok) {
       const data = await response.json();
-      const modelResult = data.result || {};
+      const diagnosis = data.diagnosis || data.result || {};
 
-      return {
-        success: true,
-        isMockData: false,
-        disclaimer: 'AI diagnosis generated from the deployed repair damage dataset and model pipeline.',
-        timestamp: new Date().toISOString(),
-        presetUsed: presetId || 'dataset-model',
-        problemTitle: modelResult.problemTitle,
-        problemDescription: `The uploaded image appears to match a ${modelResult.category} damage profile. ${modelResult.repairAdvice}`,
-        severity: modelResult.severity,
-        severityLevel: modelResult.severity === 'High' ? 3 : modelResult.severity === 'Medium' ? 2 : 1,
-        detectedDamage: modelResult.problemTitle,
-        likelyCause: modelResult.likelyCause,
-        evidence: [
-          'Dataset-backed classification matched the visual damage pattern.',
-          `Model confidence: ${(modelResult.confidence * 100).toFixed(0)}%`,
-          `Dataset source: ${modelResult.dataset}`
-        ],
-        whatWeCannotSee: 'The model is trained on image metadata and category patterns; a full production vision model would improve precision with labeled image embeddings.',
-        extractedModel: {
-          brand: 'Dataset Model',
-          modelName: 'RepairLens Damage Classifier',
-          modelNumber: modelResult.modelVersion || 'v1.0.0',
-          serial: 'Deployed via API',
-          specs: 'Category classification across phone, electronics, auto, appliance, and general repair cases.'
-        },
-        possibleCause: modelResult.likelyCause,
-        risksIfUnfixed: [
-          'The issue may worsen if ignored.',
-          'Repair cost and downtime are likely to increase over time.'
-        ],
-        solutionTitle: 'Follow model recommended repair path',
-        solutionDescription: modelResult.repairAdvice,
-        estimatedCost: { min: 500, max: 4000, currency: '$', formatted: '$500 - $4,000' },
-        costIntelligence: {
-          totalEstimate: { min: 500, max: 4000 },
-          confidenceLabel: modelResult.confidence > 0.85 ? 'High' : 'Medium',
-          breakdown: [
-            { label: 'Model Classification Estimate', amount: 500 },
-            { label: 'Repair Labor / Parts', amount: 1600 },
-            { label: 'Service / Diagnostics', amount: 700 },
-            { label: 'Estimated Total', amount: 2800, isTotal: true }
+      if (diagnosis.category || diagnosis.issue || diagnosis.damage) {
+        const severity = diagnosis.severity || 'Medium';
+        const normalizedConfidence = typeof diagnosis.confidence === 'number'
+          ? diagnosis.confidence
+          : 0.78;
+        const estimate = diagnosis.estimatedRepairCost || { min: 2500, max: 12000, currency: 'INR', label: '₹2,500–₹12,000' };
+        const issueTitle = diagnosis.issue || diagnosis.damage || 'Repair diagnosis completed';
+
+        return {
+          success: true,
+          isMockData: false,
+          disclaimer: 'AI diagnosis generated from the live RepairLens backend analysis pipeline.',
+          timestamp: new Date().toISOString(),
+          presetUsed: presetId || 'live-backend-diagnosis',
+          problemTitle: issueTitle,
+          problemDescription: diagnosis.damage || diagnosis.recommendedSolution || 'The uploaded image was analyzed and a repair path has been generated.',
+          severity,
+          severityLevel: severity === 'High' ? 3 : severity === 'Medium' ? 2 : 1,
+          detectedDamage: diagnosis.damage || issueTitle,
+          likelyCause: diagnosis.damage || 'Visual structure indicates a likely repair need.',
+          evidence: [
+            `Category inferred: ${diagnosis.category || selectedCategory}`,
+            `Confidence: ${(normalizedConfidence * 100).toFixed(0)}%`,
+            `Issue classification: ${diagnosis.issue || 'diagnostic review'}`
           ],
-          localPrices: []
-        },
-        recommendation: 'Deploy AI model route',
-        complexity: 'Medium',
-        diySuitabilityScore: 70,
-        timeEstimate: '1 - 3 hours',
-        toolsRequired: ['AI image analysis', 'Repair assessment workflow'],
-        steps: [
-          { title: 'Run model classification', description: 'The image is classified against the curated repair dataset.' },
-          { title: 'Confirm the damage category', description: 'Verify the detected problem on the predicted product class.' },
-          { title: 'Start repair workflow', description: 'Use the recommended repair path and cost estimate.' }
-        ],
-        confidenceEngine: {
-          diagnosisConfidence: Math.round((modelResult.confidence || 0.8) * 100),
-          confidenceLevel: (modelResult.confidence || 0.8) >= 0.85 ? 'HIGH' : 'MEDIUM',
-          evidenceQuality: 'MODEL-BASED',
-          unknowns: 'This dataset model is best for category classification and damage type detection, not fine-grained pixel-level defect segmentation.',
-          isLowConfidence: false,
-          competingHypotheses: null
-        },
-        damageMap: {
-          totalRegionsDetected: 1,
-          imageUrl: firstPhoto?.previewUrl || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&q=80&w=800',
-          regions: [
-            {
-              id: 'model-region-1',
-              label: 'AI Predicted Damage Zone',
-              type: 'primary',
-              severity: modelResult.severity,
-              position: { top: '30%', left: '25%', width: '50%', height: '40%' },
-              description: `Detected as ${modelResult.problemTitle}.`,
-              actionRequired: modelResult.repairAdvice
-            }
-          ]
-        }
-      };
+          whatWeCannotSee: 'A photo-based AI diagnosis is highly useful for likely fault identification, but exact internal condition should still be verified by a qualified technician.',
+          extractedModel: {
+            brand: diagnosis.brand || 'Unknown',
+            modelName: diagnosis.model || 'Unknown device',
+            modelNumber: diagnosis.model || 'Detected from uploaded image',
+            serial: 'Backend AI evaluation',
+            specs: diagnosis.category || selectedCategory
+          },
+          possibleCause: diagnosis.damage || diagnosis.issue || 'Likely repair condition detected from the uploaded image.',
+          risksIfUnfixed: [
+            'The issue may worsen if left untreated.',
+            'Repair cost and downtime may increase over time.'
+          ],
+          solutionTitle: 'Follow the recommended repair workflow',
+          solutionDescription: diagnosis.recommendedSolution || 'Perform the recommended repair and validate the fix with a technician.',
+          estimatedCost: {
+            min: estimate.min || 2500,
+            max: estimate.max || 12000,
+            currency: estimate.currency || 'INR',
+            formatted: estimate.label || `₹${(estimate.min || 2500).toLocaleString('en-IN')} - ₹${(estimate.max || 12000).toLocaleString('en-IN')}`
+          },
+          costIntelligence: {
+            totalEstimate: { min: estimate.min || 2500, max: estimate.max || 12000 },
+            confidenceLabel: normalizedConfidence > 0.85 ? 'High' : 'Medium',
+            breakdown: [
+              { label: 'Diagnosis Estimate', amount: estimate.min || 2500 },
+              { label: 'Repair Labor + Parts', amount: Math.round(((estimate.max || 12000) - (estimate.min || 2500)) * 0.6 + (estimate.min || 2500)) },
+              { label: 'Estimated Total', amount: estimate.max || 12000, isTotal: true }
+            ],
+            localPrices: []
+          },
+          recommendation: diagnosis.recommendedSolution || 'Qualified repair workflow',
+          complexity: 'Medium',
+          diySuitabilityScore: 60,
+          timeEstimate: '1 - 3 hours',
+          toolsRequired: ['Correct diagnosis', 'Repair assessment workflow'],
+          steps: [
+            { title: 'Confirm defect classification', description: 'Review the AI diagnosis and damaged component classification.' },
+            { title: 'Prepare repair plan', description: 'Use the recommended fix and estimate to plan the service.' },
+            { title: 'Validate repair', description: 'Test the repaired device after installation.' }
+          ],
+          confidenceEngine: {
+            diagnosisConfidence: Math.round(normalizedConfidence * 100),
+            confidenceLevel: normalizedConfidence >= 0.85 ? 'HIGH' : 'MEDIUM',
+            evidenceQuality: 'GOOD',
+            unknowns: 'The diagnosis is image-driven and should be confirmed during final service validation.',
+            isLowConfidence: normalizedConfidence < 0.6,
+            competingHypotheses: null
+          },
+          damageMap: {
+            totalRegionsDetected: 1,
+            imageUrl: firstPhoto?.previewUrl || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&q=80&w=800',
+            regions: [
+              {
+                id: 'backend-region-1',
+                label: 'AI detected issue area',
+                type: 'primary',
+                severity,
+                position: { top: '30%', left: '25%', width: '50%', height: '40%' },
+                description: diagnosis.damage || issueTitle,
+                actionRequired: diagnosis.recommendedSolution || 'Follow the repair guidance and validate the fix.'
+              }
+            ]
+          }
+        };
+      }
     }
   } catch (error) {
     console.warn('Model API failed, falling back to mock diagnostic flow:', error.message);
