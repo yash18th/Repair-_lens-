@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import { useAuth } from './context/AuthContext';
 import { analyzeImage } from './services/api';
+import { getCurrentPositionPromise } from './services/locationService';
 
 const INITIAL_ANGLES = {
   closeup: null,
@@ -251,9 +252,9 @@ function RepairLensDashboard() {
     setIsAnalyzing(true);
 
     try {
-      const result = await analyzeImage(updatedAngles, null, selectedCategory);
+      const location = await getCurrentPositionPromise().catch(() => null);
+      const result = await analyzeImage(updatedAngles, null, selectedCategory, location);
       setAnalysisResult(result);
-      await saveDiagnosisHistory(result, selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {
@@ -272,7 +273,6 @@ function RepairLensDashboard() {
     try {
       const result = await analyzeImage(presetAngles, presetId, category);
       setAnalysisResult(result);
-      await saveDiagnosisHistory(result, category || selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {
@@ -363,9 +363,9 @@ function RepairLensDashboard() {
 
     setIsAnalyzing(true);
     try {
-      const result = await analyzeImage(angles, presetUsed, selectedCategory);
+      const location = await getCurrentPositionPromise().catch(() => null);
+      const result = await analyzeImage(angles, presetUsed, selectedCategory, location);
       setAnalysisResult(result);
-      await saveDiagnosisHistory(result, selectedCategory);
       setIsAnalyzing(false);
       setCurrentView('results');
     } catch (error) {
@@ -397,7 +397,7 @@ function RepairLensDashboard() {
       return;
     }
 
-    if (tabId === 'phone' || tabId === 'electronics' || tabId === 'appliance') {
+    if (tabId === 'phone' || tabId === 'computer' || tabId === 'electronics' || tabId === 'appliance' || tabId === 'vehicles' || tabId === 'other') {
       setSelectedCategory(tabId);
       setAngles(INITIAL_ANGLES);
       setAnalysisResult(null);
@@ -481,7 +481,7 @@ function RepairLensDashboard() {
         />
 
         <main className="flex-1 bg-[var(--bg-primary)]">
-          {(activeTab === 'studio' || activeTab === 'phone' || activeTab === 'electronics' || activeTab === 'appliance') && (
+          {(activeTab === 'studio' || activeTab === 'phone' || activeTab === 'computer' || activeTab === 'electronics' || activeTab === 'appliance' || activeTab === 'vehicles' || activeTab === 'other') && (
             currentView === 'results' ? (
               <Results
                 analysisResult={analysisResult}
