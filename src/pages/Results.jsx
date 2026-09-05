@@ -37,9 +37,9 @@ export default function Results({ analysisResult, angles, onReset, onUploadTarge
         </button>
 
         <div className="flex items-center space-x-3 text-xs text-slate-400">
-          <span>Report ID: <span className="font-mono text-slate-200">#RL-MULTI-{Math.floor(100000 + Math.random() * 900000)}</span></span>
+          <span>Report ID: <span className="font-mono text-slate-200">#{analysisResult.reportId || 'RL-REPORT'}</span></span>
           <span>•</span>
-          <span>Angles Processed: <span className="font-bold text-purple-400">{uploadedAngles.length} Photos</span></span>
+          <span>Images analyzed: <span className="font-bold text-purple-400">{analysisResult.imageCount || uploadedAngles.length}</span></span>
         </div>
       </div>
 

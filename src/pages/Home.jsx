@@ -116,7 +116,7 @@ export default function Home({
           </div>
 
           <div className="space-y-4">
-            {ITEM_CATEGORIES.filter((category) => ['phone', 'electronics', 'appliance'].includes(category.id)).map((category, index) => (
+            {ITEM_CATEGORIES.map((category, index) => (
               <button
                 key={category.id}
                 type="button"
@@ -242,4 +242,3 @@ export default function Home({
     </div>
   );
 }
-
