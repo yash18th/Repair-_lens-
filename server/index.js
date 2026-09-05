@@ -10,7 +10,6 @@ import searchRoutes from './src/routes/searchRoutes.js';
 import savedRoutes from './src/routes/savedRoutes.js';
 import profileRoutes from './src/routes/profileRoutes.js';
 import diagnosisRoutes from './src/routes/diagnosisRoutes.js';
-import { analyzeUploadedImage } from './src/services/diagnosisAI.js';
 import { requireAuth } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,43 +34,6 @@ app.use('/api/diagnosis', diagnosisRoutes);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'repairlens-model-api' });
-});
-
-app.post('/api/analyze', async (req, res) => {
-  try {
-    const payload = req.body || {};
-    const source = payload.imageDataUrl || payload.image?.dataUrl || payload.image?.previewUrl || payload.image?.imageUrl || '';
-
-    if (!source) {
-      return res.status(400).json({ success: false, message: 'No image was provided for analysis.' });
-    }
-
-    const diagnosis = await analyzeUploadedImage({
-      imageDataUrl: source,
-      fileName: payload.fileName || payload.image?.name || 'uploaded-image',
-      category: payload.category || payload.image?.category,
-      userDescription: payload.userDescription || payload.description || '',
-      deviceBrand: payload.deviceBrand || payload.brand || '',
-      deviceModel: payload.deviceModel || payload.model || '',
-      latitude: payload.latitude,
-      longitude: payload.longitude,
-    });
-
-    return res.json({
-      success: true,
-      isMockData: false,
-      source: 'repairlens-ai-service',
-      model: 'repairlens-ai-v1',
-      result: diagnosis,
-      diagnosis,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: 'Image analysis failed',
-      detail: error.message
-    });
-  }
 });
 
 app.post(['/api/nearby', '/api/nearby-shops'], requireAuth, async (req, res) => {
