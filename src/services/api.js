@@ -22,5 +22,24 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
   const response = await fetch(`${apiBase()}/api/diagnosis/analyze`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: uploaded, category: categoryContext[selectedCategory] || 'Other', latitude: location?.lat, longitude: location?.lng }) });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.message || 'AI analysis failed.');
-  return { success: true, ...payload, imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl };
+  const diagnosis = payload.diagnosis;
+  const price = diagnosis.price;
+  const primary = diagnosis.issues[0];
+  const confidence = Math.round(diagnosis.confidence * 100);
+  return {
+    success: true, reportId: payload.reportId, scanId: payload.scanId, rawDiagnosis: diagnosis,
+    problemTitle: primary?.issue || 'Image evidence is insufficient for a confident diagnosis',
+    problemDescription: primary?.damageDescription || diagnosis.uncertainty,
+    severity: diagnosis.severity, detectedDamage: primary?.issue, likelyCause: diagnosis.uncertainty,
+    evidence: diagnosis.visualEvidence, whatWeCannotSee: diagnosis.uncertainty,
+    extractedModel: { brand: diagnosis.brand, modelName: diagnosis.model, modelNumber: diagnosis.deviceType, specs: diagnosis.category },
+    possibleCause: diagnosis.uncertainty, risksIfUnfixed: [], solutionTitle: diagnosis.recommendedSolution,
+    solutionDescription: diagnosis.recommendedSolution, recommendation: diagnosis.recommendedSolution,
+    complexity: diagnosis.repairComplexity, timeEstimate: diagnosis.estimatedDuration, toolsRequired: [], steps: diagnosis.repairBlueprint,
+    estimatedCost: { min: price.estimatedTotalMin, max: price.estimatedTotalMax, currency: 'INR', formatted: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}` },
+    costIntelligence: { totalEstimate: { min: price.estimatedTotalMin, max: price.estimatedTotalMax }, breakdown: [{ label: 'Parts', amount: price.partsCostMin }, { label: 'Labour', amount: price.laborCostMin }, { label: 'Estimated Total', amount: price.estimatedTotalMin, isTotal: true }], localPrices: [], note: 'Estimated repair cost only. Final price varies by model, parts quality, shop, and physical inspection.' },
+    confidenceEngine: { diagnosisConfidence: confidence, confidenceLevel: diagnosis.status, evidenceQuality: diagnosis.status === 'LOW_CONFIDENCE' ? 'LIMITED' : 'GOOD', unknowns: diagnosis.uncertainty, isLowConfidence: diagnosis.status === 'LOW_CONFIDENCE' },
+    damageMap: diagnosis.damageRegions.length ? { imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl, totalRegionsDetected: diagnosis.damageRegions.length, regions: diagnosis.damageRegions.map((region, index) => ({ id: `region-${index}`, label: region.label, type: index ? 'secondary' : 'primary', description: region.description, actionRequired: primary?.recommendedSolution, position: { top: `${region.box.y * 100}%`, left: `${region.box.x * 100}%`, width: `${region.box.width * 100}%`, height: `${region.box.height * 100}%` } })) } : null,
+    category: diagnosis.category, imageCount: diagnosis.imageCount, issueEstimates: diagnosis.issues
+  };
 }
