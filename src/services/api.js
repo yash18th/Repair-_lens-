@@ -13,7 +13,11 @@ export const ANGLE_TYPES = [
   { id: 'altAngle', label: 'Side angle', icon: '📐', description: 'Depth, side, or another damaged-area angle' }
 ];
 const categoryContext = Object.fromEntries(ITEM_CATEGORIES.map(item => [item.id, item.label]));
-const apiBase = () => import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const apiBase = () => import.meta.env.VITE_API_BASE_URL || (
+  typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? ''
+    : 'http://localhost:4000'
+);
 const toDataUrl = file => new Promise((resolve, reject) => { if (!file) return resolve(''); const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error('Could not read an uploaded image.')); reader.readAsDataURL(file); });
 
 export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location) {
