@@ -371,6 +371,7 @@ function RepairLensDashboard() {
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to analyze images:', error);
+      setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
       setIsAnalyzing(false);
     }
   };
