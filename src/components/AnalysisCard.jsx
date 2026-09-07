@@ -90,6 +90,53 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
     );
   }
 
+  // Dedicated Service / API Error UI
+  if (
+    result.status === 'service_error' ||
+    result.isServiceError ||
+    (result.rejectionReason && (
+      result.rejectionReason.includes('Gemini API') ||
+      result.rejectionReason.includes('API key') ||
+      result.rejectionReason.includes('service error')
+    ))
+  ) {
+    return (
+      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-violet-500/40 bg-gradient-to-b from-slate-950/95 via-violet-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center shadow-lg shadow-violet-950/50">
+          <Activity className="w-8 h-8 text-violet-400 animate-pulse" />
+        </div>
+
+        <div className="space-y-3 max-w-lg mx-auto">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
+            <span>AI Diagnostic Service Notice</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            AI Service Reconnecting
+          </h3>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {result.rejectionReason || 'The AI diagnostic vision service is initializing endpoints or reconnecting with Google Gemini API.'}
+          </p>
+
+          <p className="text-xs text-slate-400 pt-1">
+            Your image is valid. Please retry now to connect with the updated endpoint.
+          </p>
+        </div>
+
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={onReset}
+            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Retry Diagnosis</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // STAGE 1: Dedicated Insufficient Visual Evidence UI
   if (result.status === 'insufficient_evidence' || result.isInsufficientEvidence) {
     return (
