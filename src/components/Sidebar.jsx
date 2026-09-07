@@ -12,6 +12,7 @@ import {
   Monitor,
   Plug,
   Car,
+  Package,
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchChange, mobileOpen, onCloseMobile }) {
@@ -22,12 +23,20 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
     { id: 'electronics', label: 'Electronics & PCB', icon: Monitor, description: 'Board diagnostics' },
     { id: 'appliance', label: 'Home Appliance', icon: Plug, description: 'Electrical systems' },
     { id: 'vehicles', label: 'Vehicles', icon: Car, description: 'Visible vehicle damage' },
+    { id: 'other', label: 'Other', icon: Package, description: 'Other repairable items' },
     { id: 'history', label: 'Scan History', icon: History },
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const isCategoryItem = (id) => ['phone', 'computer', 'electronics', 'appliance', 'vehicles'].includes(id);
+  const isCategoryItem = (id) => ['phone', 'computer', 'electronics', 'appliance', 'vehicles', 'other'].includes(id);
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const filteredNavItems = NAV_ITEMS.filter((item) => {
+    if (!normalizedSearch) return true;
+    return [item.label, item.description, item.id]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(normalizedSearch));
+  });
 
   return (
     <>
@@ -74,12 +83,52 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="SEARCH DIAGNOSTICS..."
+              aria-label="Search diagnostics and navigation options"
+              aria-expanded={Boolean(normalizedSearch)}
+              aria-controls="diagnostic-search-options"
               className="w-full pl-9 pr-4 py-2.5 bg-[rgba(15,23,42,0.8)] border border-[var(--border-soft)] text-[10px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] uppercase tracking-[0.16em] focus:outline-none focus:border-[rgba(99,102,241,0.5)] transition-all rounded-lg"
             />
+            {normalizedSearch && (
+              <div
+                id="diagnostic-search-options"
+                className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-y-auto rounded-xl border border-[var(--border-soft)] bg-[rgba(10,15,26,0.98)] p-2 shadow-[0_18px_40px_rgba(2,6,23,0.55)]"
+              >
+                {filteredNavItems.length > 0 ? (
+                  filteredNavItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          onTabChange(item.id);
+                          onSearchChange('');
+                        }}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06]"
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />
+                        <span className="min-w-0">
+                          <span className="block truncate text-xs font-medium text-[var(--text-primary)]">{item.label}</span>
+                          {item.description && (
+                            <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.08em] text-[var(--text-secondary)]">
+                              {item.description}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] text-[var(--text-secondary)]">
+                    No matching options
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <nav className="space-y-2.5 pt-2">
-            {NAV_ITEMS.map((item) => {
+            {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               const categoryItem = isCategoryItem(item.id);
