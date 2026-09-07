@@ -80,6 +80,66 @@ const DEFAULT_DIAGNOSTIC_INSIGHTS = {
   }
 };
 
+function buildItemizedParts(category, partsTotalMin, partsTotalMax) {
+  const normCat = String(category || '').toLowerCase();
+  let partsDef = [];
+
+  if (normCat.includes('phone') || normCat.includes('tablet')) {
+    partsDef = [
+      { name: 'Replacement OLED / AMOLED Display Assembly', desc: 'Active touch matrix & display panel', share: 0.72, grade: 'OEM Spec' },
+      { name: 'Tempered Oleophobic Outer Cover Glass', desc: 'Impact-resistant surface glass layer', share: 0.10, grade: 'Corning Spec' },
+      { name: 'Optically Clear Adhesive (OCA) & Frame Seal', desc: 'Factory liquid-optic bonding tape', share: 0.09, grade: 'Precision Seal' },
+      { name: 'Internal Bezel Cushion & Dust Gasket', desc: 'Perimeter vibration damping gasket', share: 0.09, grade: 'Structural' }
+    ];
+  } else if (normCat.includes('laptop') || normCat.includes('computer')) {
+    partsDef = [
+      { name: 'Replacement IPS / OLED Display Panel', desc: 'Full HD/4K resolution matrix panel', share: 0.65, grade: 'A+ Grade' },
+      { name: 'Display Left & Right Hinge Clutches', desc: 'Reinforced metal torque hinge brackets', share: 0.16, grade: 'High Tensile' },
+      { name: 'Internal eDP 40-Pin Video Flex Cable', desc: 'High-speed LVDS/eDP signal harness', share: 0.12, grade: 'Shielded' },
+      { name: 'Brass Screw Standoffs & Thread Inserts', desc: 'Chassis mounting retention hardware', share: 0.07, grade: 'CNC Brass' }
+    ];
+  } else if (normCat.includes('electronic') || normCat.includes('pcb')) {
+    partsDef = [
+      { name: 'Power Management IC / MOSFET Package', desc: 'High-efficiency switching regulator chip', share: 0.50, grade: 'Silicon OEM' },
+      { name: 'High-Temp SMD Ceramic Capacitors (Set of 4)', desc: 'Low-ESR voltage filter capacitors', share: 0.18, grade: 'Automotive Grade' },
+      { name: '0.1mm Enamel Jumper Wire & UV Solder Mask', desc: 'Copper trace rebuilding materials', share: 0.16, grade: 'Dielectric 200°C' },
+      { name: 'Thermal Conductive Interface Pad & Clip', desc: 'Phase-change heat dissipation pad', share: 0.16, grade: '12.8 W/mK' }
+    ];
+  } else if (normCat.includes('vehicle') || normCat.includes('auto')) {
+    partsDef = [
+      { name: 'Bumper Fascia Correction & Reshaping Compound', desc: 'High-impact thermoplastic repair filler', share: 0.38, grade: 'Automotive Standard' },
+      { name: 'OEM Color-Matched Paint Basecoat (200ml)', desc: 'Computer-formulated exact pigment', share: 0.28, grade: 'Factory Match' },
+      { name: '2K Polyurethane High-Gloss Clearcoat', desc: 'UV-resistant protective topcoat', share: 0.18, grade: '2K Urethane' },
+      { name: 'Panel Retention Clips & Mounting Rivets (Pack)', desc: 'OEM bumper retention fasteners', share: 0.16, grade: 'Nylon 66' }
+    ];
+  } else {
+    partsDef = [
+      { name: 'Perimeter Molded Rubber Sealing Gasket', desc: 'Compression elastomer sealing ring', share: 0.55, grade: 'EPDM Rubber' },
+      { name: 'Door Latch Catch & Mechanical Pivot Hinge', desc: 'Reinforced mechanical closure latch', share: 0.25, grade: 'Stainless / POM' },
+      { name: 'High-Adhesion Silicone Sealant & Fasteners', desc: 'Waterproof structural bonding agent', share: 0.20, grade: 'RTV Silicone' }
+    ];
+  }
+
+  let allocated = 0;
+  const parts = partsDef.map((item, idx) => {
+    let amt;
+    if (idx === partsDef.length - 1) {
+      amt = Math.max(80, partsTotalMin - allocated);
+    } else {
+      amt = Math.round(partsTotalMin * item.share);
+      allocated += amt;
+    }
+    return {
+      name: item.name,
+      description: item.desc,
+      grade: item.grade,
+      amount: amt
+    };
+  });
+
+  return parts;
+}
+
 export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location) {
   const uploaded = await Promise.all(Object.entries(anglePhotos || {}).filter(([, photo]) => photo?.file).map(async ([slot, photo]) => ({ slot, name: photo.name, dataUrl: await toDataUrl(photo.file) })));
   if (!uploaded.length) throw new Error('Upload at least one image. Sample images are not used for AI diagnosis.');
@@ -120,6 +180,45 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
     : defaults.risksIfUnfixed;
   const urgency = diagnosis.urgency || primary.urgency || defaults.urgency;
 
+  const itemizedParts = buildItemizedParts(selectedCategory, price.partsCostMin, price.partsCostMax);
+
+  const breakdown = [
+    ...itemizedParts.map(part => ({
+      label: part.name,
+      sublabel: part.description,
+      grade: part.grade,
+      amount: part.amount,
+      isPart: true
+    })),
+    { label: 'Subtotal: Parts & Materials', amount: price.partsCostMin, isSubtotal: true },
+    { label: 'Labour & Precision Bench Service', sublabel: 'Certified technician installation & calibration', amount: price.laborCostMin, isLabour: true },
+    { label: 'Estimated Total', amount: price.estimatedTotalMin, isTotal: true }
+  ];
+
+  const localPrices = [
+    {
+      type: 'authorized',
+      label: 'Authorized Service Centre',
+      min: Math.round(price.estimatedTotalMin * 1.3),
+      max: Math.round(price.estimatedTotalMax * 1.45),
+      note: '100% Genuine OEM parts, preservation of factory warranty, water-resistance recertified.'
+    },
+    {
+      type: 'garage',
+      label: 'Independent Verified Shop',
+      min: price.estimatedTotalMin,
+      max: Math.round(price.estimatedTotalMin * 1.22),
+      note: 'OEM-grade parts, same-day bench service, 30-day warranty on parts and labour.'
+    },
+    {
+      type: 'diy',
+      label: 'DIY Self-Repair Kit',
+      min: Math.round(price.partsCostMin * 0.95),
+      max: Math.round(price.partsCostMin * 1.15),
+      note: 'Includes replacement parts, precision opening tools, and adhesive tape. Zero labour cost.'
+    }
+  ];
+
   return {
     success: true, reportId: payload.reportId, scanId: payload.scanId, rawDiagnosis: diagnosis,
     problemTitle: primary?.issue || diagnosis.problemTitle || 'Visual Damage & Component Defect Detected',
@@ -145,7 +244,15 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
     toolsRequired: ['Precision Screwdriver Set', 'Anti-Static Spudger & Suction Cup', 'Thermal Heating Pad / Gun', 'Perimeter Adhesive Seal Gasket'],
     steps: diagnosis.repairBlueprint || [],
     estimatedCost: { min: price.estimatedTotalMin, max: price.estimatedTotalMax, currency: 'INR', formatted: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}` },
-    costIntelligence: { totalEstimate: { min: price.estimatedTotalMin, max: price.estimatedTotalMax }, breakdown: [{ label: 'Parts', amount: price.partsCostMin }, { label: 'Labour', amount: price.laborCostMin }, { label: 'Estimated Total', amount: price.estimatedTotalMin, isTotal: true }], localPrices: [], note: 'Estimated repair cost only. Final price varies by model, parts quality, shop, and physical inspection.' },
+    costIntelligence: {
+      totalEstimate: { min: price.estimatedTotalMin, max: price.estimatedTotalMax },
+      breakdown,
+      itemizedParts,
+      partsTotal: price.partsCostMin,
+      laborTotal: price.laborCostMin,
+      localPrices,
+      note: 'Estimated repair cost only. Final price varies by model, parts quality, shop, and physical inspection.'
+    },
     confidenceEngine: { diagnosisConfidence: confidence, confidenceLevel: diagnosis.status, evidenceQuality: diagnosis.status === 'LOW_CONFIDENCE' ? 'LIMITED' : 'GOOD', unknowns: diagnosis.uncertainty, isLowConfidence: diagnosis.status === 'LOW_CONFIDENCE' },
     damageMap: diagnosis.damageRegions && diagnosis.damageRegions.length ? { imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl, totalRegionsDetected: diagnosis.damageRegions.length, regions: diagnosis.damageRegions.map((region, index) => ({ id: `region-${index}`, label: region.label, type: index ? 'secondary' : 'primary', description: region.description, actionRequired: primary?.recommendedSolution, position: { top: `${region.box.y * 100}%`, left: `${region.box.x * 100}%`, width: `${region.box.width * 100}%`, height: `${region.box.height * 100}%` } })) } : null,
     category: diagnosis.category, imageCount: diagnosis.imageCount, issueEstimates: diagnosis.issues
