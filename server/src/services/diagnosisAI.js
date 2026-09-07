@@ -27,14 +27,15 @@ export function validateImageClassification(pass1) {
 export function validateCategoryMatch(pass1, selectedCategory) {
   const normCat = String(selectedCategory || '').toLowerCase();
   const detected = String(pass1.detected_object || '').toLowerCase();
+  const desc = String(pass1.object_description || '').toLowerCase();
 
   const validMappings = {
-    phone: ['smartphone', 'tablet', 'mobile phone', 'phone'],
-    computer: ['laptop', 'desktop/computer', 'computer', 'pc', 'monitor'],
-    electronics: ['pcb/electronic board', 'circuit board', 'pcb', 'electronics'],
-    appliance: ['home appliance', 'appliance'],
-    vehicles: ['vehicle', 'car', 'automobile', 'bike', 'motorcycle', 'truck'],
-    other: ['smartphone', 'tablet', 'laptop', 'desktop/computer', 'pcb/electronic board', 'home appliance', 'vehicle', 'other']
+    phone: ['smartphone', 'tablet', 'mobile phone', 'phone', 'cell phone', 'iphone', 'android', 'handset', 'mobile', 'screen', 'display'],
+    computer: ['laptop', 'desktop/computer', 'computer', 'pc', 'monitor', 'macbook', 'desktop'],
+    electronics: ['pcb/electronic board', 'circuit board', 'pcb', 'electronics', 'circuit', 'board', 'motherboard'],
+    appliance: ['home appliance', 'appliance', 'microwave', 'refrigerator', 'washing machine'],
+    vehicles: ['vehicle', 'car', 'automobile', 'bike', 'motorcycle', 'truck', 'van', 'auto'],
+    other: ['smartphone', 'tablet', 'laptop', 'desktop/computer', 'pcb/electronic board', 'home appliance', 'vehicle', 'other', 'electronic', 'device', 'hardware']
   };
 
   let categoryKey = 'phone';
@@ -46,15 +47,28 @@ export function validateCategoryMatch(pass1, selectedCategory) {
   else categoryKey = 'other';
 
   const allowedObjects = validMappings[categoryKey] || [];
-  const matches = allowedObjects.some(obj => detected.includes(obj));
+  const matches = allowedObjects.some(obj => detected.includes(obj) || desc.includes(obj));
 
-  if (!matches || pass1.category_match === false) {
+  // Reject clearly unrelated non-device objects unconditionally
+  const unrelatedObjects = ['person', 'human', 'face', 'clothing', 'food', 'animal', 'dog', 'cat', 'plant', 'tree', 'landscape', 'mountain', 'sky', 'building', 'street', 'road'];
+  const isClearlyUnrelated = unrelatedObjects.some(unrelated => detected.includes(unrelated)) && !allowedObjects.some(obj => detected.includes(obj));
+
+  if (isClearlyUnrelated || (!matches && pass1.category_match === false)) {
     return {
       valid: false,
       status: 'invalid_image',
       reason: pass1.rejection_reason || `The uploaded image shows ${pass1.object_description || pass1.detected_object || 'an unrelated object'} and does not match the selected category (${selectedCategory}).`
     };
   }
+
+  if (!matches) {
+    return {
+      valid: false,
+      status: 'invalid_image',
+      reason: pass1.rejection_reason || `The uploaded image shows ${pass1.object_description || pass1.detected_object || 'an unrecognized object'} and does not match the selected category (${selectedCategory}).`
+    };
+  }
+
   return { valid: true };
 }
 
@@ -118,15 +132,28 @@ export function validateDiagnosisConsistency(pass1, pass2) {
   return { valid: true };
 }
 
-async function callGemini(parts, systemInstruction, signal) {
-  const model = process.env.GEMINI_VISION_MODEL || 'gemini-2.5-flash';
-  const apiKey = process.env.GEMINI_API_KEY;
+function resolveModel() {
+  const envModel = process.env.GEMINI_VISION_MODEL;
+  if (!envModel || envModel.includes('2.5')) {
+    return 'gemini-1.5-flash';
+  }
+  return envModel;
+}
 
+async function callGemini(parts, systemInstruction, signal) {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not configured on the backend.');
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const primaryModel = resolveModel();
+  const candidateModels = [
+    primaryModel,
+    'gemini-1.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-pro'
+  ];
+  const modelsToTry = Array.from(new Set(candidateModels));
 
   const body = {
     contents: [
@@ -147,23 +174,11 @@ async function callGemini(parts, systemInstruction, signal) {
     };
   }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey
-    },
-    body: JSON.stringify(body),
-    signal
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    // Fallback model if primary 404s
-    if (response.status === 404 && model !== 'gemini-1.5-flash') {
-      console.warn(`[DiagnosisAI] Model ${model} returned 404, attempting gemini-1.5-flash...`);
-      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
-      const fallbackResponse = await fetch(fallbackUrl, {
+  let lastError = null;
+  for (const model of modelsToTry) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    try {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,14 +187,26 @@ async function callGemini(parts, systemInstruction, signal) {
         body: JSON.stringify(body),
         signal
       });
-      if (fallbackResponse.ok) {
-        return fallbackResponse.json();
+
+      if (response.ok) {
+        return await response.json();
       }
+
+      const errorText = await response.text();
+      lastError = new Error(`Gemini API (${model}) error (${response.status}): ${errorText.slice(0, 300)}`);
+      console.warn(`[DiagnosisAI] Model ${model} failed with status ${response.status}:`, errorText.slice(0, 150));
+
+      if (response.status === 404 || response.status === 429) {
+        continue;
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      lastError = err;
+      console.warn(`[DiagnosisAI] Model ${model} fetch exception:`, err.message);
     }
-    throw new Error(`Gemini API error (${response.status}): ${errorText.slice(0, 300)}`);
   }
 
-  return response.json();
+  throw lastError || new Error('All Gemini vision models failed to respond.');
 }
 
 export async function analyzeUploadedImages({ images, category = 'Smartphone & Tablet', userDescription = '', deviceBrand = '', deviceModel = '' }) {
@@ -220,25 +247,28 @@ User Notes: "${userDescription || 'none'}".
 
 Determine:
 1. "image_quality": One of ["usable", "blurry", "too_dark", "too_bright", "obstructed", "too_small", "unclear", "no_relevant_object", "invalid"].
-2. "is_usable": boolean (true only if image is clear enough to inspect hardware).
+   - "usable": The photograph clarity/resolution is sufficient to inspect the hardware (even if the phone/hardware is cracked, broken, glitching, or has lines!).
+2. "is_usable": boolean (true if image resolution/lighting allows inspection. A damaged, cracked, or glitching screen phone IS usable for inspection!).
 3. "detected_object": One of ["smartphone", "tablet", "laptop", "desktop/computer", "PCB/electronic board", "home appliance", "vehicle", "person", "clothing", "food", "animal", "landscape", "other", "unknown"].
+   - If any phone, iPhone, Android, or mobile screen is in the photo (working or broken, displaying lines or cracked), set detected_object to "smartphone" or "tablet".
 4. "object_description": Concise description of what is actually visible in the photo.
 5. "object_confidence": Integer from 0 to 100 representing confidence in object identification.
-6. "category_match": boolean (true ONLY if detected_object matches the selected category:
-   - "Smartphone & Tablet" requires "smartphone" or "tablet".
-   - "Computers & Laptops" requires "laptop" or "desktop/computer".
-   - "Electronics & PCB" requires "PCB/electronic board".
-   - "Home Appliance" requires "home appliance".
-   - "Vehicles" requires "vehicle".
-   - "Other" allows repairable mechanical/electronic items).
+6. "category_match": boolean (true if detected_object matches the selected category:
+   - "Smartphone & Tablet" matches smartphone or tablet.
+   - "Computers & Laptops" matches laptop or desktop/computer.
+   - "Electronics & PCB" matches PCB/electronic board.
+   - "Home Appliance" matches home appliance.
+   - "Vehicles" matches vehicle.
+   - "Other" matches any repairable hardware).
 7. "category_match_confidence": Integer from 0 to 100.
-8. "valid_for_diagnosis": boolean (true ONLY if is_usable is true, category_match is true, object_confidence >= 70, and category_match_confidence >= 80).
-9. "rejection_reason": string or null. If invalid or mismatched, provide a clear explanation (e.g. "The uploaded image depicts a person outdoors and does not contain a smartphone or tablet.").
-10. "suggested_action": string or null (e.g. "Please upload a clear, focused photo of the smartphone display or chassis.").
-11. "visible_device_elements": Array of visible component parts (e.g. ["screen", "frame", "camera"] or [] if no device is present).
+8. "valid_for_diagnosis": boolean (true if a device matching the category is visible in the photo, even if damaged, cracked, or glitching! Set to false ONLY if the image shows an unrelated object like a person, clothes, food, landscape, animal, or if the photo is so blurry nothing can be seen).
+9. "rejection_reason": string or null (null if valid).
+10. "suggested_action": string or null.
+11. "visible_device_elements": Array of visible component parts (e.g. ["screen", "display", "frame", "bezel"]).
 
-CRITICAL RULE:
-If the image shows a person, clothing, furniture, food, pet, vehicle (when phone is selected), landscape, or any non-device object, you MUST set valid_for_diagnosis to FALSE and category_match to FALSE. Never guess or pretend a device is present.`;
+CRITICAL RULES:
+- A damaged, cracked, shattered, lines-on-screen, glitching, or broken phone IS 100% VALID FOR DIAGNOSIS! Set valid_for_diagnosis = true, is_usable = true, and category_match = true!
+- REJECT (valid_for_diagnosis = false, category_match = false) ONLY when the photo depicts a person, outdoor scene, food, clothing, animal, or completely unrelated non-device content.`;
 
   const pass1UserPrompt = `Inspect the attached image(s) for Stage 1 Verification. Return ONLY JSON matching the gatekeeper schema.`;
 
@@ -369,11 +399,11 @@ Perform a clinical, evidence-based damage inspection of the image:
    - Set "estimated_duration": "0 minutes"
    - Set "repair_blueprint": []
    - Set "damage_regions": []
-3. If physical damage IS visibly observed:
-   - Detail the exact observed issue (e.g. cracked front glass, broken camera lens, dented bumper, burnt resistor).
-   - Distinguish carefully between components (e.g. front glass vs back glass vs camera lens vs frame). If the back panel is broken, do NOT diagnose screen damage!
+3. If physical damage or hardware malfunction IS visibly observed:
+   - Detail the exact observed issue (e.g. vertical/horizontal screen lines, OLED display matrix glitch or line artifacts, cracked front glass, broken camera lens, dented bumper, burnt resistor).
+   - Distinguish carefully between components (e.g. front glass vs OLED matrix vs back glass vs camera lens vs frame). If the display shows lines or color bars, diagnose display matrix/panel defect!
    - Every positive damage finding MUST cite explicit visual evidence directly from the image.
-   - Multi-hypothesis check: could this be screen reflection/glare or surface dirt rather than a crack? Explain in "alternative_hypotheses".
+   - Multi-hypothesis check: could this be screen reflection/glare or surface dirt rather than a crack or defect? Explain in "alternative_hypotheses".
    - Set "status": "valid"
    - Set "damage_confidence": Integer 0-100. If damage cannot be distinguished from glare/dirt with confidence >= 70, set "status": "insufficient_evidence".
 
