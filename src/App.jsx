@@ -265,7 +265,10 @@ function RepairLensDashboard() {
     setIsAnalyzing(true);
 
     try {
-      const location = await getCurrentPositionPromise().catch(() => null);
+      const location = await Promise.race([
+        getCurrentPositionPromise(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Location timeout')), 1000))
+      ]).catch(() => null);
       const result = await analyzeImage(updatedAngles, null, selectedCategory, location);
       setAnalysisResult(result);
       setIsAnalyzing(false);
@@ -377,7 +380,10 @@ function RepairLensDashboard() {
     setAnalysisError('');
     setIsAnalyzing(true);
     try {
-      const location = await getCurrentPositionPromise().catch(() => null);
+      const location = await Promise.race([
+        getCurrentPositionPromise(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Location timeout')), 1000))
+      ]).catch(() => null);
       const result = await analyzeImage(angles, presetUsed, selectedCategory, location);
       if (activeRequestIdRef.current === requestId) {
         setAnalysisResult(result);
