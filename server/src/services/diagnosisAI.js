@@ -132,12 +132,49 @@ export function validateDiagnosisConsistency(pass1, pass2) {
   return { valid: true };
 }
 
-function resolveModel() {
-  const envModel = process.env.GEMINI_VISION_MODEL;
-  if (!envModel || envModel.includes('2.5')) {
-    return 'gemini-1.5-flash';
+let cachedDiscoveredEndpoints = null;
+
+async function getAvailableGeminiEndpoints(apiKey, signal) {
+  if (cachedDiscoveredEndpoints && cachedDiscoveredEndpoints.length > 0) {
+    return cachedDiscoveredEndpoints;
   }
-  return envModel;
+
+  const versions = ['v1beta', 'v1'];
+  for (const ver of versions) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${encodeURIComponent(apiKey)}`;
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        signal
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const available = (data.models || [])
+          .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+          .map(m => ({
+            version: ver,
+            name: m.name.replace(/^models\//, '')
+          }));
+
+        if (available.length > 0) {
+          console.log(`[DiagnosisAI] Discovered ${available.length} models supporting generateContent on ${ver}:`, available.map(m => m.name));
+          cachedDiscoveredEndpoints = available;
+          return cachedDiscoveredEndpoints;
+        }
+      } else {
+        const txt = await res.text();
+        console.warn(`[DiagnosisAI] ListModels on ${ver} returned ${res.status}:`, txt.slice(0, 150));
+      }
+    } catch (err) {
+      console.warn(`[DiagnosisAI] ListModels exception on ${ver}:`, err.message);
+    }
+  }
+
+  return [];
 }
 
 async function callGemini(parts, systemInstruction, signal) {
@@ -146,14 +183,37 @@ async function callGemini(parts, systemInstruction, signal) {
     throw new Error('GEMINI_API_KEY is not configured on the backend.');
   }
 
-  const primaryModel = resolveModel();
-  const candidateModels = [
-    primaryModel,
-    'gemini-1.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-pro'
+  // 1. Try to discover supported models directly from Google's ModelService.ListModels
+  const discovered = await getAvailableGeminiEndpoints(apiKey, signal);
+
+  // 2. High-priority candidate endpoints
+  const standardCandidates = [
+    { version: 'v1beta', name: 'gemini-1.5-flash' },
+    { version: 'v1', name: 'gemini-1.5-flash' },
+    { version: 'v1beta', name: 'gemini-1.5-flash-latest' },
+    { version: 'v1beta', name: 'gemini-2.0-flash' },
+    { version: 'v1beta', name: 'gemini-1.5-pro' },
+    { version: 'v1', name: 'gemini-1.5-pro' }
   ];
-  const modelsToTry = Array.from(new Set(candidateModels));
+
+  const envModel = process.env.GEMINI_VISION_MODEL?.replace(/^models\//, '');
+  const prioritized = [];
+  if (envModel && !envModel.includes('2.5')) {
+    prioritized.push({ version: 'v1beta', name: envModel }, { version: 'v1', name: envModel });
+  }
+
+  // Order: Prioritized env model -> Discovered models from Google -> Standard fallback candidates
+  const allEndpoints = [...prioritized, ...discovered, ...standardCandidates];
+
+  const seen = new Set();
+  const endpointsToTry = [];
+  for (const ep of allEndpoints) {
+    const key = `${ep.version}:${ep.name}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      endpointsToTry.push(ep);
+    }
+  }
 
   const body = {
     contents: [
@@ -175,8 +235,10 @@ async function callGemini(parts, systemInstruction, signal) {
   }
 
   let lastError = null;
-  for (const model of modelsToTry) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  for (const { version, name } of endpointsToTry) {
+    const cleanModel = name.replace(/^models\//, '');
+    const url = `https://generativelanguage.googleapis.com/${version}/models/${encodeURIComponent(cleanModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -193,8 +255,8 @@ async function callGemini(parts, systemInstruction, signal) {
       }
 
       const errorText = await response.text();
-      lastError = new Error(`Gemini API (${model}) error (${response.status}): ${errorText.slice(0, 300)}`);
-      console.warn(`[DiagnosisAI] Model ${model} failed with status ${response.status}:`, errorText.slice(0, 150));
+      lastError = new Error(`Gemini API (${version}/${cleanModel}) error (${response.status}): ${errorText.slice(0, 300)}`);
+      console.warn(`[DiagnosisAI] ${version}/${cleanModel} failed with status ${response.status}:`, errorText.slice(0, 150));
 
       if (response.status === 404 || response.status === 429) {
         continue;
@@ -202,7 +264,7 @@ async function callGemini(parts, systemInstruction, signal) {
     } catch (err) {
       if (err.name === 'AbortError') throw err;
       lastError = err;
-      console.warn(`[DiagnosisAI] Model ${model} fetch exception:`, err.message);
+      console.warn(`[DiagnosisAI] ${version}/${cleanModel} fetch exception:`, err.message);
     }
   }
 
