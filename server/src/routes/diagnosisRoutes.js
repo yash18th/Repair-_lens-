@@ -27,12 +27,148 @@ router.post('/analyze', requireAuth, async (req, res) => {
     console.log('[Diagnosis] images validated', { userId: req.user.id, imageCount: parsed.data.images.length });
     console.log('[Diagnosis] starting AI request', { userId: req.user.id, category: parsed.data.category });
     const diagnosis = await analyzeUploadedImages(parsed.data);
-    console.log('[Diagnosis] AI response received', { userId: req.user.id, status: diagnosis.status, confidence: diagnosis.confidence });
-    const issueEstimates = diagnosis.issues.map(item => ({ ...item, estimate: estimateRepairCost({ category: diagnosis.category, deviceType: diagnosis.deviceType, brand: diagnosis.brand, model: diagnosis.model, issue: item.issue, affectedComponents: item.affectedComponents, severity: item.severity, repairComplexity: item.repairComplexity }) }));
-    const price = issueEstimates.reduce((total, item) => ({ partsCostMin: total.partsCostMin + item.estimate.partsCostMin, partsCostMax: total.partsCostMax + item.estimate.partsCostMax, laborCostMin: total.laborCostMin + item.estimate.laborCostMin, laborCostMax: total.laborCostMax + item.estimate.laborCostMax, estimatedTotalMin: total.estimatedTotalMin + item.estimate.estimatedTotalMin, estimatedTotalMax: total.estimatedTotalMax + item.estimate.estimatedTotalMax }), { partsCostMin: 0, partsCostMax: 0, laborCostMin: 0, laborCostMax: 0, estimatedTotalMin: 0, estimatedTotalMax: 0, currency: 'INR' });
+    console.log('[Diagnosis] AI response received', { userId: req.user.id, status: diagnosis.status, valid: diagnosis.valid_for_diagnosis });
+
     const reportId = `RL-${Date.now()}-${randomUUID().slice(0, 8)}`;
-    console.log('[Diagnosis] saving scan', { userId: req.user.id, reportId });
-    const scan = await prisma.scan.create({ data: { reportId, userId: req.user.id, category: diagnosis.category, deviceType: diagnosis.deviceType, deviceName: [diagnosis.brand, diagnosis.model].filter(v => v && v !== 'Unknown').join(' ') || diagnosis.deviceType, issueDescription: diagnosis.issues.map(i => i.issue).join('; ') || 'Insufficient visible evidence', problemDescription: diagnosis.issues.map(i => i.damageDescription).join(' ') || diagnosis.uncertainty, diagnosis: diagnosis.issues.map(i => i.issue).join('; ') || 'Low-confidence visual assessment', severity: diagnosis.severity, confidence: diagnosis.confidence * 100, recommendation: diagnosis.recommendedSolution, estimatedRepairCost: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}`, estimatedCost: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}`, costMin: String(price.estimatedTotalMin), costMax: String(price.estimatedTotalMax), imageCount: parsed.data.images.length, uploadedImageUrl: null, latitude: parsed.data.latitude ?? null, longitude: parsed.data.longitude ?? null, analysisData: { diagnosis, issueEstimates, price, imageSlots: parsed.data.images.map(i => i.slot || 'image') } } });
+
+    // STAGE 9 & STAGE 13: Invalid image or insufficient evidence
+    if (!diagnosis.valid_for_diagnosis || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
+      const isInvalid = diagnosis.status === 'invalid_image';
+      const scan = await prisma.scan.create({
+        data: {
+          reportId,
+          userId: req.user.id,
+          category: diagnosis.selected_category || parsed.data.category || 'Other',
+          deviceType: diagnosis.detected_object || 'Unknown',
+          deviceName: diagnosis.detected_object || 'Unrecognized',
+          issueDescription: diagnosis.rejection_reason || (isInvalid ? 'Image invalid for diagnosis' : 'Insufficient visual evidence'),
+          problemDescription: diagnosis.suggested_action || diagnosis.rejection_reason || 'Image not suitable for diagnostic evaluation',
+          diagnosis: isInvalid ? 'Invalid Image / Category Mismatch' : 'Insufficient Visual Evidence',
+          severity: 'Low',
+          confidence: diagnosis.object_confidence || 0,
+          recommendation: diagnosis.suggested_action || 'Please upload a clear, focused photo of the selected device.',
+          estimatedRepairCost: null,
+          estimatedCost: null,
+          costMin: null,
+          costMax: null,
+          imageCount: parsed.data.images.length,
+          uploadedImageUrl: null,
+          latitude: parsed.data.latitude ?? null,
+          longitude: parsed.data.longitude ?? null,
+          analysisData: { diagnosis, price: null, imageSlots: parsed.data.images.map(i => i.slot || 'image') }
+        }
+      });
+      console.log('[Diagnosis] invalid/insufficient scan recorded', { userId: req.user.id, reportId, scanId: scan.id });
+      return res.status(200).json({
+        success: true,
+        reportId,
+        scanId: scan.id,
+        diagnosis: {
+          ...diagnosis,
+          issues: [],
+          price: null
+        }
+      });
+    }
+
+    // STAGE 10: No visible damage detected on valid device
+    if (diagnosis.status === 'no_visible_damage') {
+      const price = {
+        partsCostMin: 0,
+        partsCostMax: 0,
+        laborCostMin: 0,
+        laborCostMax: 0,
+        estimatedTotalMin: 0,
+        estimatedTotalMax: 0,
+        currency: 'INR'
+      };
+      const scan = await prisma.scan.create({
+        data: {
+          reportId,
+          userId: req.user.id,
+          category: diagnosis.category || parsed.data.category || 'Other',
+          deviceType: diagnosis.deviceType || diagnosis.detected_object || 'Device',
+          deviceName: [diagnosis.brand, diagnosis.model].filter(v => v && v !== 'Unknown').join(' ') || diagnosis.deviceType || 'Device',
+          issueDescription: 'No visible physical damage detected',
+          problemDescription: diagnosis.plainEnglishSummary || diagnosis.summary || 'Device exterior appears intact with no visible structural cracks or defect.',
+          diagnosis: 'No Visible Damage Detected',
+          severity: 'Low',
+          confidence: (diagnosis.damage_confidence || 95),
+          recommendation: diagnosis.recommendedSolution || 'No physical repairs required. Device exterior is intact.',
+          estimatedRepairCost: '₹0',
+          estimatedCost: '₹0',
+          costMin: '0',
+          costMax: '0',
+          imageCount: parsed.data.images.length,
+          uploadedImageUrl: null,
+          latitude: parsed.data.latitude ?? null,
+          longitude: parsed.data.longitude ?? null,
+          analysisData: { diagnosis, price, imageSlots: parsed.data.images.map(i => i.slot || 'image') }
+        }
+      });
+      console.log('[Diagnosis] no visible damage recorded', { userId: req.user.id, reportId, scanId: scan.id });
+      return res.status(200).json({
+        success: true,
+        reportId,
+        scanId: scan.id,
+        diagnosis: {
+          ...diagnosis,
+          issues: [],
+          price
+        }
+      });
+    }
+
+    // STAGE 5 & 11: Valid damage diagnosis
+    const issueEstimates = (diagnosis.issues || []).map(item => ({
+      ...item,
+      estimate: estimateRepairCost({
+        category: diagnosis.category,
+        deviceType: diagnosis.deviceType,
+        brand: diagnosis.brand,
+        model: diagnosis.model,
+        issue: item.issue,
+        affectedComponents: item.affectedComponents,
+        severity: item.severity,
+        repairComplexity: item.repairComplexity
+      })
+    }));
+
+    const price = issueEstimates.reduce((total, item) => ({
+      partsCostMin: total.partsCostMin + item.estimate.partsCostMin,
+      partsCostMax: total.partsCostMax + item.estimate.partsCostMax,
+      laborCostMin: total.laborCostMin + item.estimate.laborCostMin,
+      laborCostMax: total.laborCostMax + item.estimate.laborCostMax,
+      estimatedTotalMin: total.estimatedTotalMin + item.estimate.estimatedTotalMin,
+      estimatedTotalMax: total.estimatedTotalMax + item.estimate.estimatedTotalMax
+    }), { partsCostMin: 0, partsCostMax: 0, laborCostMin: 0, laborCostMax: 0, estimatedTotalMin: 0, estimatedTotalMax: 0, currency: 'INR' });
+
+    console.log('[Diagnosis] saving valid damage scan', { userId: req.user.id, reportId });
+    const scan = await prisma.scan.create({
+      data: {
+        reportId,
+        userId: req.user.id,
+        category: diagnosis.category,
+        deviceType: diagnosis.deviceType,
+        deviceName: [diagnosis.brand, diagnosis.model].filter(v => v && v !== 'Unknown').join(' ') || diagnosis.deviceType,
+        issueDescription: issueEstimates.map(i => i.issue).join('; ') || 'Physical damage identified',
+        problemDescription: issueEstimates.map(i => i.damageDescription).join(' ') || diagnosis.plainEnglishSummary,
+        diagnosis: issueEstimates.map(i => i.issue).join('; ') || 'Visual damage confirmed',
+        severity: diagnosis.severity || 'Medium',
+        confidence: Math.round((diagnosis.confidence || 0.85) * 100),
+        recommendation: diagnosis.recommendedSolution,
+        estimatedRepairCost: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}`,
+        estimatedCost: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}`,
+        costMin: String(price.estimatedTotalMin),
+        costMax: String(price.estimatedTotalMax),
+        imageCount: parsed.data.images.length,
+        uploadedImageUrl: null,
+        latitude: parsed.data.latitude ?? null,
+        longitude: parsed.data.longitude ?? null,
+        analysisData: { diagnosis, issueEstimates, price, imageSlots: parsed.data.images.map(i => i.slot || 'image') }
+      }
+    });
+
     console.log('[Diagnosis] completed', { userId: req.user.id, reportId, scanId: scan.id });
     res.status(201).json({ success: true, reportId, scanId: scan.id, diagnosis: { ...diagnosis, issues: issueEstimates, price } });
   } catch (error) {

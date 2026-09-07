@@ -38,28 +38,166 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
 
   if (!result) return null;
 
-  // Handle Invalid Category Error
-  if (result.isInvalidCategory || result.success === false) {
+  // STAGE 9: Dedicated Invalid Image / Category Mismatch UI
+  if (
+    result.status === 'invalid_image' ||
+    result.isInvalidImage ||
+    result.isInvalidCategory ||
+    (result.valid_for_diagnosis === false && result.status !== 'no_visible_damage' && result.status !== 'insufficient_evidence')
+  ) {
     return (
-      <div className="w-full glass-panel rounded-2xl p-8 border-2 border-red-500/50 bg-red-950/30 text-center space-y-6 shadow-2xl animate-fadeIn">
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center">
+      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-red-500/40 bg-gradient-to-b from-slate-950/95 via-red-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shadow-lg shadow-red-950/50">
           <AlertTriangle className="w-8 h-8 text-red-400" />
         </div>
 
-        <div className="space-y-2 max-w-md mx-auto">
-          <h3 className="text-2xl font-black text-white">Invalid Image Content Detected</h3>
-          <p className="text-sm text-red-200/90 leading-relaxed">
-            {result.errorMessage || 'The uploaded photo does not match the active Smartphone & Tablet studio category. Please upload a clear photo of a smartphone display or chassis.'}
+        <div className="space-y-3 max-w-lg mx-auto">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-bold uppercase tracking-wider">
+            <span>Image Not Suitable for Diagnosis</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Category & Object Mismatch
+          </h3>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {result.rejectionReason || result.errorMessage || 'The uploaded image does not contain the selected device category.'}
+          </p>
+
+          {result.detectedObject && (
+            <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-center gap-3">
+              <span>Detected Object: <strong className="text-amber-300 uppercase">{result.detectedObject}</strong></span>
+              <span>•</span>
+              <span>Selected Studio: <strong className="text-indigo-300">{result.selectedCategory || 'Device'}</strong></span>
+            </div>
+          )}
+
+          <p className="text-xs text-slate-400 pt-1">
+            {result.suggestedAction || 'Please upload a clear, well-lit photo of the hardware device you want to inspect.'}
           </p>
         </div>
 
-        <button
-          onClick={onReset}
-          className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
-        >
-          <Camera className="w-4 h-4" />
-          <span>Upload Phone Photo Again</span>
-        </button>
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={onReset}
+            className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Upload Correct Device Photo</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // STAGE 1: Dedicated Insufficient Visual Evidence UI
+  if (result.status === 'insufficient_evidence' || result.isInsufficientEvidence) {
+    return (
+      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-amber-500/40 bg-gradient-to-b from-slate-950/95 via-amber-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-950/50">
+          <HelpCircle className="w-8 h-8 text-amber-400" />
+        </div>
+
+        <div className="space-y-3 max-w-lg mx-auto">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider">
+            <span>Insufficient Visual Evidence</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Image Unclear or Obstructed
+          </h3>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {result.rejectionReason || result.detailedIssueExplanation || 'The uploaded photo does not have sufficient resolution, lighting, or focus to verify hardware condition.'}
+          </p>
+
+          <p className="text-xs text-slate-400 pt-1">
+            {result.suggestedAction || 'Please take a closer, well-lit photo centered on the component and ensure no blur or reflections obstruct the view.'}
+          </p>
+        </div>
+
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={onReset}
+            className="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Retake Clear Photo</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // STAGE 10: Dedicated No Visible Damage UI
+  if (result.status === 'no_visible_damage' || result.isNoVisibleDamage) {
+    return (
+      <div className="w-full space-y-8 animate-fadeIn">
+        <div className="glass-panel rounded-3xl border-2 border-emerald-500/40 bg-gradient-to-b from-slate-950/95 via-emerald-950/20 to-slate-950/95 p-6 sm:p-10 space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Physical Inspection Report</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug">
+                No Visible Physical Damage Detected
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-400" />
+                Exterior Intact
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-800/80 text-purple-300 border border-slate-700">
+                <Brain className="w-3.5 h-3.5 mr-1 text-purple-400" />
+                {result.confidenceEngine?.diagnosisConfidence || 95}% Confidence
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-4 rounded-2xl bg-emerald-950/25 border border-emerald-500/30 p-5 sm:p-6">
+            <div className="flex items-center space-x-2 text-emerald-300 font-extrabold text-sm uppercase tracking-wider">
+              <Check className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+              <span>Inspection Summary</span>
+            </div>
+            <p className="text-base sm:text-lg font-bold text-white leading-relaxed">
+              {result.plainEnglishSummary || 'The device exterior is intact with no visible fractures, dents, cracks, or burns.'}
+            </p>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              {result.detailedIssueExplanation}
+            </p>
+          </div>
+
+          {result.evidence && result.evidence.length > 0 && (
+            <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                Visual Evidence Confirmed:
+              </span>
+              <ul className="space-y-1.5 text-xs text-slate-300 pl-4 list-disc">
+                {result.evidence.map((item, idx) => (
+                  <li key={idx} className="leading-relaxed">{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="text-xs text-slate-400 font-medium">Estimated External Repair Cost</div>
+              <div className="text-2xl font-black text-emerald-400">₹0 <span className="text-xs font-normal text-slate-400">(No physical repair required)</span></div>
+            </div>
+
+            <button
+              onClick={onReset}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all inline-flex items-center space-x-2"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Diagnose Another Device</span>
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -122,7 +260,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
   };
 
   const isLowConfidence = confidenceEngine.isLowConfidence || confidenceEngine.diagnosisConfidence < 60;
-  const samplePhotoUrl = Object.values(angles || {}).find(Boolean)?.previewUrl || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&q=80&w=800';
+  const samplePhotoUrl = Object.values(angles || {}).find(Boolean)?.previewUrl || '';
 
   const progressPercent = result.steps?.length 
     ? Math.round((completedSteps.length / result.steps.length) * 100)
@@ -130,16 +268,11 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
 
   const affectedComponents = (result.affectedComponents && result.affectedComponents.length > 0)
     ? result.affectedComponents
-    : ['Front Corning Glass', 'Capacitive Touch Digitizer Grid', 'AMOLED / OLED Display Matrix', 'Bezel Frame Gasket'];
+    : [];
 
   const risksIfUnfixed = (result.risksIfUnfixed && result.risksIfUnfixed.length > 0)
     ? result.risksIfUnfixed
-    : [
-        'Microscopic glass splinters can flake off during swiping and cut fingertips.',
-        'Moisture, sweat, and humidity will seep through cracks, causing fatal motherboard corrosion.',
-        'OLED organic pixels oxidize when exposed to air, creating spreading purple/black dead zones.',
-        'Digitizer short circuits can trigger ghost touches and accidental device lockouts.'
-      ];
+    : [];
 
   return (
     <div className="w-full space-y-8 animate-fadeIn">
@@ -211,28 +344,30 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
           </div>
         </div>
 
-        {/* 🧩 SECTION 2: IDENTIFIED DAMAGED & AFFECTED COMPONENTS */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-            <Cpu className="w-4 h-4 text-purple-400" />
-            <span>Identified Damaged & Affected Hardware Components ({affectedComponents.length})</span>
-          </div>
+        {/* 🧩 SECTION 2: IDENTIFIED DAMAGED & AFFECTED COMPONENTS (ONLY IF REAL COMPONENTS FOUND) */}
+        {affectedComponents.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+              <Cpu className="w-4 h-4 text-purple-400" />
+              <span>Identified Damaged & Affected Hardware Components ({affectedComponents.length})</span>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {affectedComponents.map((component, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center space-x-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 shadow-sm hover:border-purple-500/40 transition-colors"
-              >
-                <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0 animate-pulse" />
-                <span className="text-xs font-semibold leading-tight">{component}</span>
-              </div>
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {affectedComponents.map((component, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex items-center space-x-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-200 shadow-sm hover:border-purple-500/40 transition-colors"
+                >
+                  <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0 animate-pulse" />
+                  <span className="text-xs font-semibold leading-tight">{component}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* ⚡ SECTION 3: TWO-COLUMN CAUSE & CRITICAL RISKS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 pt-2">
+        {/* ⚡ SECTION 3: CAUSE & CRITICAL RISKS (DYNAMIC) */}
+        <div className={`grid grid-cols-1 ${risksIfUnfixed.length > 0 ? 'lg:grid-cols-2' : ''} gap-5 pt-2`}>
           
           {/* Left Column: Root Cause */}
           <div className="p-5 rounded-xl bg-slate-900/70 border border-slate-800 space-y-3">
@@ -242,7 +377,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
             </div>
             
             <p className="text-sm text-slate-300 leading-relaxed">
-              {result.possibleCause || result.rootCause || result.likelyCause || 'Point-load impact or physical drop exceeding the component structural shear threshold.'}
+              {result.possibleCause || result.rootCause || result.likelyCause || 'Visual stress point or kinetic impact observed on the component.'}
             </p>
 
             {result.evidence && result.evidence.length > 0 && (
@@ -259,21 +394,23 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
             )}
           </div>
 
-          {/* Right Column: Risks If Left Unfixed */}
-          <div className="p-5 rounded-xl bg-red-950/25 border border-red-500/30 space-y-3">
-            <div className="flex items-center space-x-2 text-red-300 font-bold text-sm">
-              <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0" />
-              <span>Risks If Left Unfixed (Critical Warnings):</span>
-            </div>
+          {/* Right Column: Risks If Left Unfixed (Only if risks identified) */}
+          {risksIfUnfixed.length > 0 && (
+            <div className="p-5 rounded-xl bg-red-950/25 border border-red-500/30 space-y-3">
+              <div className="flex items-center space-x-2 text-red-300 font-bold text-sm">
+                <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <span>Risks If Left Unfixed:</span>
+              </div>
 
-            <ul className="space-y-2 text-xs text-red-200/90 pl-4 list-disc">
-              {risksIfUnfixed.map((risk, idx) => (
-                <li key={idx} className="leading-relaxed font-medium">
-                  {risk}
-                </li>
-              ))}
-            </ul>
-          </div>
+              <ul className="space-y-2 text-xs text-red-200/90 pl-4 list-disc">
+                {risksIfUnfixed.map((risk, idx) => (
+                  <li key={idx} className="leading-relaxed font-medium">
+                    {risk}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
         </div>
 
@@ -315,18 +452,23 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
       </div>
 
       {/* 🩻 INTERACTIVE AI DAMAGE MAP (BOUNDING BOXES ON THE DAMAGE) */}
-      <DamageMap
-        damageMap={result.damageMap}
-        sampleImage={samplePhotoUrl}
-      />
+      {result.damageMap && (
+        <DamageMap
+          damageMap={result.damageMap}
+          sampleImage={samplePhotoUrl}
+        />
+      )}
 
       {/* 💰 INDIA REPAIR COST INTELLIGENCE */}
-      <CostBreakdown costIntelligence={result.costIntelligence} />
+      {result.costIntelligence && (
+        <CostBreakdown costIntelligence={result.costIntelligence} />
+      )}
 
       {/* 📍 SWIGGY / ZOMATO STYLE NEARBY SERVICE CENTRE LOCATOR */}
       <NearbyRepairLocator category={result.category || 'phone'} />
 
       {/* 🛠️ STEP-BY-STEP REPAIR BLUEPRINT */}
+      {result.steps && result.steps.length > 0 && (
       <div className="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
@@ -391,6 +533,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
           })}
         </div>
       </div>
+      )}
 
       {/* 🎯 AI CONFIDENCE & TELEMETRY MATRIX (AT BOTTOM) */}
       <div className="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 bg-slate-950/80 space-y-6 shadow-xl relative overflow-hidden">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { LockKeyhole, Sparkles, X } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -108,6 +108,7 @@ function RepairLensDashboard() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [pendingDiagnosisTarget, setPendingDiagnosisTarget] = useState(null);
+  const activeRequestIdRef = useRef(0);
   const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuth();
 
@@ -156,6 +157,7 @@ function RepairLensDashboard() {
   };
 
   const handleSelectCategoryAndNavigate = (catId) => {
+    activeRequestIdRef.current += 1;
     setSelectedCategory(catId);
     setAngles(INITIAL_ANGLES);
     setAnalysisResult(null);
@@ -169,24 +171,32 @@ function RepairLensDashboard() {
   };
 
   const handleAngleUpdated = (slotId, fileData) => {
+    activeRequestIdRef.current += 1;
     setAngles(prev => ({
       ...prev,
       [slotId]: fileData
     }));
     setPresetUsed(null);
+    setAnalysisResult(null);
+    setAnalysisError('');
   };
 
   const handleRemoveAngle = (slotId) => {
+    activeRequestIdRef.current += 1;
     setAngles(prev => ({
       ...prev,
       [slotId]: null
     }));
     setPresetUsed(null);
+    setAnalysisResult(null);
+    setAnalysisError('');
   };
 
   const handleClearAllAngles = () => {
+    activeRequestIdRef.current += 1;
     setAngles(INITIAL_ANGLES);
     setAnalysisResult(null);
+    setAnalysisError('');
     setPresetUsed(null);
   };
 
@@ -362,23 +372,32 @@ function RepairLensDashboard() {
     const hasAnyPhoto = Object.values(angles).some(Boolean);
     if (!hasAnyPhoto) return;
 
+    const requestId = ++activeRequestIdRef.current;
+    setAnalysisResult(null);
+    setAnalysisError('');
     setIsAnalyzing(true);
     try {
       const location = await getCurrentPositionPromise().catch(() => null);
       const result = await analyzeImage(angles, presetUsed, selectedCategory, location);
-      setAnalysisResult(result);
-      setIsAnalyzing(false);
-      setCurrentView('results');
+      if (activeRequestIdRef.current === requestId) {
+        setAnalysisResult(result);
+        setIsAnalyzing(false);
+        setCurrentView('results');
+      }
     } catch (error) {
-      console.error('Failed to analyze images:', error);
-      setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
-      setIsAnalyzing(false);
+      if (activeRequestIdRef.current === requestId) {
+        console.error('Failed to analyze images:', error);
+        setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
+        setIsAnalyzing(false);
+      }
     }
   };
 
   const handleReset = () => {
+    activeRequestIdRef.current += 1;
     setAngles(INITIAL_ANGLES);
     setAnalysisResult(null);
+    setAnalysisError('');
     setIsAnalyzing(false);
     setPresetUsed(null);
     setCurrentView('home');

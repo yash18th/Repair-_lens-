@@ -99,7 +99,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onStartDiagno
 
   const renderCard = (item) => {
     const severity = item.severity || 'Medium';
-    const cost = item.estimatedRepairCost || item.estimatedCost || item.costMin && item.costMax ? `$${item.costMin} - $${item.costMax}` : '—';
+    const cost = item.estimatedRepairCost || item.estimatedCost || (item.costMin && item.costMax ? `₹${item.costMin} – ₹${item.costMax}` : '—');
     const diyScore = typeof item.diySuitability === 'number' ? `${item.diySuitability}%` : '—';
     const imageCount = Number(item.imageCount || 0);
 

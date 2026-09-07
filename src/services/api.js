@@ -80,48 +80,65 @@ const DEFAULT_DIAGNOSTIC_INSIGHTS = {
   }
 };
 
-function buildItemizedParts(category, partsTotalMin, partsTotalMax) {
+function buildItemizedParts(category, affectedComponents = [], partsTotalMin = 0, partsTotalMax = 0) {
+  if (!partsTotalMin || partsTotalMin <= 0) return [];
+
+  if (Array.isArray(affectedComponents) && affectedComponents.length > 0) {
+    const share = 1 / affectedComponents.length;
+    let allocated = 0;
+    return affectedComponents.map((comp, idx) => {
+      let amt;
+      if (idx === affectedComponents.length - 1) {
+        amt = Math.max(50, partsTotalMin - allocated);
+      } else {
+        amt = Math.round(partsTotalMin * share);
+        allocated += amt;
+      }
+      return {
+        name: `Replacement ${comp}`,
+        description: `OEM-compatible replacement or repair material for ${comp}`,
+        grade: 'OEM Spec',
+        amount: amt
+      };
+    });
+  }
+
   const normCat = String(category || '').toLowerCase();
   let partsDef = [];
 
   if (normCat.includes('phone') || normCat.includes('tablet')) {
     partsDef = [
-      { name: 'Replacement OLED / AMOLED Display Assembly', desc: 'Active touch matrix & display panel', share: 0.72, grade: 'OEM Spec' },
-      { name: 'Tempered Oleophobic Outer Cover Glass', desc: 'Impact-resistant surface glass layer', share: 0.10, grade: 'Corning Spec' },
-      { name: 'Optically Clear Adhesive (OCA) & Frame Seal', desc: 'Factory liquid-optic bonding tape', share: 0.09, grade: 'Precision Seal' },
-      { name: 'Internal Bezel Cushion & Dust Gasket', desc: 'Perimeter vibration damping gasket', share: 0.09, grade: 'Structural' }
+      { name: 'Replacement Display & Glass Assembly', desc: 'Display matrix & touch cover layer', share: 0.72, grade: 'OEM Spec' },
+      { name: 'Precision Optically Clear Adhesive & Gasket', desc: 'Perimeter moisture barrier seal', share: 0.18, grade: 'Precision Seal' },
+      { name: 'Perimeter Bezel Buffer Cushion', desc: 'Structural vibration damper', share: 0.10, grade: 'Structural' }
     ];
   } else if (normCat.includes('laptop') || normCat.includes('computer')) {
     partsDef = [
-      { name: 'Replacement IPS / OLED Display Panel', desc: 'Full HD/4K resolution matrix panel', share: 0.65, grade: 'A+ Grade' },
-      { name: 'Display Left & Right Hinge Clutches', desc: 'Reinforced metal torque hinge brackets', share: 0.16, grade: 'High Tensile' },
-      { name: 'Internal eDP 40-Pin Video Flex Cable', desc: 'High-speed LVDS/eDP signal harness', share: 0.12, grade: 'Shielded' },
-      { name: 'Brass Screw Standoffs & Thread Inserts', desc: 'Chassis mounting retention hardware', share: 0.07, grade: 'CNC Brass' }
+      { name: 'Replacement Matrix Display / Component', desc: 'Direct OEM chassis component', share: 0.70, grade: 'A+ Grade' },
+      { name: 'Internal Wiring & Flex Harness', desc: 'High-speed LVDS/eDP signal harness', share: 0.18, grade: 'Shielded' },
+      { name: 'Retention Screws & Mounting Bosses', desc: 'CNC chassis fasteners', share: 0.12, grade: 'CNC Spec' }
     ];
   } else if (normCat.includes('electronic') || normCat.includes('pcb')) {
     partsDef = [
-      { name: 'Power Management IC / MOSFET Package', desc: 'High-efficiency switching regulator chip', share: 0.50, grade: 'Silicon OEM' },
-      { name: 'High-Temp SMD Ceramic Capacitors (Set of 4)', desc: 'Low-ESR voltage filter capacitors', share: 0.18, grade: 'Automotive Grade' },
-      { name: '0.1mm Enamel Jumper Wire & UV Solder Mask', desc: 'Copper trace rebuilding materials', share: 0.16, grade: 'Dielectric 200°C' },
-      { name: 'Thermal Conductive Interface Pad & Clip', desc: 'Phase-change heat dissipation pad', share: 0.16, grade: '12.8 W/mK' }
+      { name: 'Power Regulator / Logic IC Package', desc: 'Surface-mount silicon replacement', share: 0.60, grade: 'Silicon OEM' },
+      { name: 'SMD Filtering Passives (Capacitors / Inductors)', desc: 'Low-ESR filtering components', share: 0.22, grade: 'Automotive Grade' },
+      { name: 'Thermal Dissipation Material & Solder Mask', desc: 'High-thermal conductivity interface', share: 0.18, grade: 'Industrial' }
     ];
   } else if (normCat.includes('vehicle') || normCat.includes('auto')) {
     partsDef = [
-      { name: 'Bumper Fascia Correction & Reshaping Compound', desc: 'High-impact thermoplastic repair filler', share: 0.38, grade: 'Automotive Standard' },
-      { name: 'OEM Color-Matched Paint Basecoat (200ml)', desc: 'Computer-formulated exact pigment', share: 0.28, grade: 'Factory Match' },
-      { name: '2K Polyurethane High-Gloss Clearcoat', desc: 'UV-resistant protective topcoat', share: 0.18, grade: '2K Urethane' },
-      { name: 'Panel Retention Clips & Mounting Rivets (Pack)', desc: 'OEM bumper retention fasteners', share: 0.16, grade: 'Nylon 66' }
+      { name: 'Automotive Panel Compound & Primer', desc: 'High-impact repair filler', share: 0.45, grade: 'Automotive Standard' },
+      { name: 'OEM Color-Matched Basecoat & Clearcoat', desc: 'Computer-formulated exact pigment', share: 0.35, grade: 'Factory Match' },
+      { name: 'Retention Clips & Hardware Kit', desc: 'OEM fastener set', share: 0.20, grade: 'High Tensile' }
     ];
   } else {
     partsDef = [
-      { name: 'Perimeter Molded Rubber Sealing Gasket', desc: 'Compression elastomer sealing ring', share: 0.55, grade: 'EPDM Rubber' },
-      { name: 'Door Latch Catch & Mechanical Pivot Hinge', desc: 'Reinforced mechanical closure latch', share: 0.25, grade: 'Stainless / POM' },
-      { name: 'High-Adhesion Silicone Sealant & Fasteners', desc: 'Waterproof structural bonding agent', share: 0.20, grade: 'RTV Silicone' }
+      { name: 'Perimeter Sealing Gasket & Fasteners', desc: 'Moisture and vibration elastomer', share: 0.60, grade: 'EPDM Rubber' },
+      { name: 'Internal Mechanical Hardware Catch', desc: 'Reinforced mechanism component', share: 0.40, grade: 'Stainless' }
     ];
   }
 
   let allocated = 0;
-  const parts = partsDef.map((item, idx) => {
+  return partsDef.map((item, idx) => {
     let amt;
     if (idx === partsDef.length - 1) {
       amt = Math.max(80, partsTotalMin - allocated);
@@ -136,8 +153,6 @@ function buildItemizedParts(category, partsTotalMin, partsTotalMax) {
       amount: amt
     };
   });
-
-  return parts;
 }
 
 export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location) {
@@ -147,7 +162,18 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
   const timeoutId = window.setTimeout(() => controller.abort(), 60000);
   let response;
   try {
-    response = await fetch(`${apiBase()}/api/diagnosis/analyze`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: uploaded, category: categoryContext[selectedCategory] || 'Other', latitude: location?.lat, longitude: location?.lng }), signal: controller.signal });
+    response = await fetch(`${apiBase()}/api/diagnosis/analyze`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        images: uploaded,
+        category: categoryContext[selectedCategory] || 'Other',
+        latitude: location?.lat,
+        longitude: location?.lng
+      }),
+      signal: controller.signal
+    });
   } catch (error) {
     if (error.name === 'AbortError') {
       throw new Error('Diagnosis timed out. Please try again with a smaller image.');
@@ -156,31 +182,113 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
   } finally {
     window.clearTimeout(timeoutId);
   }
+
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.message || 'AI analysis failed.');
   const diagnosis = payload.diagnosis;
-  const price = diagnosis.price;
+
+  // STAGE 9 & 13: Handle Invalid Image or Insufficient Evidence
+  if (!diagnosis.valid_for_diagnosis || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
+    const isInvalid = diagnosis.status === 'invalid_image';
+    return {
+      success: true,
+      valid_for_diagnosis: false,
+      status: diagnosis.status || 'invalid_image',
+      isInvalidCategory: isInvalid,
+      isInvalidImage: isInvalid,
+      isInsufficientEvidence: !isInvalid,
+      detectedObject: diagnosis.detected_object || 'Unknown Object',
+      objectConfidence: diagnosis.object_confidence || 0,
+      selectedCategory: diagnosis.selected_category || categoryContext[selectedCategory] || 'Unknown',
+      categoryMatch: diagnosis.category_match ?? false,
+      categoryMatchConfidence: diagnosis.category_match_confidence || 0,
+      rejectionReason: diagnosis.rejection_reason || (isInvalid ? 'The uploaded photo does not clearly show the selected category.' : 'Visual evidence is insufficient for diagnosis.'),
+      suggestedAction: diagnosis.suggested_action || 'Please upload a clear, focused photo of the device you want to diagnose.',
+      reportId: payload.reportId,
+      scanId: payload.scanId,
+      rawDiagnosis: diagnosis,
+      problemTitle: isInvalid ? 'Image Not Suitable for Diagnosis' : 'Insufficient Visual Evidence',
+      plainEnglishSummary: diagnosis.rejection_reason || 'Image cannot be diagnosed.',
+      detailedIssueExplanation: diagnosis.suggested_action || diagnosis.rejection_reason || '',
+      affectedComponents: [],
+      risksIfUnfixed: [],
+      evidence: [],
+      toolsRequired: [],
+      steps: [],
+      estimatedCost: null,
+      costIntelligence: null,
+      damageMap: null
+    };
+  }
+
+  // STAGE 10: Handle Valid Device with No Visible Damage
+  if (diagnosis.status === 'no_visible_damage') {
+    return {
+      success: true,
+      valid_for_diagnosis: true,
+      status: 'no_visible_damage',
+      isNoVisibleDamage: true,
+      detectedObject: diagnosis.detected_object || diagnosis.deviceType,
+      objectConfidence: diagnosis.object_confidence || 95,
+      damageConfidence: diagnosis.damage_confidence || 95,
+      reportId: payload.reportId,
+      scanId: payload.scanId,
+      rawDiagnosis: diagnosis,
+      problemTitle: 'No Visible Physical Damage Detected',
+      plainEnglishSummary: diagnosis.plainEnglishSummary || diagnosis.summary || 'The device is clearly visible and its exterior appears intact based on the provided photo(s).',
+      detailedIssueExplanation: diagnosis.detailedIssueExplanation || diagnosis.summary || 'Clinical visual inspection confirms the exterior chassis, surface glass, and housing show no evident cracks, breaks, or structural faults.',
+      severity: 'Low',
+      affectedComponents: [],
+      risksIfUnfixed: [],
+      urgency: 'None - Device Intact',
+      evidence: diagnosis.visible_evidence || ['Intact surface reflections without fracture lines', 'Uniform casing and bezel alignment'],
+      recommendation: diagnosis.recommendedSolution || 'No external physical repair required at this time.',
+      toolsRequired: [],
+      steps: [],
+      estimatedCost: { min: 0, max: 0, currency: 'INR', formatted: '₹0 (Device Intact)' },
+      costIntelligence: {
+        totalEstimate: { min: 0, max: 0 },
+        breakdown: [],
+        itemizedParts: [],
+        partsTotal: 0,
+        laborTotal: 0,
+        localPrices: [],
+        note: 'Device exterior appears intact. No physical repair costs required.'
+      },
+      confidenceEngine: {
+        diagnosisConfidence: diagnosis.damage_confidence || 95,
+        confidenceLevel: 'HIGH',
+        evidenceQuality: 'GOOD',
+        unknowns: 'Internal hardware state cannot be confirmed from exterior photo alone.',
+        isLowConfidence: false
+      },
+      damageMap: null,
+      category: diagnosis.category,
+      imageCount: diagnosis.imageCount
+    };
+  }
+
+  // STAGE 5 & 11: Valid Damage Diagnosis
+  const price = diagnosis.price || { partsCostMin: 0, partsCostMax: 0, laborCostMin: 0, laborCostMax: 0, estimatedTotalMin: 0, estimatedTotalMax: 0 };
   const primary = diagnosis.issues?.[0] || {};
   const confidence = Math.round((diagnosis.confidence || 0.88) * 100);
 
-  const defaults = DEFAULT_DIAGNOSTIC_INSIGHTS[selectedCategory] || DEFAULT_DIAGNOSTIC_INSIGHTS.phone;
-
-  const detailedIssueExplanation = diagnosis.detailedIssueExplanation || primary.detailedExplanation || primary.damageDescription || defaults.detailedExplanation;
-  const plainEnglishSummary = diagnosis.plainEnglishSummary || primary.damageDescription || defaults.plainEnglishSummary;
-  const rootCause = diagnosis.rootCause || primary.rootCause || defaults.rootCause;
+  const detailedIssueExplanation = diagnosis.detailedIssueExplanation || primary.detailedExplanation || primary.damageDescription || diagnosis.summary || 'Physical damage identified on the device.';
+  const plainEnglishSummary = diagnosis.plainEnglishSummary || primary.damageDescription || diagnosis.summary || 'Visual inspection has detected physical damage.';
+  const rootCause = diagnosis.rootCause || primary.rootCause || 'Observed kinetic impact or mechanical stress point.';
   const affectedComponents = (Array.isArray(diagnosis.affectedComponents) && diagnosis.affectedComponents.length > 0)
     ? diagnosis.affectedComponents
     : (Array.isArray(primary.affectedComponents) && primary.affectedComponents.length > 0)
     ? primary.affectedComponents
-    : defaults.affectedComponents;
+    : [];
   const risksIfUnfixed = (Array.isArray(diagnosis.risksIfUnfixed) && diagnosis.risksIfUnfixed.length > 0)
     ? diagnosis.risksIfUnfixed
     : (Array.isArray(primary.risksIfUnfixed) && primary.risksIfUnfixed.length > 0)
     ? primary.risksIfUnfixed
-    : defaults.risksIfUnfixed;
-  const urgency = diagnosis.urgency || primary.urgency || defaults.urgency;
+    : [];
+  const urgency = diagnosis.urgency || primary.urgency || 'Moderate';
 
-  const itemizedParts = buildItemizedParts(selectedCategory, price.partsCostMin, price.partsCostMax);
+  const itemizedParts = buildItemizedParts(selectedCategory, affectedComponents, price.partsCostMin, price.partsCostMax);
 
   const breakdown = [
     ...itemizedParts.map(part => ({
@@ -220,8 +328,13 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
   ];
 
   return {
-    success: true, reportId: payload.reportId, scanId: payload.scanId, rawDiagnosis: diagnosis,
-    problemTitle: primary?.issue || diagnosis.problemTitle || 'Visual Damage & Component Defect Detected',
+    success: true,
+    reportId: payload.reportId,
+    scanId: payload.scanId,
+    rawDiagnosis: diagnosis,
+    valid_for_diagnosis: true,
+    status: 'valid',
+    problemTitle: primary?.issue || diagnosis.problemTitle || 'Visual Damage Detected',
     plainEnglishSummary,
     detailedIssueExplanation,
     problemDescription: detailedIssueExplanation,
@@ -233,7 +346,7 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
     affectedComponents,
     risksIfUnfixed,
     urgency,
-    evidence: diagnosis.visualEvidence || primary?.visualEvidence || [],
+    evidence: diagnosis.visible_evidence || primary?.visualEvidence || [],
     whatWeCannotSee: diagnosis.uncertainty || 'Internal component traces not visible without physical disassembly.',
     extractedModel: { brand: diagnosis.brand, modelName: diagnosis.model, modelNumber: diagnosis.deviceType, specs: diagnosis.category },
     solutionTitle: diagnosis.recommendedSolution || primary?.recommendedSolution,
@@ -253,9 +366,33 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
       localPrices,
       note: 'Estimated repair cost only. Final price varies by model, parts quality, shop, and physical inspection.'
     },
-    confidenceEngine: { diagnosisConfidence: confidence, confidenceLevel: diagnosis.status, evidenceQuality: diagnosis.status === 'LOW_CONFIDENCE' ? 'LIMITED' : 'GOOD', unknowns: diagnosis.uncertainty, isLowConfidence: diagnosis.status === 'LOW_CONFIDENCE' },
-    damageMap: diagnosis.damageRegions && diagnosis.damageRegions.length ? { imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl, totalRegionsDetected: diagnosis.damageRegions.length, regions: diagnosis.damageRegions.map((region, index) => ({ id: `region-${index}`, label: region.label, type: index ? 'secondary' : 'primary', description: region.description, actionRequired: primary?.recommendedSolution, position: { top: `${region.box.y * 100}%`, left: `${region.box.x * 100}%`, width: `${region.box.width * 100}%`, height: `${region.box.height * 100}%` } })) } : null,
-    category: diagnosis.category, imageCount: diagnosis.imageCount, issueEstimates: diagnosis.issues
+    confidenceEngine: {
+      diagnosisConfidence: confidence,
+      confidenceLevel: diagnosis.status,
+      evidenceQuality: diagnosis.status === 'LOW_CONFIDENCE' ? 'LIMITED' : 'GOOD',
+      unknowns: diagnosis.uncertainty,
+      isLowConfidence: diagnosis.status === 'LOW_CONFIDENCE'
+    },
+    damageMap: diagnosis.damageRegions && diagnosis.damageRegions.length ? {
+      imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl,
+      totalRegionsDetected: diagnosis.damageRegions.length,
+      regions: diagnosis.damageRegions.map((region, index) => ({
+        id: `region-${index}`,
+        label: region.label,
+        type: index ? 'secondary' : 'primary',
+        description: region.description,
+        actionRequired: primary?.recommendedSolution,
+        position: {
+          top: `${region.box.y * 100}%`,
+          left: `${region.box.x * 100}%`,
+          width: `${region.box.width * 100}%`,
+          height: `${region.box.height * 100}%`
+        }
+      }))
+    } : null,
+    category: diagnosis.category,
+    imageCount: diagnosis.imageCount,
+    issueEstimates: diagnosis.issues
   };
 }
 import { getApiBaseUrl } from './config';
