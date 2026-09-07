@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import { useAuth } from './context/AuthContext';
 import { analyzeImage } from './services/api';
 import { getCurrentPositionPromise } from './services/locationService';
+import { getApiBaseUrl } from './services/config';
 
 const INITIAL_ANGLES = {
   closeup: null,
@@ -291,11 +292,7 @@ function RepairLensDashboard() {
     }
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || (
-        typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-          ? '/api'
-          : 'http://localhost:4000'
-      );
+      const apiBase = getApiBaseUrl();
 
       const categoryLabel = {
         phone: 'Smartphone & Tablet',

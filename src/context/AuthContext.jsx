@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import { getApiBaseUrl } from '../services/config';
 
 const SESSION_KEY = 'repairlens.auth.session';
 const AuthContext = createContext(null);
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const apiBaseUrl = getApiBaseUrl();
 
 function readSessionState() {
   if (typeof window === 'undefined') {

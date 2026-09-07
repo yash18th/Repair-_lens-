@@ -11,12 +11,10 @@ export const createAuthToken = (userId) =>
 export const verifyAuthToken = (token) => jwt.verify(token, config.jwtSecret);
 
 export const setAuthCookie = (res, token) => {
-  const isProduction = process.env.NODE_ENV === 'production';
-
   res.cookie('authToken', token, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
@@ -25,7 +23,8 @@ export const setAuthCookie = (res, token) => {
 export const clearAuthCookie = (res) => {
   res.clearCookie('authToken', {
     httpOnly: true,
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     path: '/',
   });
 };

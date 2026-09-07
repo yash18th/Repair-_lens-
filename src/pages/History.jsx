@@ -1,11 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { History, Filter, ArrowRight, Loader2, AlertTriangle, Plus, Search } from 'lucide-react';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (
-  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? '/api'
-    : 'http://localhost:4000'
-);
+import { getApiBaseUrl } from '../services/config';
+
+const apiBaseUrl = getApiBaseUrl();
 
 const formatDateTime = (isoString) => {
   if (!isoString) return 'Recent';
