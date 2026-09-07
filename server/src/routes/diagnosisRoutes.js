@@ -31,9 +31,49 @@ router.post('/analyze', requireAuth, async (req, res) => {
 
     const reportId = `RL-${Date.now()}-${randomUUID().slice(0, 8)}`;
 
+    // STAGE: Dedicated AI analysis format error or provider error handling
+    if (diagnosis.status === 'analysis_error' || diagnosis.status === 'provider_error') {
+      const isProvider = diagnosis.status === 'provider_error';
+      const scan = await prisma.scan.create({
+        data: {
+          reportId,
+          userId: req.user.id,
+          category: diagnosis.selected_category || parsed.data.category || 'Other',
+          deviceType: diagnosis.detected_object || 'Unknown',
+          deviceName: diagnosis.detected_object || 'Diagnostic Engine',
+          issueDescription: diagnosis.rejection_reason || (isProvider ? 'AI service temporarily unavailable' : 'AI analysis format error'),
+          problemDescription: diagnosis.suggested_action || diagnosis.rejection_reason || 'AI diagnosis could not be completed.',
+          diagnosis: isProvider ? 'Provider Service Unavailable' : 'AI Analysis Format Error',
+          severity: 'Low',
+          confidence: 0,
+          recommendation: diagnosis.suggested_action || 'Please retry the diagnosis.',
+          estimatedRepairCost: null,
+          estimatedCost: null,
+          costMin: null,
+          costMax: null,
+          imageCount: parsed.data.images.length,
+          uploadedImageUrl: null,
+          latitude: parsed.data.latitude ?? null,
+          longitude: parsed.data.longitude ?? null,
+          analysisData: { diagnosis, price: null, imageSlots: parsed.data.images.map(i => i.slot || 'image') }
+        }
+      });
+      console.log(`[Diagnosis] ${diagnosis.status} scan recorded`, { userId: req.user.id, reportId, scanId: scan.id });
+      return res.status(200).json({
+        success: true,
+        reportId,
+        scanId: scan.id,
+        diagnosis: {
+          ...diagnosis,
+          issues: [],
+          price: null
+        }
+      });
+    }
+
     // STAGE 9 & STAGE 13: Invalid image or insufficient evidence
-    if (!diagnosis.valid_for_diagnosis || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
-      const isInvalid = diagnosis.status === 'invalid_image';
+    if (diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence' || !diagnosis.valid_for_diagnosis) {
+      const isInvalid = diagnosis.status === 'invalid_image' || !diagnosis.valid_for_diagnosis;
       const scan = await prisma.scan.create({
         data: {
           reportId,

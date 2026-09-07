@@ -33,10 +33,93 @@ import {
   Cpu
 } from 'lucide-react';
 
-export default function AnalysisCard({ result, angles, onReset, onUploadTargetAngle }) {
+export default function AnalysisCard({ result, angles, onReset, onRetry, onUploadTargetAngle }) {
   const [completedSteps, setCompletedSteps] = useState([]);
 
   if (!result) return null;
+
+  // Dedicated AI Analysis Format / Parser Error UI
+  if (result.status === 'analysis_error' || result.isAnalysisError) {
+    return (
+      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-indigo-500/40 bg-gradient-to-b from-slate-950/95 via-indigo-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-950/50">
+          <Brain className="w-8 h-8 text-indigo-400 animate-pulse" />
+        </div>
+
+        <div className="space-y-3 max-w-lg mx-auto">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+            <span>AI Analysis Notice</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            AI analysis could not be completed. Please try again.
+          </h3>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {result.rejectionReason || 'The vision model returned an invalid response format. Please retry the diagnosis.'}
+          </p>
+
+          <p className="text-xs text-slate-400 pt-1">
+            Your uploaded image is saved and ready. Click below to retry the diagnosis.
+          </p>
+        </div>
+
+        <div className="pt-2 flex justify-center gap-3">
+          <button
+            onClick={onRetry || onReset}
+            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Retry Diagnosis</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Dedicated Provider Service / Rate Limit (429/503) Error UI
+  if (
+    result.status === 'provider_error' ||
+    result.isProviderError ||
+    result.status === 'service_error' ||
+    result.isServiceError
+  ) {
+    return (
+      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-violet-500/40 bg-gradient-to-b from-slate-950/95 via-violet-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center shadow-lg shadow-violet-950/50">
+          <Activity className="w-8 h-8 text-violet-400 animate-pulse" />
+        </div>
+
+        <div className="space-y-3 max-w-lg mx-auto">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
+            <span>AI Service Notice</span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            AI service is temporarily unavailable. Please try again.
+          </h3>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {result.rejectionReason || 'The AI diagnostic vision service is busy or rate limited. Please retry in a few moments.'}
+          </p>
+
+          <p className="text-xs text-slate-400 pt-1">
+            Your image is intact. Click below to retry the diagnosis.
+          </p>
+        </div>
+
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={onRetry || onReset}
+            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2 cursor-pointer"
+          >
+            <Activity className="w-4 h-4" />
+            <span>Retry Diagnosis</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // STAGE 9: Dedicated Invalid Image / Category Mismatch UI
   if (
@@ -53,11 +136,11 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
 
         <div className="space-y-3 max-w-lg mx-auto">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-bold uppercase tracking-wider">
-            <span>Image Not Suitable for Diagnosis</span>
+            <span>Category Verification</span>
           </div>
 
           <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Category & Object Mismatch
+            Image not suitable for this category
           </h3>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
@@ -80,7 +163,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
         <div className="pt-2 flex justify-center">
           <button
             onClick={onReset}
-            className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
+            className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2 cursor-pointer"
           >
             <Camera className="w-4 h-4" />
             <span>Upload Correct Device Photo</span>
@@ -90,54 +173,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
     );
   }
 
-  // Dedicated Service / API Error UI
-  if (
-    result.status === 'service_error' ||
-    result.isServiceError ||
-    (result.rejectionReason && (
-      result.rejectionReason.includes('Gemini API') ||
-      result.rejectionReason.includes('API key') ||
-      result.rejectionReason.includes('service error')
-    ))
-  ) {
-    return (
-      <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-violet-500/40 bg-gradient-to-b from-slate-950/95 via-violet-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center shadow-lg shadow-violet-950/50">
-          <Activity className="w-8 h-8 text-violet-400 animate-pulse" />
-        </div>
-
-        <div className="space-y-3 max-w-lg mx-auto">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-violet-500/15 border border-violet-500/30 text-violet-300 text-xs font-bold uppercase tracking-wider">
-            <span>AI Diagnostic Service Notice</span>
-          </div>
-
-          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            AI Service Reconnecting
-          </h3>
-
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-            {result.rejectionReason || 'The AI diagnostic vision service is initializing endpoints or reconnecting with Google Gemini API.'}
-          </p>
-
-          <p className="text-xs text-slate-400 pt-1">
-            Your image is valid. Please retry now to connect with the updated endpoint.
-          </p>
-        </div>
-
-        <div className="pt-2 flex justify-center">
-          <button
-            onClick={onReset}
-            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
-          >
-            <Camera className="w-4 h-4" />
-            <span>Retry Diagnosis</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // STAGE 1: Dedicated Insufficient Visual Evidence UI
+  // STAGE 1: Dedicated Insufficient Visual Evidence UI (ONLY for actual blurry/dark images!)
   if (result.status === 'insufficient_evidence' || result.isInsufficientEvidence) {
     return (
       <div className="w-full glass-panel rounded-3xl p-8 sm:p-10 border-2 border-amber-500/40 bg-gradient-to-b from-slate-950/95 via-amber-950/20 to-slate-950/95 text-center space-y-6 shadow-2xl animate-fadeIn relative overflow-hidden">
@@ -147,11 +183,11 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
 
         <div className="space-y-3 max-w-lg mx-auto">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider">
-            <span>Insufficient Visual Evidence</span>
+            <span>Visual Evidence Check</span>
           </div>
 
           <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Image Unclear or Obstructed
+            Not enough visual evidence
           </h3>
 
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
@@ -166,7 +202,7 @@ export default function AnalysisCard({ result, angles, onReset, onUploadTargetAn
         <div className="pt-2 flex justify-center">
           <button
             onClick={onReset}
-            className="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2"
+            className="px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-sm shadow-xl transition-all duration-200 inline-flex items-center space-x-2 cursor-pointer"
           >
             <Camera className="w-4 h-4" />
             <span>Retake Clear Photo</span>

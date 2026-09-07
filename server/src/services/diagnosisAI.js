@@ -177,7 +177,197 @@ async function getAvailableGeminiEndpoints(apiKey, signal) {
   return [];
 }
 
-async function callGemini(parts, systemInstruction, signal) {
+export const PASS1_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    image_quality: {
+      type: 'STRING',
+      enum: ['usable', 'blurry', 'too_dark', 'too_bright', 'obstructed', 'too_small', 'unclear', 'no_relevant_object', 'invalid']
+    },
+    is_usable: { type: 'BOOLEAN' },
+    detected_object: { type: 'STRING' },
+    object_description: { type: 'STRING' },
+    object_confidence: { type: 'INTEGER' },
+    category_match: { type: 'BOOLEAN' },
+    category_match_confidence: { type: 'INTEGER' },
+    valid_for_diagnosis: { type: 'BOOLEAN' },
+    rejection_reason: { type: 'STRING' },
+    suggested_action: { type: 'STRING' },
+    visible_device_elements: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    }
+  },
+  required: [
+    'image_quality',
+    'is_usable',
+    'detected_object',
+    'object_confidence',
+    'category_match',
+    'valid_for_diagnosis'
+  ]
+};
+
+export const PASS2_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    valid_for_diagnosis: { type: 'BOOLEAN' },
+    status: {
+      type: 'STRING',
+      enum: ['valid', 'no_visible_damage', 'insufficient_evidence']
+    },
+    selected_category: { type: 'STRING' },
+    detected_object: { type: 'STRING' },
+    object_confidence: { type: 'INTEGER' },
+    category_match_confidence: { type: 'INTEGER' },
+    damage_confidence: { type: 'INTEGER' },
+    rejection_reason: { type: 'STRING' },
+    issue: { type: 'STRING' },
+    summary: { type: 'STRING' },
+    detailed_explanation: { type: 'STRING' },
+    visible_evidence: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    affected_components: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    severity: {
+      type: 'STRING',
+      enum: ['Low', 'Medium', 'High', 'Critical', 'low', 'medium', 'high', 'critical', 'unknown']
+    },
+    urgency: { type: 'STRING' },
+    likely_causes: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    recommended_solution: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    estimated_repair_cost: {
+      type: 'OBJECT',
+      properties: {
+        min: { type: 'NUMBER' },
+        max: { type: 'NUMBER' },
+        currency: { type: 'STRING' },
+        basis: { type: 'STRING' }
+      }
+    },
+    safety_notes: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    additional_checks: {
+      type: 'ARRAY',
+      items: { type: 'STRING' }
+    },
+    repair_complexity: {
+      type: 'STRING',
+      enum: ['Low', 'Medium', 'High', 'Very High']
+    },
+    estimated_duration: { type: 'STRING' },
+    repair_blueprint: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          title: { type: 'STRING' },
+          description: { type: 'STRING' }
+        }
+      }
+    },
+    damage_regions: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          label: { type: 'STRING' },
+          description: { type: 'STRING' },
+          confidence: { type: 'INTEGER' },
+          box: {
+            type: 'OBJECT',
+            properties: {
+              x: { type: 'NUMBER' },
+              y: { type: 'NUMBER' },
+              width: { type: 'NUMBER' },
+              height: { type: 'NUMBER' }
+            }
+          }
+        }
+      }
+    }
+  },
+  required: [
+    'valid_for_diagnosis',
+    'status',
+    'detected_object',
+    'damage_confidence',
+    'issue',
+    'summary',
+    'visible_evidence',
+    'affected_components',
+    'severity',
+    'recommended_solution'
+  ]
+};
+
+export function parseGeminiDiagnosisResponse(rawText) {
+  if (!rawText || typeof rawText !== 'string' || !rawText.trim()) {
+    return { success: false, error: 'Empty response from model' };
+  }
+
+  let text = rawText.trim();
+
+  // 1. Strip markdown code fence block if present
+  const codeBlockMatch = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(text);
+  if (codeBlockMatch) {
+    text = codeBlockMatch[1].trim();
+  }
+
+  // 2. Direct JSON.parse attempt
+  try {
+    const data = JSON.parse(text);
+    if (data && typeof data === 'object') {
+      return { success: true, data };
+    }
+  } catch (_) {
+    // Continue to substring extraction
+  }
+
+  // 3. Extract JSON object between first '{' and last '}'
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    const jsonSubstring = text.slice(firstBrace, lastBrace + 1);
+    try {
+      const data = JSON.parse(jsonSubstring);
+      if (data && typeof data === 'object') {
+        return { success: true, data };
+      }
+    } catch (_) {
+      // 4. Clean common trailing commas or smart quotes
+      const cleaned = jsonSubstring
+        .replace(/,\s*([}\]])/g, '$1')
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u2018\u2019]/g, "'");
+
+      try {
+        const data = JSON.parse(cleaned);
+        if (data && typeof data === 'object') {
+          return { success: true, data };
+        }
+      } catch (_) {
+        // Fall through
+      }
+    }
+  }
+
+  return { success: false, error: 'Could not extract valid JSON from response' };
+}
+
+async function callGemini(parts, systemInstruction, signal, schema = null, scanTraceId = 'anonymous') {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is not configured on the backend.');
@@ -215,32 +405,40 @@ async function callGemini(parts, systemInstruction, signal) {
     }
   }
 
-  const body = {
-    contents: [
-      {
-        role: 'user',
-        parts: parts
-      }
-    ],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      temperature: 0.1
-    }
-  };
-
-  if (systemInstruction) {
-    body.systemInstruction = {
-      parts: [{ text: systemInstruction }]
-    };
-  }
-
   let lastError = null;
   for (const { version, name } of endpointsToTry) {
     const cleanModel = name.replace(/^models\//, '');
     const url = `https://generativelanguage.googleapis.com/${version}/models/${encodeURIComponent(cleanModel)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
+    const generationConfig = {
+      responseMimeType: 'application/json',
+      temperature: 0.1
+    };
+
+    // Attach strict response schema on v1beta endpoints
+    if (schema && version === 'v1beta') {
+      generationConfig.responseSchema = schema;
+    }
+
+    const body = {
+      contents: [
+        {
+          role: 'user',
+          parts: parts
+        }
+      ],
+      generationConfig
+    };
+
+    if (systemInstruction) {
+      body.systemInstruction = {
+        parts: [{ text: systemInstruction }]
+      };
+    }
+
     try {
-      const response = await fetch(url, {
+      console.log(`[DiagnosisAI][${scanTraceId}] Requesting ${version}/${cleanModel} (schema: ${Boolean(generationConfig.responseSchema)})`);
+      let response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,21 +448,40 @@ async function callGemini(parts, systemInstruction, signal) {
         signal
       });
 
+      // If endpoint rejects responseSchema (e.g. 400 schema error), retry without responseSchema
+      if (!response.ok && response.status === 400 && generationConfig.responseSchema) {
+        const errorPreview = await response.text();
+        if (errorPreview.includes('responseSchema') || errorPreview.includes('unknown field') || errorPreview.includes('schema')) {
+          console.warn(`[DiagnosisAI][${scanTraceId}] ${version}/${cleanModel} rejected responseSchema, retrying without schema...`);
+          delete body.generationConfig.responseSchema;
+          response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: JSON.stringify(body),
+            signal
+          });
+        }
+      }
+
       if (response.ok) {
+        console.log(`[DiagnosisAI][${scanTraceId}] ${version}/${cleanModel} responded 200 OK`);
         return await response.json();
       }
 
       const errorText = await response.text();
       lastError = new Error(`Gemini API (${version}/${cleanModel}) error (${response.status}): ${errorText.slice(0, 300)}`);
-      console.warn(`[DiagnosisAI] ${version}/${cleanModel} failed with status ${response.status}:`, errorText.slice(0, 150));
+      console.warn(`[DiagnosisAI][${scanTraceId}] ${version}/${cleanModel} failed with status ${response.status}:`, errorText.slice(0, 150));
 
-      if (response.status === 404 || response.status === 429) {
+      if (response.status === 404 || response.status === 429 || response.status === 503) {
         continue;
       }
     } catch (err) {
       if (err.name === 'AbortError') throw err;
       lastError = err;
-      console.warn(`[DiagnosisAI] ${version}/${cleanModel} fetch exception:`, err.message);
+      console.warn(`[DiagnosisAI][${scanTraceId}] ${version}/${cleanModel} fetch exception:`, err.message);
     }
   }
 
@@ -278,12 +495,15 @@ export async function analyzeUploadedImages({ images, category = 'Smartphone & T
     throw error;
   }
 
+  const scanTraceId = `trace_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  console.log(`[DiagnosisAI][${scanTraceId}] Beginning AI diagnosis for category "${category}" with ${images.length} image(s)`);
+
   // If GEMINI_API_KEY is missing, refuse to generate fake diagnoses!
   if (!process.env.GEMINI_API_KEY) {
-    console.warn('[DiagnosisAI] GEMINI_API_KEY is not configured on the backend.');
+    console.warn(`[DiagnosisAI][${scanTraceId}] GEMINI_API_KEY is not configured on the backend.`);
     return {
       valid_for_diagnosis: false,
-      status: 'insufficient_evidence',
+      status: 'provider_error',
       detected_object: 'unknown',
       object_confidence: 0,
       selected_category: category,
@@ -312,7 +532,7 @@ Determine:
    - "usable": The photograph clarity/resolution is sufficient to inspect the hardware (even if the phone/hardware is cracked, broken, glitching, or has lines!).
 2. "is_usable": boolean (true if image resolution/lighting allows inspection. A damaged, cracked, or glitching screen phone IS usable for inspection!).
 3. "detected_object": One of ["smartphone", "tablet", "laptop", "desktop/computer", "PCB/electronic board", "home appliance", "vehicle", "person", "clothing", "food", "animal", "landscape", "other", "unknown"].
-   - If any phone, iPhone, Android, or mobile screen is in the photo (working or broken, displaying lines or cracked), set detected_object to "smartphone" or "tablet".
+   - If any phone, iPhone, Android, or mobile screen is in the photo (working or broken, displaying vertical or horizontal lines, color bars, or cracked), set detected_object to "smartphone" or "tablet".
 4. "object_description": Concise description of what is actually visible in the photo.
 5. "object_confidence": Integer from 0 to 100 representing confidence in object identification.
 6. "category_match": boolean (true if detected_object matches the selected category:
@@ -332,36 +552,77 @@ CRITICAL RULES:
 - A damaged, cracked, shattered, lines-on-screen, glitching, or broken phone IS 100% VALID FOR DIAGNOSIS! Set valid_for_diagnosis = true, is_usable = true, and category_match = true!
 - REJECT (valid_for_diagnosis = false, category_match = false) ONLY when the photo depicts a person, outdoor scene, food, clothing, animal, or completely unrelated non-device content.`;
 
-  const pass1UserPrompt = `Inspect the attached image(s) for Stage 1 Verification. Return ONLY JSON matching the gatekeeper schema.`;
+  const pass1UserPrompt = `Inspect the attached image(s) for Stage 1 Verification. Return ONLY JSON matching the gatekeeper schema without markdown or text outside JSON.`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 45000);
+  const timeoutId = setTimeout(() => controller.abort(), 50000);
 
-  let pass1Result;
-  try {
-    const pass1Payload = await callGemini(
-      [{ text: pass1UserPrompt }, ...imageParts],
-      pass1SystemInstruction,
-      controller.signal
-    );
-    pass1Result = JSON.parse(responseText(pass1Payload));
-  } catch (err) {
+  let pass1Result = null;
+  let pass1Error = null;
+
+  // Maximum one controlled retry if response parsing fails
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const pass1Payload = await callGemini(
+        [{ text: pass1UserPrompt }, ...imageParts],
+        pass1SystemInstruction,
+        controller.signal,
+        PASS1_SCHEMA,
+        scanTraceId
+      );
+      const rawText = responseText(pass1Payload);
+      const parseResult = parseGeminiDiagnosisResponse(rawText);
+
+      if (parseResult.success) {
+        pass1Result = parseResult.data;
+        console.log(`[DiagnosisAI][${scanTraceId}] Pass 1 parsed successfully on attempt ${attempt + 1}`);
+        break;
+      } else {
+        console.warn(`[DiagnosisAI][${scanTraceId}] Pass 1 parse failed on attempt ${attempt + 1}: ${parseResult.error}. Snippet: ${rawText.slice(0, 100)}`);
+        pass1Error = new Error(parseResult.error);
+      }
+    } catch (err) {
+      console.warn(`[DiagnosisAI][${scanTraceId}] Pass 1 attempt ${attempt + 1} exception:`, err.message);
+      pass1Error = err;
+      if (err.message && (err.message.includes('429') || err.message.includes('503') || err.message.includes('quota') || err.message.includes('rate limit'))) {
+        clearTimeout(timeoutId);
+        return {
+          valid_for_diagnosis: false,
+          status: 'provider_error',
+          detected_object: 'unknown',
+          object_confidence: 0,
+          selected_category: category,
+          category_match: false,
+          category_match_confidence: 0,
+          rejection_reason: 'AI diagnostic service is temporarily busy or rate limited. Please try again in a few moments.',
+          suggested_action: 'Please wait a moment and click Retry Diagnosis.',
+          visible_evidence: []
+        };
+      }
+    }
+  }
+
+  if (!pass1Result) {
     clearTimeout(timeoutId);
-    console.error('[DiagnosisAI] Pass 1 Gatekeeper failed:', err.message);
+    console.error(`[DiagnosisAI][${scanTraceId}] Pass 1 failed all attempts:`, pass1Error?.message);
+    const isProviderFailure = pass1Error && (pass1Error.message?.includes('429') || pass1Error.message?.includes('503') || pass1Error.message?.includes('failed to respond'));
     return {
       valid_for_diagnosis: false,
-      status: 'insufficient_evidence',
+      status: isProviderFailure ? 'provider_error' : 'analysis_error',
       detected_object: 'unknown',
       object_confidence: 0,
       selected_category: category,
       category_match: false,
       category_match_confidence: 0,
-      rejection_reason: `Visual verification could not be completed: ${err.message}`,
-      suggested_action: 'Please try uploading a smaller, clearer image.'
+      rejection_reason: isProviderFailure
+        ? 'AI service is temporarily unavailable. Please try again.'
+        : 'The vision model returned an invalid response format. Please retry the diagnosis.',
+      suggested_action: 'Please click Retry Diagnosis to re-analyze your image.',
+      visible_evidence: []
     };
   }
 
-  console.log('[DiagnosisAI] Pass 1 Gatekeeper Result:', {
+  console.log(`[DiagnosisAI][${scanTraceId}] Pass 1 Gatekeeper Result:`, {
     quality: pass1Result.image_quality,
     object: pass1Result.detected_object,
     conf: pass1Result.object_confidence,
@@ -375,7 +636,7 @@ CRITICAL RULES:
     clearTimeout(timeoutId);
     return {
       valid_for_diagnosis: false,
-      status: 'invalid_image',
+      status: 'insufficient_evidence',
       detected_object: pass1Result.detected_object || 'unusable_image',
       object_confidence: pass1Result.object_confidence || 0,
       selected_category: category,
@@ -462,66 +723,85 @@ Perform a clinical, evidence-based damage inspection of the image:
    - Set "repair_blueprint": []
    - Set "damage_regions": []
 3. If physical damage or hardware malfunction IS visibly observed:
-   - Detail the exact observed issue (e.g. vertical/horizontal screen lines, OLED display matrix glitch or line artifacts, cracked front glass, broken camera lens, dented bumper, burnt resistor).
-   - Distinguish carefully between components (e.g. front glass vs OLED matrix vs back glass vs camera lens vs frame). If the display shows lines or color bars, diagnose display matrix/panel defect!
-   - Every positive damage finding MUST cite explicit visual evidence directly from the image.
-   - Multi-hypothesis check: could this be screen reflection/glare or surface dirt rather than a crack or defect? Explain in "alternative_hypotheses".
+   - Detail the exact observed issue:
+     * If the screen has visible vertical lines, horizontal lines, color bars, or visual glitches, diagnose "Display abnormality detected" or "Display panel defect / line artifacts".
+     * If the outer glass is intact without impact fractures, DO NOT claim "shattered screen" or "cracked glass"; note that outer glass is physically intact while display panel produces line artifacts!
+     * If outer glass has cracks, describe the crack pattern (e.g. hairline crack, spiderweb fracture).
+     * Distinguish carefully between outer glass, OLED/LCD matrix, frame, and back panel.
+     * Every positive damage finding MUST cite explicit visual evidence directly from the image.
    - Set "status": "valid"
-   - Set "damage_confidence": Integer 0-100. If damage cannot be distinguished from glare/dirt with confidence >= 70, set "status": "insufficient_evidence".
+   - Set "damage_confidence": Integer 0-100 based on visible clarity.
+   - Set "severity": One of ["Low", "Medium", "High", "Critical"].
+   - Provide realistic "estimated_repair_cost" with min, max, and currency ("INR").
 
-Return ONLY a valid JSON object matching this schema:
-{
-  "valid_for_diagnosis": true,
-  "status": "valid" | "no_visible_damage" | "insufficient_evidence",
-  "selected_category": "${category}",
-  "detected_object": "${pass1Result.detected_object}",
-  "object_confidence": ${pass1Result.object_confidence},
-  "category_match_confidence": ${pass1Result.category_match_confidence},
-  "damage_confidence": number,
-  "rejection_reason": null,
-  "issue": string,
-  "summary": string,
-  "detailed_explanation": string,
-  "visible_evidence": string[],
-  "alternative_hypotheses": string[],
-  "affected_components": string[],
-  "severity": "Low" | "Medium" | "High" | "Critical",
-  "urgency": "Immediate Attention Required" | "Moderate" | "None - Device Intact",
-  "likely_causes": string[],
-  "risks_if_unfixed": string[],
-  "recommended_solution": string[],
-  "repair_complexity": "Low" | "Medium" | "High" | "Very High",
-  "estimated_duration": string,
-  "repair_blueprint": [ { "title": string, "description": string } ],
-  "damage_regions": [ { "label": string, "description": string, "confidence": number, "box": { "x": number, "y": number, "width": number, "height": number } } ]
-}`;
+Return ONLY a valid JSON object matching the requested schema without markdown or text outside JSON.`;
 
-  const pass2UserPrompt = `Perform Stage 2 clinical damage inspection on the verified image(s). Return ONLY valid JSON.`;
+  const pass2UserPrompt = `Perform Stage 2 clinical damage inspection on the verified image(s). Return ONLY valid JSON matching the schema.`;
 
-  let pass2Result;
-  try {
-    const pass2Payload = await callGemini(
-      [{ text: pass2UserPrompt }, ...imageParts],
-      pass2SystemInstruction,
-      controller.signal
-    );
-    pass2Result = JSON.parse(responseText(pass2Payload));
-  } catch (err) {
-    clearTimeout(timeoutId);
-    console.error('[DiagnosisAI] Pass 2 Damage Inspection failed:', err.message);
+  let pass2Result = null;
+  let pass2Error = null;
+
+  // Maximum one controlled retry if response parsing fails
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const pass2Payload = await callGemini(
+        [{ text: pass2UserPrompt }, ...imageParts],
+        pass2SystemInstruction,
+        controller.signal,
+        PASS2_SCHEMA,
+        scanTraceId
+      );
+      const rawText = responseText(pass2Payload);
+      const parseResult = parseGeminiDiagnosisResponse(rawText);
+
+      if (parseResult.success) {
+        pass2Result = parseResult.data;
+        console.log(`[DiagnosisAI][${scanTraceId}] Pass 2 parsed successfully on attempt ${attempt + 1}`);
+        break;
+      } else {
+        console.warn(`[DiagnosisAI][${scanTraceId}] Pass 2 parse failed on attempt ${attempt + 1}: ${parseResult.error}. Snippet: ${rawText.slice(0, 100)}`);
+        pass2Error = new Error(parseResult.error);
+      }
+    } catch (err) {
+      console.warn(`[DiagnosisAI][${scanTraceId}] Pass 2 attempt ${attempt + 1} exception:`, err.message);
+      pass2Error = err;
+      if (err.message && (err.message.includes('429') || err.message.includes('503') || err.message.includes('quota') || err.message.includes('rate limit'))) {
+        clearTimeout(timeoutId);
+        return {
+          valid_for_diagnosis: false,
+          status: 'provider_error',
+          detected_object: pass1Result.detected_object,
+          object_confidence: pass1Result.object_confidence,
+          selected_category: category,
+          category_match: true,
+          category_match_confidence: pass1Result.category_match_confidence,
+          rejection_reason: 'AI diagnostic service is temporarily busy or rate limited. Please try again in a few moments.',
+          suggested_action: 'Please wait a moment and click Retry Diagnosis.',
+          visible_evidence: []
+        };
+      }
+    }
+  }
+
+  clearTimeout(timeoutId);
+
+  if (!pass2Result) {
+    console.error(`[DiagnosisAI][${scanTraceId}] Pass 2 failed all attempts:`, pass2Error?.message);
+    const isProviderFailure = pass2Error && (pass2Error.message?.includes('429') || pass2Error.message?.includes('503') || pass2Error.message?.includes('failed to respond'));
     return {
       valid_for_diagnosis: false,
-      status: 'insufficient_evidence',
+      status: isProviderFailure ? 'provider_error' : 'analysis_error',
       detected_object: pass1Result.detected_object,
       object_confidence: pass1Result.object_confidence,
       selected_category: category,
       category_match: true,
       category_match_confidence: pass1Result.category_match_confidence,
-      rejection_reason: `Damage inspection could not be completed: ${err.message}`,
-      suggested_action: 'Please try again with a clear photo.'
+      rejection_reason: isProviderFailure
+        ? 'AI service is temporarily unavailable. Please try again.'
+        : 'The vision model returned an invalid response format. Please retry the diagnosis.',
+      suggested_action: 'Please click Retry Diagnosis to re-analyze your image.',
+      visible_evidence: []
     };
-  } finally {
-    clearTimeout(timeoutId);
   }
 
   // Stage 14: Server-side validation on Pass 2
@@ -548,8 +828,13 @@ Return ONLY a valid JSON object matching this schema:
     pass2Result.summary = conf2Check.reason;
   }
 
+  // Standardize severity
+  const rawSev = String(pass2Result.severity || 'Medium').toLowerCase();
+  const severityMap = { low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical', unknown: 'Medium' };
+  pass2Result.severity = severityMap[rawSev] || 'Medium';
+
   // Map Pass 2 output into standardized diagnosis structure
-  pass2Result.valid_for_diagnosis = true;
+  pass2Result.valid_for_diagnosis = (pass2Result.status === 'valid' || pass2Result.status === 'no_visible_damage');
   pass2Result.category = category;
   pass2Result.deviceType = pass1Result.detected_object;
   pass2Result.brand = deviceBrand || 'Identified Device';

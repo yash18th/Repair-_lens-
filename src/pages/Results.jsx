@@ -3,14 +3,14 @@ import AnalysisCard from '../components/AnalysisCard';
 import { ArrowLeft, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { ANGLE_TYPES } from '../services/api';
 
-export default function Results({ analysisResult, angles, onReset, onUploadTargetAngle }) {
+export default function Results({ analysisResult, angles, onReset, onRetry, onUploadTargetAngle }) {
   if (!analysisResult) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
         <p className="text-slate-400">No multi-angle analysis results found.</p>
         <button
           onClick={onReset}
-          className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-colors"
+          className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-colors cursor-pointer"
         >
           Return to Studio
         </button>
@@ -30,7 +30,7 @@ export default function Results({ analysisResult, angles, onReset, onUploadTarge
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <button
           onClick={onReset}
-          className="inline-flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center space-x-2 text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Diagnose Another Component</span>
@@ -95,7 +95,7 @@ export default function Results({ analysisResult, angles, onReset, onUploadTarge
 
             <button
               onClick={onReset}
-              className="w-full mt-4 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors flex items-center justify-center space-x-2"
+              className="w-full mt-4 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-colors flex items-center justify-center space-x-2 cursor-pointer"
             >
               <RotateCcw className="w-4 h-4 text-purple-400" />
               <span>Start New Diagnosis</span>
@@ -109,6 +109,7 @@ export default function Results({ analysisResult, angles, onReset, onUploadTarge
             result={analysisResult}
             angles={angles}
             onReset={onReset}
+            onRetry={onRetry}
             onUploadTargetAngle={onUploadTargetAngle}
           />
         </div>

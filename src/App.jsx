@@ -508,6 +508,7 @@ function RepairLensDashboard() {
                 analysisResult={analysisResult}
                 angles={angles}
                 onReset={handleReset}
+                onRetry={handleAnalyze}
                 onUploadTargetAngle={handleUploadTargetAngle}
               />
             ) : (

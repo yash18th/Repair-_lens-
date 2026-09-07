@@ -187,13 +187,52 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
   if (!response.ok) throw new Error(payload.message || 'AI analysis failed.');
   const diagnosis = payload.diagnosis;
 
-  // STAGE 9 & 13: Handle Invalid Image or Insufficient Evidence
-  if (!diagnosis.valid_for_diagnosis || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
-    const isInvalid = diagnosis.status === 'invalid_image';
+  // Dedicated AI Analysis Format Error or Provider Service Error
+  if (diagnosis.status === 'analysis_error' || diagnosis.status === 'provider_error') {
+    const isProvider = diagnosis.status === 'provider_error';
     return {
       success: true,
       valid_for_diagnosis: false,
-      status: diagnosis.status || 'invalid_image',
+      status: diagnosis.status,
+      isAnalysisError: !isProvider,
+      isProviderError: isProvider,
+      isInvalidImage: false,
+      isInsufficientEvidence: false,
+      detectedObject: diagnosis.detected_object || 'Unknown',
+      objectConfidence: 0,
+      selectedCategory: diagnosis.selected_category || categoryContext[selectedCategory] || 'Unknown',
+      categoryMatch: true,
+      categoryMatchConfidence: 0,
+      rejectionReason: diagnosis.rejection_reason || (isProvider
+        ? 'AI service is temporarily unavailable. Please try again.'
+        : 'AI analysis could not be completed. Please try again.'),
+      suggestedAction: diagnosis.suggested_action || 'Please click Retry Diagnosis to re-run the scan.',
+      reportId: payload.reportId,
+      scanId: payload.scanId,
+      rawDiagnosis: diagnosis,
+      problemTitle: isProvider ? 'AI Service Temporarily Unavailable' : 'AI Analysis Incomplete',
+      plainEnglishSummary: diagnosis.rejection_reason || (isProvider
+        ? 'AI service is temporarily unavailable. Please try again.'
+        : 'AI analysis could not be completed. Please try again.'),
+      detailedIssueExplanation: diagnosis.suggested_action || 'Please click Retry Diagnosis to re-analyze your image.',
+      affectedComponents: [],
+      risksIfUnfixed: [],
+      evidence: [],
+      toolsRequired: [],
+      steps: [],
+      estimatedCost: null,
+      costIntelligence: null,
+      damageMap: null
+    };
+  }
+
+  // STAGE 9 & 13: Handle Invalid Image or Insufficient Evidence
+  if (!diagnosis.valid_for_diagnosis || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
+    const isInvalid = diagnosis.status === 'invalid_image' || (!diagnosis.valid_for_diagnosis && diagnosis.status !== 'insufficient_evidence');
+    return {
+      success: true,
+      valid_for_diagnosis: false,
+      status: isInvalid ? 'invalid_image' : 'insufficient_evidence',
       isInvalidCategory: isInvalid,
       isInvalidImage: isInvalid,
       isInsufficientEvidence: !isInvalid,
@@ -202,13 +241,13 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
       selectedCategory: diagnosis.selected_category || categoryContext[selectedCategory] || 'Unknown',
       categoryMatch: diagnosis.category_match ?? false,
       categoryMatchConfidence: diagnosis.category_match_confidence || 0,
-      rejectionReason: diagnosis.rejection_reason || (isInvalid ? 'The uploaded photo does not clearly show the selected category.' : 'Visual evidence is insufficient for diagnosis.'),
-      suggestedAction: diagnosis.suggested_action || 'Please upload a clear, focused photo of the device you want to diagnose.',
+      rejectionReason: diagnosis.rejection_reason || (isInvalid ? 'Image not suitable for this category' : 'Not enough visual evidence'),
+      suggestedAction: diagnosis.suggested_action || (isInvalid ? 'Please upload a photo of the selected device.' : 'Please take a closer, clearer photo.'),
       reportId: payload.reportId,
       scanId: payload.scanId,
       rawDiagnosis: diagnosis,
-      problemTitle: isInvalid ? 'Image Not Suitable for Diagnosis' : 'Insufficient Visual Evidence',
-      plainEnglishSummary: diagnosis.rejection_reason || 'Image cannot be diagnosed.',
+      problemTitle: isInvalid ? 'Image Not Suitable for This Category' : 'Not Enough Visual Evidence',
+      plainEnglishSummary: diagnosis.rejection_reason || (isInvalid ? 'Image not suitable for this category' : 'Not enough visual evidence'),
       detailedIssueExplanation: diagnosis.suggested_action || diagnosis.rejection_reason || '',
       affectedComponents: [],
       risksIfUnfixed: [],
