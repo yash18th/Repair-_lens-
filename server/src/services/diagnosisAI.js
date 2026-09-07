@@ -29,7 +29,7 @@ export async function analyzeUploadedImages({ images, category, userDescription 
   const timeoutId = setTimeout(() => controller.abort(), 45000);
   let response;
   try {
-    const model = process.env.GEMINI_VISION_MODEL || 'gemini-2.5-flash';
+    const model = process.env.GEMINI_VISION_MODEL || 'gemini-3.6-flash';
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
