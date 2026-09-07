@@ -34,7 +34,7 @@ model Profile {
 
 model Scan {
   id                  String          @id @default(cuid())
-  reportId            String          @unique
+  reportId            String
   userId              String
   user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   category            String

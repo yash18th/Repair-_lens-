@@ -42,8 +42,9 @@ router.post('/', requireAuth, async (req, res) => {
     const deviceType = parsed.data.deviceType || parsed.data.deviceName || 'Device';
     const reportId = parsed.data.reportId || `RL-${Date.now()}-${randomUUID().slice(0, 8)}`;
 
-    const existingScan = await prisma.scan.findUnique({
+    const existingScan = await prisma.scan.findFirst({
       where: { reportId },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (existingScan && existingScan.userId === req.user.id) {
