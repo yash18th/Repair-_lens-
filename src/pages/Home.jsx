@@ -68,6 +68,7 @@ export default function Home({
   onRemoveAngle,
   onClearAllAngles,
   onAnalyze,
+  analysisError,
   onStartDiagnosisRequest,
   isAnalyzing,
 }) {
@@ -231,12 +232,19 @@ export default function Home({
             </div>
 
             {hasAnyPhoto && (
-              <ImagePreview
-                angles={angles}
-                onAnalyze={onAnalyze}
-                onRemoveAngle={onRemoveAngle}
-                onClearAll={onClearAllAngles}
-              />
+              <>
+                {analysisError && (
+                  <div role="alert" className="rounded-xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">
+                    {analysisError}
+                  </div>
+                )}
+                <ImagePreview
+                  angles={angles}
+                  onAnalyze={onAnalyze}
+                  onRemoveAngle={onRemoveAngle}
+                  onClearAll={onClearAllAngles}
+                />
+              </>
             )}
           </div>
         )}

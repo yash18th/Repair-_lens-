@@ -1,6 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import diagnosisRoutes from '../../../server/src/routes/diagnosisRoutes.js';
+import diagnosisRoutes from '../../server/src/routes/diagnosisRoutes.js';
 
 const app = express();
 

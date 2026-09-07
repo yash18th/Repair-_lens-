@@ -18,7 +18,7 @@ const COMPLEXITY_MULTIPLIER = {
   Low: 0.9,
   Medium: 1,
   High: 1.25,
-  Very High: 1.45
+  'Very High': 1.45
 };
 
 function safeNumber(value, fallback = 0) {

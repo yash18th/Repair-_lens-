@@ -23,7 +23,19 @@ const toDataUrl = file => new Promise((resolve, reject) => { if (!file) return r
 export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location) {
   const uploaded = await Promise.all(Object.entries(anglePhotos || {}).filter(([, photo]) => photo?.file).map(async ([slot, photo]) => ({ slot, name: photo.name, dataUrl: await toDataUrl(photo.file) })));
   if (!uploaded.length) throw new Error('Upload at least one image. Sample images are not used for AI diagnosis.');
-  const response = await fetch(`${apiBase()}/api/diagnosis/analyze`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: uploaded, category: categoryContext[selectedCategory] || 'Other', latitude: location?.lat, longitude: location?.lng }) });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 60000);
+  let response;
+  try {
+    response = await fetch(`${apiBase()}/api/diagnosis/analyze`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: uploaded, category: categoryContext[selectedCategory] || 'Other', latitude: location?.lat, longitude: location?.lng }), signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Diagnosis timed out. Please try again with a smaller image.');
+    }
+    throw new Error('Unable to reach the diagnosis service. Please try again.');
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.message || 'AI analysis failed.');
   const diagnosis = payload.diagnosis;

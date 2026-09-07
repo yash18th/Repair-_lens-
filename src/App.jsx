@@ -101,6 +101,7 @@ function RepairLensDashboard() {
   const [angles, setAngles] = useState(INITIAL_ANGLES);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [analysisError, setAnalysisError] = useState('');
   const [presetUsed, setPresetUsed] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -157,6 +158,7 @@ function RepairLensDashboard() {
     setSelectedCategory(catId);
     setAngles(INITIAL_ANGLES);
     setAnalysisResult(null);
+    setAnalysisError('');
     setPresetUsed(null);
     setCurrentView('studio-category');
   };
@@ -270,6 +272,7 @@ function RepairLensDashboard() {
     }
 
     setIsAnalyzing(true);
+    setAnalysisError('');
     try {
       const result = await analyzeImage(presetAngles, presetId, category);
       setAnalysisResult(result);
@@ -277,6 +280,7 @@ function RepairLensDashboard() {
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to analyze images:', error);
+      setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
       setIsAnalyzing(false);
     }
   };
@@ -500,6 +504,7 @@ function RepairLensDashboard() {
                 onRemoveAngle={handleRemoveAngle}
                 onClearAllAngles={handleClearAllAngles}
                 onAnalyze={handleAnalyze}
+                analysisError={analysisError}
                 onSelectSamplePreset={handleSelectSamplePreset}
                 onStartDiagnosisRequest={handleStartDiagnosisRequest}
                 isAnalyzing={isAnalyzing}
