@@ -6,11 +6,17 @@ const responseFormat = { type: 'json_schema', name: 'repair_diagnosis', strict: 
 function textFromResponse(payload) { return payload.output_text || payload.output?.flatMap(item => item.content || []).map(part => part.text || '').join('') || ''; }
 
 export async function analyzeUploadedImages({ images, category, userDescription = '', deviceBrand = '', deviceModel = '' }) {
-  if (!process.env.OPENAI_API_KEY) { const error = new Error('AI diagnosis is not configured. Set OPENAI_API_KEY on the backend.'); error.statusCode = 503; throw error; }
+  if (!process.env.OPENAI_API_KEY) { const error = new Error('AI diagnosis is not configured. Set OPENAI_API_KEY on the backend.'); error.statusCode = 503; error.code = 'AI_MODEL_NOT_CONFIGURED'; throw error; }
   if (!Array.isArray(images) || !images.length) { const error = new Error('At least one readable image is required.'); error.statusCode = 400; throw error; }
   const prompt = `You are RepairLens, a conservative visual repair assessor. Analyze every supplied image together as angles of one item. User category is context only: ${category || 'none'}; verify it. User notes: ${userDescription || 'none'}. Claimed brand/model: ${deviceBrand || 'none'}/${deviceModel || 'none'}. Only report visually observable evidence. Never claim hidden electrical, mechanical, liquid, battery, or operational faults. For vehicles, require physical inspection for hidden faults. Do not identify brand/model unless visible; use Unknown. If insufficient, use LOW_CONFIDENCE below .60 and say what photo is needed. Return damage regions only if visible and >=.70 confidence. Return the schema exactly.`;
   const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, body: JSON.stringify({ model: process.env.OPENAI_VISION_MODEL || 'gpt-4.1-mini', input: [{ role: 'user', content: [{ type: 'input_text', text: prompt }, ...images.map(image => ({ type: 'input_image', image_url: image.dataUrl, detail: 'high' }))] }], text: { format: responseFormat } }) });
-  if (!response.ok) { const error = new Error(`Vision provider request failed (${response.status}).`); error.statusCode = 502; throw error; }
+  if (!response.ok) {
+    const providerBody = await response.text();
+    const error = new Error(`Vision provider request failed (${response.status}): ${providerBody.slice(0, 500)}`);
+    error.statusCode = 502;
+    error.code = 'AI_PROVIDER_ERROR';
+    throw error;
+  }
   let diagnosis; try { diagnosis = JSON.parse(textFromResponse(await response.json())); } catch { const error = new Error('Vision provider returned invalid structured diagnosis.'); error.statusCode = 502; throw error; }
   diagnosis.imageCount = images.length;
   diagnosis.status = diagnosis.confidence < 0.6 ? 'LOW_CONFIDENCE' : diagnosis.status;

@@ -9,6 +9,7 @@ export async function requireAuth(req, res, next) {
     const token = cookieToken || bearerToken;
 
     if (!token) {
+      console.warn('[Diagnosis] authentication failed: no auth token', { path: req.originalUrl });
       return res.status(401).json({
         success: false,
         message: 'Unauthorized',
@@ -28,6 +29,7 @@ export async function requireAuth(req, res, next) {
     });
 
     if (!user) {
+      console.warn('[Diagnosis] authentication failed: user not found', { path: req.originalUrl });
       return res.status(401).json({
         success: false,
         message: 'Unauthorized',
@@ -37,6 +39,7 @@ export async function requireAuth(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
+    console.error('[Diagnosis] authentication exception:', error.stack || error);
     return res.status(401).json({
       success: false,
       message: 'Unauthorized',
