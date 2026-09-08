@@ -203,21 +203,20 @@
    LUMINOUS BUTTON LIGHT GLOW (Interactive Click & Active Feedback)
    ========================================================================== */
 
-/* Universal Button Active Light Glow */
+/* Universal Button Active Feedback */
 button:not(:disabled):active,
 .premium-button:active,
 .premium-button-secondary:active,
 .category-card:active,
 [data-glow]:active {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9),
-              0 0 28px 8px rgba(184, 215, 255, 0.7),
-              0 0 55px 15px rgba(130, 160, 220, 0.38),
-              inset 0 0 14px rgba(255, 255, 255, 0.3) !important;
-  border-color: #DDE7F5 !important;
-  background: radial-gradient(circle at center, #253142 0%, #151C25 100%) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4),
+              0 0 16px 2px rgba(125, 145, 170, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border-color: #7D91AA !important;
+  background: #161C25 !important;
   color: #FFFFFF !important;
-  transform: translateY(1px) scale(0.985);
-  transition: all 60ms ease-out;
+  transform: translateY(1px) scale(0.99);
+  transition: all 80ms ease-out;
 }
 
 button:not(:disabled):active svg,
@@ -225,16 +224,20 @@ button:not(:disabled):active svg,
 .premium-button-secondary:active svg,
 .category-card:active svg,
 [data-glow]:active svg {
-  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.9)) !important;
   color: #FFFFFF !important;
 }
 
-button:not(:disabled):active span,
-.premium-button:active span,
-.premium-button-secondary:active span,
-.category-card:active span,
-[data-glow]:active span {
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.85);
+/* Card Interactive Micro-Interactions */
+.card-interactive {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 180ms ease,
+              box-shadow 180ms ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: #2E3845;
+  box-shadow: var(--inner-highlight), 0 8px 24px -4px rgba(0, 0, 0, 0.6);
 }
 
 /* Luminous Optical Flash Keyframe on Click */
