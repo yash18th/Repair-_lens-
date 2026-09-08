@@ -365,7 +365,7 @@ export default function CostBreakdown({ costIntelligence }) {
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
                   <Sliders className="w-3.5 h-3.5 text-[#8294AA]" />
-                  <span>2. Multi-Step Paint & Bodywork Refinishing ({paint.panelsCount} Panels)</span>
+                  <span>{section2Title}</span>
                 </div>
                 <span className="font-mono text-xs font-semibold text-[#F5F7FA]">
                   {formatINR(paint.totalPaintCostMin)} – {formatINR(paint.totalPaintCostMax)}
