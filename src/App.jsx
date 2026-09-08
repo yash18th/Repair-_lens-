@@ -542,6 +542,8 @@ function RepairLensDashboard() {
                 onSelectSamplePreset={handleSelectSamplePreset}
                 onStartDiagnosisRequest={handleStartDiagnosisRequest}
                 isAnalyzing={isAnalyzing}
+                diagnosticStage={diagnosticStage}
+                analysisResult={analysisResult}
               />
             )
           )}
