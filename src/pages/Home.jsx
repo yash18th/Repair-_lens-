@@ -2,6 +2,7 @@ import React from 'react';
 import ImageUploader from '../components/ImageUploader';
 import ImagePreview from '../components/ImagePreview';
 import LoadingState from '../components/LoadingState';
+import DiagnosticTelemetryScan from '../components/DiagnosticTelemetryScan';
 import { ITEM_CATEGORIES } from '../services/api';
 import {
   ArrowLeft,
