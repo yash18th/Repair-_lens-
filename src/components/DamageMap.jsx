@@ -12,62 +12,62 @@ export default function DamageMap({ damageMap, sampleImage }) {
     switch (type) {
       case 'primary':
         return {
-          badge: 'bg-[#A65D5D]/15 text-[#fca5a5] border-[#A65D5D]/30',
-          dot: 'bg-[#A65D5D]',
-          reticleBorder: 'border-[#A65D5D] bg-[#A65D5D]/10',
-          labelBg: 'bg-[#0C1015] text-[#fca5a5] border-[#A65D5D]/40',
+          badge: 'bg-[#B36262]/15 text-[#B36262] border-[#B36262]/30',
+          dot: 'bg-[#B36262]',
+          reticleBorder: 'border-[#B36262] bg-[#B36262]/10',
+          labelBg: 'bg-[#0D1118] text-[#B36262] border-[#B36262]/40',
           icon: ShieldAlert
         };
       case 'secondary':
         return {
-          badge: 'bg-[#A7834F]/15 text-[#fcd34d] border-[#A7834F]/30',
-          dot: 'bg-[#A7834F]',
-          reticleBorder: 'border-[#A7834F] bg-[#A7834F]/10',
-          labelBg: 'bg-[#0C1015] text-[#fcd34d] border-[#A7834F]/40',
+          badge: 'bg-[#B28A50]/15 text-[#B28A50] border-[#B28A50]/30',
+          dot: 'bg-[#B28A50]',
+          reticleBorder: 'border-[#B28A50] bg-[#B28A50]/10',
+          labelBg: 'bg-[#0D1118] text-[#B28A50] border-[#B28A50]/40',
           icon: AlertTriangle
         };
       case 'intact':
       default:
         return {
-          badge: 'bg-[#4F8A68]/15 text-[#86efac] border-[#4F8A68]/30',
-          dot: 'bg-[#4F8A68]',
-          reticleBorder: 'border-[#4F8A68] bg-[#4F8A68]/10',
-          labelBg: 'bg-[#0C1015] text-[#86efac] border-[#4F8A68]/40',
+          badge: 'bg-[#55A477]/15 text-[#55A477] border-[#55A477]/30',
+          dot: 'bg-[#55A477]',
+          reticleBorder: 'border-[#55A477] bg-[#55A477]/10',
+          labelBg: 'bg-[#0D1118] text-[#55A477] border-[#55A477]/40',
           icon: CheckCircle2
         };
     }
   };
 
   return (
-    <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-[#202731] bg-[#10141A] space-y-6 shadow-xl relative overflow-hidden">
+    <div className="p-6 sm:p-8 rounded-xl border border-[#232B36] bg-[#121720] space-y-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03),0_8px_24px_rgba(0,0,0,0.4)] relative overflow-hidden">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#202731] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#232B36] pb-4">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-[#141922] border border-[#202731] flex items-center justify-center">
-            <Layers className="w-5 h-5 text-[#A7B0BD]" />
+          <div className="w-9 h-9 rounded-lg bg-[#161C25] border border-[#232B36] flex items-center justify-center">
+            <Layers className="w-4 h-4 text-[#7D91AA]" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-[#F5F7FA] flex items-center space-x-2">
+            <h3 className="text-base sm:text-lg font-bold text-[#F4F6F8] flex items-center space-x-2">
               <span>Interactive AI Damage Map</span>
             </h3>
-            <p className="text-xs text-[#A7B0BD]">
-              AI detected <span className="font-semibold text-[#F5F7FA]">{damageMap.totalRegionsDetected || damageMap.regions.length} damage regions</span>. Click a region to inspect details.
+            <p className="text-xs text-[#A7B0BC]">
+              AI detected <span className="font-semibold text-[#F4F6F8]">{damageMap.totalRegionsDetected || damageMap.regions.length} damage regions</span>. Click a region to inspect details.
             </p>
           </div>
         </div>
 
         {/* Legend Bar */}
         <div className="flex items-center space-x-2 text-xs font-semibold">
-          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#A65D5D]/10 text-[#fca5a5] border border-[#A65D5D]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A65D5D]"></span>
+          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-[#B36262]/10 text-[#B36262] border border-[#B36262]/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B36262]"></span>
             <span>Primary</span>
           </span>
-          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#A7834F]/10 text-[#fcd34d] border border-[#A7834F]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A7834F]"></span>
+          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-[#B28A50]/10 text-[#B28A50] border border-[#B28A50]/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B28A50]"></span>
             <span>Secondary</span>
           </span>
-          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#4F8A68]/10 text-[#86efac] border border-[#4F8A68]/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4F8A68]"></span>
+          <span className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-[#55A477]/10 text-[#55A477] border border-[#55A477]/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#55A477]"></span>
             <span>Intact</span>
           </span>
         </div>
@@ -77,7 +77,7 @@ export default function DamageMap({ damageMap, sampleImage }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* Overlaid Image Container */}
-        <div className="lg:col-span-7 relative rounded-2xl overflow-hidden bg-[#0C1015] border border-[#202731] aspect-video sm:aspect-square flex items-center justify-center shadow-lg group">
+        <div className="lg:col-span-7 relative rounded-xl overflow-hidden bg-[#0D1118] border border-[#232B36] aspect-video sm:aspect-square flex items-center justify-center shadow-lg group">
           <img
             src={damageMap.imageUrl || sampleImage}
             alt="Scanned item with AI damage overlay"
@@ -99,9 +99,9 @@ export default function DamageMap({ damageMap, sampleImage }) {
                   width: region.position.width,
                   height: region.position.height
                 }}
-                className={`absolute cursor-pointer rounded-xl border-2 transition-all duration-200 flex flex-col justify-between p-2 group/box ${
+                className={`absolute cursor-pointer rounded-lg border-2 transition-all duration-200 flex flex-col justify-between p-2 group/box ${
                   style.reticleBorder
-                } ${isSelected ? 'scale-102 z-20 shadow-lg ring-2 ring-[#8294AA]' : 'opacity-85 hover:opacity-100 hover:scale-101'}`}
+                } ${isSelected ? 'scale-102 z-20 shadow-lg ring-2 ring-[#7D91AA]' : 'opacity-85 hover:opacity-100 hover:scale-101'}`}
               >
                 {/* Top Corner Label Badge */}
                 <div className={`self-start px-2 py-0.5 rounded text-[10px] font-bold border font-mono flex items-center space-x-1 ${style.labelBg}`}>
@@ -117,15 +117,15 @@ export default function DamageMap({ damageMap, sampleImage }) {
             );
           })}
 
-          <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-[#07090C]/90 text-[10px] text-[#A7B0BD] border border-[#202731] backdrop-blur">
+          <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-[#080B10]/90 text-[10px] text-[#A7B0BC] border border-[#232B36] backdrop-blur font-mono">
             Click any reticle box to view region analysis
           </div>
         </div>
 
         {/* Selected Region Inspection Drawer */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="text-xs font-bold uppercase tracking-wider text-[#A7B0BD] flex items-center space-x-1.5">
-            <Eye className="w-4 h-4 text-[#A7B0BD]" />
+          <div className="text-xs font-bold uppercase tracking-wider text-[#A7B0BC] flex items-center space-x-1.5">
+            <Eye className="w-4 h-4 text-[#7D91AA]" />
             <span>Region Inspection Details</span>
           </div>
 
@@ -139,10 +139,10 @@ export default function DamageMap({ damageMap, sampleImage }) {
                 <button
                   key={region.id}
                   onClick={() => setSelectedRegionId(region.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border flex items-center space-x-1.5 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border flex items-center space-x-1.5 cursor-pointer ${
                     isSelected
-                      ? 'bg-[#141922] text-[#F5F7FA] border-[#283240] shadow-sm'
-                      : 'bg-[#0C1015] text-[#A7B0BD] border-[#202731] hover:bg-[#141922]'
+                      ? 'bg-[#161C25] text-[#F4F6F8] border-[#232B36] shadow-sm font-semibold'
+                      : 'bg-[#0D1118] text-[#A7B0BC] border-[#232B36] hover:bg-[#161C25]'
                   }`}
                 >
                   <span className={`w-2 h-2 rounded-full ${style.dot}`}></span>
@@ -158,33 +158,33 @@ export default function DamageMap({ damageMap, sampleImage }) {
             const Icon = style.icon;
 
             return (
-              <div className="glass-panel p-5 rounded-2xl border border-[#202731] bg-[#0C1015] space-y-4 animate-fadeIn">
-                <div className="flex items-center justify-between border-b border-[#202731] pb-3">
+              <div className="p-5 rounded-xl border border-[#232B36] bg-[#0D1118] space-y-4 animate-fadeIn">
+                <div className="flex items-center justify-between border-b border-[#232B36] pb-3">
                   <div className="flex items-center space-x-2">
-                    <Icon className="w-5 h-5 text-[#A7B0BD]" />
-                    <h4 className="font-semibold text-[#F5F7FA] text-sm">{selectedRegion.label}</h4>
+                    <Icon className="w-4 h-4 text-[#7D91AA]" />
+                    <h4 className="font-semibold text-[#F4F6F8] text-sm">{selectedRegion.label}</h4>
                   </div>
                   
-                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${style.badge}`}>
+                  <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium border ${style.badge}`}>
                     {selectedRegion.type === 'primary' ? 'Primary Damage' : selectedRegion.type === 'secondary' ? 'Secondary Damage' : 'Healthy / Intact'}
                   </span>
                 </div>
 
                 <div className="space-y-3 text-xs">
                   <div>
-                    <span className="text-[#667180] font-medium uppercase tracking-wider text-[10px] block mb-1">
+                    <span className="text-[#687382] font-medium uppercase tracking-wider text-[10px] block mb-1">
                       AI Visual Findings
                     </span>
-                    <p className="text-[#A7B0BD] leading-relaxed">
+                    <p className="text-[#A7B0BC] leading-relaxed">
                       {selectedRegion.description}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-[#141922] border border-[#202731] space-y-1">
-                    <span className="text-[#F5F7FA] font-medium text-[11px] block">
+                  <div className="p-3 rounded-lg bg-[#161C25] border border-[#232B36] space-y-1">
+                    <span className="text-[#F4F6F8] font-medium text-[11px] block">
                       Targeted Action Required
                     </span>
-                    <p className="text-[#A7B0BD] leading-relaxed">
+                    <p className="text-[#A7B0BC] leading-relaxed">
                       {selectedRegion.actionRequired}
                     </p>
                   </div>
