@@ -12,17 +12,23 @@ export default function Navbar({
   const getTabTitle = () => {
     switch (activeTab) {
       case 'history':
-        return 'Scan History';
+        return 'Telemetry History';
       case 'profile':
-        return 'Profile';
+        return 'Operator Credentials';
       case 'phone':
-        return 'Smartphone & Tablet';
+        return 'Mobile Diagnostics';
+      case 'computer':
+        return 'System Architecture';
       case 'electronics':
-        return 'Electronics & PCB';
+        return 'Circuit & PCB Analysis';
       case 'appliance':
-        return 'Home Appliance';
+        return 'Electromechanical';
+      case 'vehicles':
+        return 'Panel & Exterior';
+      case 'other':
+        return 'Visual Inspection';
       case 'settings':
-        return 'Settings';
+        return 'System Preferences';
       case 'studio':
       default:
         return 'Diagnostic Workspace';
@@ -30,48 +36,51 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#252B33] bg-[#080A0D]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-[#202731] bg-[#090C10]/95 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-3">
           <div className="flex items-center space-x-3 min-w-0">
             <button
               onClick={onToggleMobileSidebar}
-              className="lg:hidden p-1.5 rounded-md text-[#9AA3AF] hover:text-[#F2F4F7] hover:bg-[#151A21] transition-colors border border-[#252B33]"
+              className="lg:hidden p-1.5 rounded-md text-[#A7B0BD] hover:text-[#F5F7FA] hover:bg-[#141922] transition-colors border border-[#202731]"
               aria-label="Open Sidebar"
             >
               <Menu className="w-4 h-4" />
             </button>
 
-            <div className="min-w-0">
-              <h2 className="text-sm font-semibold tracking-tight text-[#F2F4F7] truncate">
+            <div className="flex items-center min-w-0 overflow-hidden font-mono text-xs">
+              <span className="hidden sm:inline-block text-[#667180] text-[10px] tracking-[0.14em] uppercase mr-2 truncate">
+                RL-OS //
+              </span>
+              <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[#F5F7FA] truncate">
                 {getTabTitle()}
               </h2>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-            {/* Subtle Service Desk status badge */}
-            <span className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-[#9AA3AF] border border-[#252B33] bg-[#0D1015] rounded-md whitespace-nowrap">
+            {/* Service Desk status indicator */}
+            <span className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1 text-[10px] uppercase font-mono tracking-[0.12em] text-[#A7B0BD] border border-[#202731] bg-[#0C1015] rounded-md whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#4F8A68]"></span>
               Service Desk
             </span>
 
-            {/* Sophisticated Professional New Diagnosis button */}
+            {/* Compact Professional New Diagnosis button */}
             <button
               onClick={onNewDiagnosis}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#364150] bg-[#1C232D] hover:bg-[#252F3C] hover:border-[#4A586C] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.06em] text-[#F2F4F7] transition-colors shadow-sm whitespace-nowrap cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#283240] bg-[#141922] hover:bg-[#1A222E] hover:border-[#384556] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#F5F7FA] transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] whitespace-nowrap cursor-pointer"
               type="button"
             >
-              <Plus className="w-3.5 h-3.5 text-[#9AA3AF]" />
+              <Plus className="w-3.5 h-3.5 text-[#8294AA]" />
               <span>New Diagnosis</span>
             </button>
 
             <button
               onClick={isAuthenticated ? onOpenProfile : onSignIn}
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#252B33] bg-[#0D1015] hover:bg-[#151A21] hover:border-[#363E4A] px-3 py-1.5 text-xs font-medium uppercase tracking-[0.06em] text-[#9AA3AF] hover:text-[#F2F4F7] transition-colors whitespace-nowrap cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#202731] bg-[#0C1015] hover:bg-[#141922] hover:border-[#283240] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-[#A7B0BD] hover:text-[#F5F7FA] transition-colors whitespace-nowrap cursor-pointer"
             >
-              <UserRound className="w-3.5 h-3.5 text-[#66707D]" />
+              <UserRound className="w-3.5 h-3.5 text-[#667180]" />
               <span>{isAuthenticated ? 'Profile' : 'Sign In'}</span>
             </button>
           </div>

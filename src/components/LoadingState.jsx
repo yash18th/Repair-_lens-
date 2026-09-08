@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Sparkles, Search, Layers, Scan } from 'lucide-react';
+import { Cpu, Sparkles, Scan } from 'lucide-react';
 
 const MULTI_SCAN_STEPS = [
   'Photo 1 (Close-up): Extracting fracture & surface wear vectors...',
@@ -25,63 +25,57 @@ export default function LoadingState({ angles }) {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="w-full glass-panel rounded-2xl p-8 border border-blue-500/30 bg-slate-950/90 shadow-2xl relative overflow-hidden my-6">
-      
-      {/* Background glow */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+  const progressPercent = Math.min(100, Math.round(((currentStepIndex + 1) / MULTI_SCAN_STEPS.length) * 100));
 
-      <div className="max-w-xl mx-auto text-center space-y-6">
+  return (
+    <div className="w-full rounded-xl p-8 border border-[#202731] bg-[#10141A] shadow-[0_4px_24px_rgba(0,0,0,0.3)] relative overflow-hidden my-6">
+      <div className="max-w-md mx-auto text-center space-y-5">
         
         {/* Animated Lens Visual */}
-        <div className="relative w-32 h-32 mx-auto">
-          <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 animate-ping"></div>
-          <div className="absolute inset-2 rounded-full border border-blue-500/40 animate-pulse"></div>
-          
-          <div className="w-full h-full rounded-full bg-slate-900 border-2 border-blue-500 flex items-center justify-center relative overflow-hidden shadow-xl shadow-blue-500/20">
-            <Cpu className="w-12 h-12 text-blue-400 animate-spin" style={{ animationDuration: '5s' }} />
-            {/* Laser scan line */}
-            <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_15px_#3b82f6] animate-laser-scan"></div>
+        <div className="relative w-20 h-20 mx-auto">
+          <div className="w-full h-full rounded-full bg-[#141922] border border-[#202731] flex items-center justify-center relative overflow-hidden">
+            <Cpu className="w-8 h-8 text-[#A7B0BD] animate-spin" style={{ animationDuration: '6s' }} />
+            {/* Subtle laser scan line */}
+            <div className="absolute inset-x-0 h-0.5 bg-[#8294AA] animate-laser-scan opacity-60"></div>
           </div>
         </div>
 
         {/* Header */}
-        <div>
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20 mb-2">
-            <Sparkles className="w-3.5 h-3.5 animate-spin" />
-            <span>Cross-Image Vision Pipeline</span>
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md bg-[#141922] text-[#A7B0BD] text-[10px] font-mono uppercase tracking-wider border border-[#202731]">
+            <Sparkles className="w-3 h-3 text-[#8294AA]" />
+            <span>Vision Fusion Pipeline</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-            Running Multi-Angle Unified Analysis
+          <h3 className="text-base sm:text-lg font-bold text-[#F5F7FA] tracking-tight">
+            Running Multi-Angle Diagnostic Analysis
           </h3>
         </div>
 
         {/* Progressive status text */}
-        <div className="bg-slate-900/90 rounded-xl p-4 border border-slate-800 space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Vision Fusion Engine</span>
-            <span className="font-mono text-blue-400 font-semibold">
-              {Math.min(100, Math.round(((currentStepIndex + 1) / MULTI_SCAN_STEPS.length) * 100))}%
+        <div className="bg-[#0C1015] rounded-lg p-3.5 border border-[#202731] space-y-2.5">
+          <div className="flex items-center justify-between text-xs text-[#A7B0BD]">
+            <span>Inference Progress</span>
+            <span className="font-mono text-[#F5F7FA] font-semibold">
+              {progressPercent}%
             </span>
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-[#141922] rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500 transition-all duration-300 rounded-full"
-              style={{ width: `${((currentStepIndex + 1) / MULTI_SCAN_STEPS.length) * 100}%` }}
+              className="h-full bg-[#8294AA] transition-all duration-300 rounded-full"
+              style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
 
           {/* Active step message */}
-          <p className="text-xs sm:text-sm font-medium text-slate-300 min-h-[2rem] flex items-center justify-center space-x-2 px-2">
-            <Scan className="w-4 h-4 text-blue-400 animate-pulse flex-shrink-0" />
-            <span>{MULTI_SCAN_STEPS[currentStepIndex]}</span>
+          <p className="text-xs font-medium text-[#A7B0BD] min-h-[1.5rem] flex items-center justify-center space-x-2 px-1">
+            <Scan className="w-3.5 h-3.5 text-[#8294AA] flex-shrink-0" />
+            <span className="truncate">{MULTI_SCAN_STEPS[currentStepIndex]}</span>
           </p>
         </div>
 
       </div>
-
     </div>
   );
 }

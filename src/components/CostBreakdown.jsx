@@ -1,202 +1,180 @@
 import React, { useState } from 'react';
 import { 
   IndianRupee, 
-  Store, 
-  Wrench, 
-  Hammer, 
-  TrendingUp, 
   ChevronDown, 
   ChevronUp, 
-  Info,
-  Package,
-  Layers,
-  Cpu,
-  CheckCircle2,
-  ShieldCheck,
-  Sparkles,
-  Tag
+  Package, 
+  Wrench, 
+  ShieldCheck, 
+  Info, 
+  Store, 
+  Hammer, 
+  CheckCircle2, 
+  TrendingUp, 
+  Tag 
 } from 'lucide-react';
 
-function formatINR(amount) {
-  const num = Number(amount) || 0;
-  return '₹' + num.toLocaleString('en-IN');
-}
+const formatINR = (val) => {
+  if (typeof val !== 'number' || isNaN(val)) return '₹—';
+  return '₹' + val.toLocaleString('en-IN');
+};
 
 export default function CostBreakdown({ costIntelligence }) {
   const [expanded, setExpanded] = useState(true);
 
   if (!costIntelligence) return null;
 
-  const { 
-    breakdown = [], 
-    itemizedParts = [], 
-    partsTotal = 0,
-    laborTotal = 0,
-    localPrices = [], 
-    confidenceLabel = 'Medium', 
-    totalEstimate = { min: 0, max: 0 } 
+  const {
+    estimatedTotalMin = 0,
+    estimatedTotalMax = 0,
+    partsSubtotal = 0,
+    laborEstimated = 0,
+    partsList = [],
+    localPrices = [],
+    confidence: costConfidence = 'HIGH'
   } = costIntelligence;
 
-  // Extract individual parts
-  const partsList = itemizedParts.length > 0 
-    ? itemizedParts 
-    : breakdown.filter(item => item.isPart).map(item => ({
-        name: item.label,
-        description: item.sublabel || 'Replacement component',
-        grade: item.grade || 'OEM Spec',
-        amount: item.amount
-      }));
+  // Derive realistic parts and labor if model returned zero or placeholder values
+  const resolvedPartsList = partsList.length > 0 ? partsList : [
+    { name: 'Replacement OEM Display Panel / Assembly', amount: Math.max(1200, Math.round((estimatedTotalMin || 2500) * 0.70)), grade: 'OEM Grade-A' }
+  ];
 
-  // If no partsList was identified, create a smart fallback based on partsTotal or breakdown
-  const resolvedPartsList = partsList.length > 0 
-    ? partsList 
-    : [
-        {
-          name: 'Primary Replacement Display Assembly',
-          description: 'High-grade touch digitizer and display matrix',
-          grade: 'OEM Spec',
-          amount: Math.round((partsTotal || 4689) * 0.75)
-        },
-        {
-          name: 'Optical Adhesive (OCA) & Perimeter Gasket',
-          description: 'Factory water-resistant frame seal tape',
-          grade: 'Precision Seal',
-          amount: Math.round((partsTotal || 4689) * 0.13)
-        },
-        {
-          name: 'Protective Front Glass Lens & Bezel Cushion',
-          description: 'Tempered oleophobic glass cover',
-          grade: 'Impact Rated',
-          amount: Math.max(100, (partsTotal || 4689) - Math.round((partsTotal || 4689) * 0.75) - Math.round((partsTotal || 4689) * 0.13))
-        }
-      ];
+  const actualPartsSubtotal = partsSubtotal > 0 
+    ? partsSubtotal 
+    : resolvedPartsList.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-  const actualPartsSubtotal = partsTotal || resolvedPartsList.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-  const actualLabor = laborTotal || (breakdown.find(b => b.isLabour || b.label?.toLowerCase().includes('labour'))?.amount) || 650;
-  const actualTotalMin = totalEstimate.min || (actualPartsSubtotal + actualLabor);
-  const actualTotalMax = totalEstimate.max || Math.round(actualTotalMin * 1.35);
+  const actualLabor = laborEstimated > 0 
+    ? laborEstimated 
+    : Math.max(400, Math.round(actualPartsSubtotal * 0.25));
+
+  const actualTotalMin = estimatedTotalMin > 0 ? estimatedTotalMin : (actualPartsSubtotal + actualLabor);
+  const actualTotalMax = estimatedTotalMax > actualTotalMin ? estimatedTotalMax : Math.round(actualTotalMin * 1.35);
+
+  const confidenceLabel = typeof costConfidence === 'string'
+    ? costConfidence.toUpperCase()
+    : 'MEDIUM';
 
   const serviceStyles = {
     authorized: {
-      icon: Store,
-      iconColor: 'text-blue-400',
-      border: 'border-blue-500/30',
-      bg: 'bg-blue-950/30',
-      badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      icon: ShieldCheck,
+      iconColor: 'text-[#A7B0BD]',
+      border: 'border-[#202731]',
+      bg: 'bg-[#0C1015]',
+      badge: 'bg-[#141922] text-[#A7B0BD] border-[#202731]',
       label: 'Authorized Service Centre'
     },
     garage: {
-      icon: Wrench,
-      iconColor: 'text-amber-400',
-      border: 'border-amber-500/30',
-      bg: 'bg-amber-950/20',
-      badge: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      icon: Store,
+      iconColor: 'text-[#A7B0BD]',
+      border: 'border-[#202731]',
+      bg: 'bg-[#0C1015]',
+      badge: 'bg-[#141922] text-[#A7B0BD] border-[#202731]',
       label: 'Independent Verified Shop'
     },
     diy: {
       icon: Hammer,
-      iconColor: 'text-emerald-400',
-      border: 'border-emerald-500/30',
-      bg: 'bg-emerald-950/20',
-      badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      iconColor: 'text-[#A7B0BD]',
+      border: 'border-[#202731]',
+      bg: 'bg-[#0C1015]',
+      badge: 'bg-[#141922] text-[#A7B0BD] border-[#202731]',
       label: 'DIY Self-Repair Kit'
     }
   };
 
   const confidenceColors = {
-    High: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-    Medium: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
-    Low: 'text-red-400 bg-red-500/10 border-red-500/30'
+    HIGH: 'text-[#4F8A68] bg-[#4F8A68]/10 border-[#4F8A68]/30',
+    MEDIUM: 'text-[#A7834F] bg-[#A7834F]/10 border-[#A7834F]/30',
+    LOW: 'text-[#A65D5D] bg-[#A65D5D]/10 border-[#A65D5D]/30'
   };
 
   return (
-    <div className="glass-panel rounded-2xl border-2 border-emerald-500/40 bg-slate-950/95 shadow-2xl overflow-hidden">
+    <div className="rounded-xl border border-[#202731] bg-[#10141A] shadow-[0_4px_20px_rgba(0,0,0,0.3)] overflow-hidden">
       
       {/* Top Accordion Header */}
       <div
-        className="flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-slate-900/40 transition-colors"
+        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-[#141922]/50 transition-colors"
         onClick={() => setExpanded(v => !v)}
       >
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-            <IndianRupee className="w-5 h-5 text-emerald-400" />
+          <div className="w-8 h-8 rounded-lg bg-[#141922] border border-[#202731] flex items-center justify-center flex-shrink-0">
+            <IndianRupee className="w-4 h-4 text-[#A7B0BD]" />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-white flex items-center space-x-2">
-              <span>India Repair Cost Intelligence</span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hidden sm:inline-block">
-                Itemized Parts & Labour
+            <h3 className="text-sm font-semibold text-[#F5F7FA] flex items-center space-x-2">
+              <span>Repair Cost Intelligence</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#141922] text-[#A7B0BD] border border-[#202731] hidden sm:inline-block">
+                Itemized Estimate
               </span>
             </h3>
-            <p className="text-xs text-slate-400">
-              Transparent ₹ pricing for every individual replacement part and certified service
+            <p className="text-xs text-[#A7B0BD]">
+              Bench cost estimates for individual replacement components and bench labor
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
-          <span className="hidden sm:block text-xl font-black text-emerald-400 font-mono">
+          <span className="hidden sm:block text-base font-bold text-[#F5F7FA] font-mono">
             {formatINR(actualTotalMin)} – {formatINR(actualTotalMax)}
           </span>
           {expanded
-            ? <ChevronUp className="w-5 h-5 text-slate-400" />
-            : <ChevronDown className="w-5 h-5 text-slate-400" />
+            ? <ChevronUp className="w-4 h-4 text-[#667180]" />
+            : <ChevronDown className="w-4 h-4 text-[#667180]" />
           }
         </div>
       </div>
 
       {expanded && (
-        <div className="border-t border-slate-800 px-6 pb-6 space-y-6 pt-5">
+        <div className="border-t border-[#202731] px-6 pb-6 space-y-5 pt-4">
 
           {/* Mobile Total Pill */}
-          <div className="sm:hidden text-2xl font-black text-emerald-400 font-mono text-center pb-2 border-b border-slate-800">
+          <div className="sm:hidden text-lg font-bold text-[#F5F7FA] font-mono text-center pb-2 border-b border-[#202731]">
             {formatINR(actualTotalMin)} – {formatINR(actualTotalMax)}
           </div>
 
-          {/* 📦 SECTION 1: ITEMIZED PARTS & MATERIALS (WHAT EACH PART COSTS) */}
-          <div className="space-y-3">
+          {/* 📦 SECTION 1: ITEMIZED PARTS & MATERIALS */}
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center space-x-1.5">
-                <Package className="w-4 h-4 text-indigo-400" />
-                <span>1. Required Replacement Parts & Material Costs ({resolvedPartsList.length})</span>
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center space-x-1.5">
+                <Package className="w-3.5 h-3.5 text-[#8294AA]" />
+                <span>1. Required Replacement Parts ({resolvedPartsList.length})</span>
               </div>
-              <span className="text-xs font-mono text-slate-400">
-                Parts Subtotal: <strong className="text-slate-100">{formatINR(actualPartsSubtotal)}</strong>
+              <span className="text-xs font-mono text-[#A7B0BD]">
+                Subtotal: <strong className="text-[#F5F7FA]">{formatINR(actualPartsSubtotal)}</strong>
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {resolvedPartsList.map((part, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 rounded-xl border border-slate-800 bg-slate-900/80 hover:border-slate-700 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-[#202731] bg-[#0C1015] hover:border-[#283240] transition-colors"
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Tag className="w-3.5 h-3.5 text-indigo-400" />
+                  <div className="flex items-start space-x-2.5">
+                    <div className="w-6 h-6 rounded-md bg-[#141922] border border-[#202731] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Tag className="w-3 h-3 text-[#A7B0BD]" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <h4 className="text-sm font-bold text-white leading-tight">
+                        <h4 className="text-xs sm:text-sm font-medium text-[#F5F7FA] leading-tight">
                           {part.name}
                         </h4>
                         {part.grade && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 border border-slate-700 font-mono">
+                          <span className="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-[#141922] text-[#A7B0BD] border border-[#202731]">
                             {part.grade}
                           </span>
                         )}
                       </div>
                       {part.description && (
-                        <p className="text-xs text-slate-400 mt-0.5 leading-snug">
+                        <p className="text-[11px] text-[#667180] mt-0.5 leading-snug">
                           {part.description}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-end space-x-2 pl-10 sm:pl-0 pt-1 sm:pt-0">
-                    <span className="text-xs text-slate-400 sm:hidden">Part Cost:</span>
-                    <span className="font-mono text-base font-bold text-slate-100">
+                  <div className="flex items-center justify-between sm:justify-end space-x-2 pl-8 sm:pl-0 pt-0.5 sm:pt-0">
+                    <span className="text-xs text-[#667180] sm:hidden">Cost:</span>
+                    <span className="font-mono text-sm font-semibold text-[#F5F7FA]">
                       {formatINR(part.amount)}
                     </span>
                   </div>
@@ -207,45 +185,42 @@ export default function CostBreakdown({ costIntelligence }) {
 
           {/* 🔧 SECTION 2: ESTIMATED TOTAL SUMMARY TABLE */}
           <div className="space-y-2">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-              <span>2. Service & Total Cost Summary</span>
+            <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center space-x-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-[#8294AA]" />
+              <span>2. Service & Total Summary</span>
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-900/60 divide-y divide-slate-800/60">
+            <div className="rounded-lg overflow-hidden border border-[#202731] bg-[#0C1015] divide-y divide-[#202731]">
               
               {/* Parts Subtotal */}
-              <div className="flex items-center justify-between px-4 py-3 text-sm">
-                <div className="flex items-center space-x-2 text-slate-300">
-                  <Package className="w-4 h-4 text-slate-400" />
-                  <span>Subtotal: All Replacement Parts</span>
+              <div className="flex items-center justify-between px-4 py-2.5 text-xs sm:text-sm">
+                <div className="flex items-center space-x-2 text-[#A7B0BD]">
+                  <Package className="w-3.5 h-3.5 text-[#667180]" />
+                  <span>Subtotal: Replacement Hardware</span>
                 </div>
-                <span className="font-mono font-bold text-slate-200">
+                <span className="font-mono font-medium text-[#F5F7FA]">
                   {formatINR(actualPartsSubtotal)}
                 </span>
               </div>
 
               {/* Labour */}
-              <div className="flex items-center justify-between px-4 py-3 text-sm">
-                <div className="flex items-center space-x-2 text-slate-300">
-                  <Wrench className="w-4 h-4 text-amber-400" />
-                  <span>Labour & Precision Bench Calibration</span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 hidden sm:inline-block">
-                    Certified Tech
-                  </span>
+              <div className="flex items-center justify-between px-4 py-2.5 text-xs sm:text-sm">
+                <div className="flex items-center space-x-2 text-[#A7B0BD]">
+                  <Wrench className="w-3.5 h-3.5 text-[#667180]" />
+                  <span>Bench Labor & Calibration</span>
                 </div>
-                <span className="font-mono font-bold text-slate-200">
+                <span className="font-mono font-medium text-[#F5F7FA]">
                   {formatINR(actualLabor)}
                 </span>
               </div>
 
               {/* Total Row */}
-              <div className="flex items-center justify-between px-4 py-4 bg-emerald-950/30 border-t-2 border-emerald-500/50">
+              <div className="flex items-center justify-between px-4 py-3 bg-[#141922] border-t border-[#202731]">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span className="text-emerald-300 text-base font-black">Estimated Total Repair Cost</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#4F8A68]" />
+                  <span className="text-[#F5F7FA] text-xs sm:text-sm font-bold">Estimated Bench Total</span>
                 </div>
-                <span className="font-mono font-black text-emerald-400 text-xl">
+                <span className="font-mono font-bold text-[#F5F7FA] text-base sm:text-lg">
                   {formatINR(actualTotalMin)}
                 </span>
               </div>
@@ -255,53 +230,53 @@ export default function CostBreakdown({ costIntelligence }) {
             {/* Confidence & Note */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
               <div className="flex items-center space-x-2">
-                <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-                <span className="text-[11px] text-slate-500">
-                  Cost estimate confidence:
+                <Info className="w-3 h-3 text-[#667180] flex-shrink-0" />
+                <span className="text-[11px] text-[#667180]">
+                  Estimate confidence:
                 </span>
-                <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${confidenceColors[confidenceLabel] || confidenceColors['Medium']}`}>
-                  {confidenceLabel || 'Medium'}
+                <span className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border ${confidenceColors[confidenceLabel] || confidenceColors['MEDIUM']}`}>
+                  {confidenceLabel}
                 </span>
               </div>
 
-              <span className="text-[11px] text-slate-500 italic">
-                *Prices reflect current local Indian market benchmarks for replacement hardware.
+              <span className="text-[10px] text-[#667180]">
+                *Benchmark estimates for regional service centers.
               </span>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-slate-800" />
+          <div className="border-t border-[#202731]" />
 
           {/* 🏪 SECTION 3: LOCAL PRICE COMPARISON */}
-          <div className="space-y-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-              <Store className="w-3.5 h-3.5 text-purple-400" />
-              <span>3. Local Market Comparison (Authorized vs Independent vs DIY)</span>
+          <div className="space-y-2.5">
+            <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center space-x-1.5">
+              <Store className="w-3.5 h-3.5 text-[#8294AA]" />
+              <span>3. Market Comparison Benchmarks</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {(localPrices.length > 0 ? localPrices : [
                 {
                   type: 'authorized',
                   label: 'Authorized Service Centre',
                   min: Math.round(actualTotalMin * 1.3),
                   max: Math.round(actualTotalMax * 1.45),
-                  note: '100% Genuine OEM parts, preservation of factory warranty.'
+                  note: 'OEM genuine components, warranty preservation.'
                 },
                 {
                   type: 'garage',
-                  label: 'Independent Verified Shop',
+                  label: 'Independent Service Desk',
                   min: actualTotalMin,
                   max: Math.round(actualTotalMin * 1.25),
-                  note: 'OEM-grade parts, same-day bench service, 30-day warranty.'
+                  note: 'OEM-spec replacement parts, same-day service.'
                 },
                 {
                   type: 'diy',
                   label: 'DIY Self-Repair Kit',
                   min: Math.round(actualPartsSubtotal * 0.95),
                   max: Math.round(actualPartsSubtotal * 1.15),
-                  note: 'Includes replacement parts, opening tools, and adhesive. Zero labour.'
+                  note: 'Replacement components and installation tools.'
                 }
               ]).map((option) => {
                 const style = serviceStyles[option.type] || serviceStyles.garage;
@@ -310,23 +285,23 @@ export default function CostBreakdown({ costIntelligence }) {
                 return (
                   <div
                     key={option.type}
-                    className={`p-4 rounded-xl border ${style.border} ${style.bg} space-y-3 transition-all hover:scale-[1.02]`}
+                    className="p-3.5 rounded-lg border border-[#202731] bg-[#0C1015] space-y-2 hover:border-[#283240] transition-colors"
                   >
                     <div className="flex items-center space-x-2">
-                      <Icon className={`w-4 h-4 ${style.iconColor} flex-shrink-0`} />
-                      <span className="text-xs font-bold text-white">{option.label || style.label}</span>
+                      <Icon className="w-3.5 h-3.5 text-[#A7B0BD] flex-shrink-0" />
+                      <span className="text-xs font-medium text-[#F5F7FA]">{option.label || style.label}</span>
                     </div>
 
-                    <p className="font-black text-lg text-white font-mono leading-none">
-                      {formatINR(option.min)}<span className="text-slate-400 font-normal text-sm mx-1">–</span>{formatINR(option.max)}
+                    <p className="font-bold text-sm text-[#F5F7FA] font-mono leading-none">
+                      {formatINR(option.min)}<span className="text-[#667180] font-normal text-xs mx-1">–</span>{formatINR(option.max)}
                     </p>
 
                     {option.note && (
-                      <p className="text-[11px] text-slate-400 leading-snug">{option.note}</p>
+                      <p className="text-[10px] text-[#667180] leading-snug">{option.note}</p>
                     )}
 
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border inline-block ${style.badge}`}>
-                      {option.type === 'authorized' ? '✅ Warranty Safe' : option.type === 'diy' ? '🛠️ Best Savings' : '⚡ Recommended'}
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#141922] text-[#A7B0BD] border border-[#202731] inline-block">
+                      {option.type === 'authorized' ? 'OEM Service' : option.type === 'diy' ? 'Self-Repair' : 'Independent'}
                     </span>
                   </div>
                 );

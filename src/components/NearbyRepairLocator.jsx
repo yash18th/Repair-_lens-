@@ -124,54 +124,54 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
   ];
 
   return (
-    <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 bg-slate-950/90 space-y-6 shadow-2xl relative overflow-hidden">
+    <div className="p-6 sm:p-8 rounded-xl border border-[#202731] bg-[#10141A] space-y-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)] relative overflow-hidden">
       
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800/80">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#202731]">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-xl font-bold text-white tracking-tight">
-              Nearby Service Centres & Price Match
+            <ShieldCheck className="w-4 h-4 text-[#4F8A68]" />
+            <h3 className="text-base sm:text-lg font-bold text-[#F5F7FA] tracking-tight">
+              Nearby Service Centers & Bench Pricing
             </h3>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
-            Live Google Maps location integration — Compare top rated local repair shops with affordable pricing.
+          <p className="text-xs text-[#A7B0BD] leading-relaxed max-w-xl">
+            Location-based service center locator with verified local repair benchmarks.
           </p>
         </div>
 
         {/* Live GPS Bar & Google Maps Button */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Live Location Pill */}
-          <div className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Live Location: <strong className="text-white font-mono">{userLocation.name}</strong></span>
+          <div className="px-3 py-1.5 rounded-lg bg-[#0C1015] border border-[#202731] text-xs text-[#A7B0BD] flex items-center space-x-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4F8A68]"></span>
+            <span>Location: <strong className="text-[#F5F7FA] font-mono">{userLocation.name}</strong></span>
             <button
               onClick={detectLiveLocation}
               disabled={isLocating}
-              className="text-slate-400 hover:text-emerald-400 transition-colors ml-1 p-0.5"
+              className="text-[#667180] hover:text-[#F5F7FA] transition-colors ml-1 p-0.5 cursor-pointer"
               title="Refresh GPS Location"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3 h-3 ${isLocating ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
           {/* Open Google Maps Live Button */}
           <button
             onClick={openGoogleMapsLiveSearch}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center space-x-2 border border-emerald-500/30"
+            className="px-3 py-1.5 rounded-lg border border-[#283240] bg-[#141922] hover:bg-[#1A222E] text-[#F5F7FA] font-medium text-xs transition-colors flex items-center space-x-1.5 cursor-pointer shadow-sm"
           >
-            <Map className="w-4 h-4 text-emerald-200" />
-            <span>View Live on Google Maps</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <Map className="w-3.5 h-3.5 text-[#A7B0BD]" />
+            <span>Open in Maps</span>
+            <ExternalLink className="w-3 h-3 text-[#667180]" />
           </button>
         </div>
       </div>
 
       {/* Booking Toast Notification */}
       {bookingToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs font-medium flex items-center space-x-2 animate-fadeIn">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+        <div className="p-3 rounded-lg bg-[#4F8A68]/15 border border-[#4F8A68]/30 text-[#F5F7FA] text-xs font-medium flex items-center space-x-2 animate-fadeIn">
+          <CheckCircle2 className="w-4 h-4 text-[#4F8A68] flex-shrink-0" />
           <span>{bookingToast}</span>
         </div>
       )}
@@ -182,10 +182,10 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
           <button
             key={opt.id}
             onClick={() => setActiveFilter(opt.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors border cursor-pointer ${
               activeFilter === opt.id
-                ? 'bg-emerald-600/90 text-white border-emerald-500 shadow-md shadow-emerald-600/20'
-                : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:text-slate-200 hover:bg-slate-800/80'
+                ? 'bg-[#141922] text-[#F5F7FA] border-[#283240]'
+                : 'bg-[#0C1015] text-[#A7B0BD] border-[#202731] hover:text-[#F5F7FA] hover:bg-[#141922]'
             }`}
           >
             {opt.label}
@@ -195,87 +195,87 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
 
       {/* Service Centre Cards Grid */}
       {isLoadingShops && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-xs text-slate-300">
-          Finding the nearest repair shops around your location...
+        <div className="rounded-lg border border-[#202731] bg-[#0C1015] px-4 py-3 text-xs text-[#A7B0BD]">
+          Finding the nearest repair centers around your location...
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {shops.map((shop) => (
           <div
             key={shop.id}
-            className="glass-panel p-5 rounded-2xl border border-slate-800/80 bg-slate-900/60 hover:bg-slate-900 hover:border-emerald-500/40 transition-all duration-200 space-y-4 shadow-lg group flex flex-col justify-between"
+            className="p-4 rounded-lg border border-[#202731] bg-[#0C1015] hover:border-[#283240] transition-colors space-y-3 group flex flex-col justify-between"
           >
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {/* Header: Shop Name & Rating Badge */}
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors">
+                  <h4 className="font-semibold text-[#F5F7FA] text-sm">
                     {shop.name}
                   </h4>
-                  <p className="text-xs text-slate-400 flex items-center space-x-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                    <span>{shop.locality} • {shop.displayDistanceKm ?? shop.distanceKm} km away</span>
+                  <p className="text-[11px] text-[#667180] flex items-center space-x-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-[#A7B0BD] flex-shrink-0" />
+                    <span>{shop.locality} • {shop.displayDistanceKm ?? shop.distanceKm} km</span>
                   </p>
                 </div>
 
-                <div className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center space-x-1 flex-shrink-0">
-                  <Star className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" />
-                  <span>{shop.rating}</span>
-                  <span className="text-[10px] text-slate-400 font-normal">({shop.reviewsCount})</span>
+                <div className="px-2 py-0.5 rounded bg-[#141922] border border-[#202731] text-[#A7B0BD] font-medium text-[11px] flex items-center space-x-1 flex-shrink-0">
+                  <Star className="w-3 h-3 fill-[#A7834F] text-[#A7834F]" />
+                  <span className="font-semibold text-[#F5F7FA]">{shop.rating}</span>
+                  <span className="text-[10px] text-[#667180]">({shop.reviewsCount})</span>
                 </div>
               </div>
 
               {/* Price & Turnaround Info */}
-              <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+              <div className="p-2.5 rounded-md bg-[#141922] border border-[#202731] flex items-center justify-between gap-2 text-xs">
                 <div>
-                  <span className="text-[11px] text-slate-400 block">Est. Repair Cost</span>
-                  <span className="text-base font-extrabold text-emerald-400 font-mono">
+                  <span className="text-[10px] text-[#667180] block">Est. Repair Cost</span>
+                  <span className="text-sm font-bold text-[#F5F7FA] font-mono">
                     ₹{shop.priceEstimate.toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 <div className="text-right space-y-0.5">
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold border border-emerald-500/20 inline-block">
+                  <span className="px-1.5 py-0.5 rounded bg-[#0C1015] text-[#A7B0BD] text-[9px] font-medium border border-[#202731] inline-block">
                     {shop.badge}
                   </span>
-                  <span className="text-[11px] text-slate-400 block">
+                  <span className="text-[10px] text-[#667180] block">
                     Turnaround: {shop.turnaround}
                   </span>
                 </div>
               </div>
 
               {/* Address */}
-              <p className="text-xs text-slate-400 leading-relaxed truncate">
+              <p className="text-[11px] text-[#667180] leading-relaxed truncate">
                 {shop.address}
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/60 text-xs font-semibold">
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#202731] text-xs">
               <a
                 href={`tel:${shop.phone}`}
-                className="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition-colors flex items-center justify-center space-x-1 text-center"
+                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#141922] text-[#A7B0BD] hover:text-[#F5F7FA] border border-[#202731] transition-colors flex items-center justify-center space-x-1 text-center"
               >
-                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <Phone className="w-3 h-3 text-[#A7B0BD]" />
                 <span>Call</span>
               </a>
 
               <button
                 onClick={() => handleBookPickup(shop.name)}
-                className="py-2 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-colors flex items-center justify-center space-x-1 text-center shadow-md shadow-emerald-600/20"
+                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#1A222E] text-[#F5F7FA] font-medium border border-[#283240] transition-colors flex items-center justify-center space-x-1 text-center cursor-pointer"
               >
-                <Truck className="w-3.5 h-3.5" />
-                <span>Book Pickup</span>
+                <Truck className="w-3 h-3 text-[#A7B0BD]" />
+                <span>Book</span>
               </button>
 
               <a
                 href={`https://www.google.com/maps/search/${encodeURIComponent(`${currentCategoryQuery} near ${shop.locality} ${shop.city}`)}/@${userLocation.lat},${userLocation.lng},12z`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition-colors flex items-center justify-center space-x-1 text-center"
+                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#141922] text-[#A7B0BD] hover:text-[#F5F7FA] border border-[#202731] transition-colors flex items-center justify-center space-x-1 text-center"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                <ExternalLink className="w-3 h-3 text-[#A7B0BD]" />
                 <span>Directions</span>
               </a>
             </div>

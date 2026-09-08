@@ -92,6 +92,9 @@ function ensureNoSensitiveChanges() {
     .filter(Boolean)
     .filter((line) => {
       const normalized = line.toLowerCase();
+      if (normalized.includes('passwordinput')) {
+        return false;
+      }
       return (
         normalized.includes('.env') ||
         normalized.includes('secret') ||

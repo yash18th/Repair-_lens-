@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Activity, Wrench } from 'lucide-react';
 import AuthInput from '../components/auth/AuthInput';
 import PasswordInput from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
@@ -86,7 +86,7 @@ export default function Register() {
       fullName: formValues.fullName,
       email: formValues.email,
       password: formValues.password,
-      confirmPassword: formValues.confirmPassword,
+      phone: formValues.phone,
     });
 
     if (result.ok) {
@@ -104,38 +104,95 @@ export default function Register() {
       navigate('/dashboard', { replace: true });
     } else {
       setErrors({
-        form: result.error || 'Unable to create your account right now.',
+        form: result.error || 'Unable to create account. Please try again.',
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1115] px-4 py-8 text-slate-100 sm:py-10">
-      <div className="mx-auto flex max-w-lg items-center justify-center">
-        <div className="w-full rounded-xl border border-[#2a303a] bg-[#151922] p-6 shadow-[0_10px_30px_rgba(8,11,17,0.18)] sm:p-7">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2a303a] bg-[#111821] text-sm font-semibold text-slate-100">
-              RL
+    <div className="min-h-screen bg-[#07090C] text-[#F5F7FA] flex flex-col lg:flex-row">
+      {/* Left Column: Technical Enterprise Brand Panel */}
+      <div className="lg:w-1/2 bg-[#090C10] border-b lg:border-b-0 lg:border-r border-[#202731] p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden tech-grid">
+        <div className="space-y-6 relative z-10">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-[#141922] border border-[#202731] flex items-center justify-center text-[#F5F7FA] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+              <Wrench className="w-3.5 h-3.5 text-[#8294AA]" />
             </div>
             <div>
-              <div className="text-lg font-semibold tracking-[-0.03em] text-white">RepairLens</div>
+              <div className="flex items-baseline space-x-1">
+                <span className="font-bold text-xs tracking-tight text-[#F5F7FA]">REPAIR</span>
+                <span className="font-semibold text-[#8294AA] text-[10px] tracking-[0.14em]">LENS</span>
+              </div>
+              <div className="text-[9px] uppercase tracking-[0.14em] text-[#667180] font-mono">
+                ENTERPRISE SYSTEM
+              </div>
             </div>
           </div>
 
-          <div className="mb-6 space-y-2">
-            <h1 className="text-2xl font-semibold tracking-[-0.04em] text-white">Create your account</h1>
-            <p className="text-sm leading-6 text-slate-400">Access your RepairLens diagnostic workspace.</p>
+          <div className="space-y-4 max-w-md pt-8">
+            <div className="eyebrow">
+              <span className="gold-dot"></span>
+              <span>TECHNICIAN REGISTRATION</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.08] text-[#F5F7FA]">
+              Certified access to{' '}
+              <span className="bg-gradient-to-r from-[#8294AA] to-[#B8C5D3] bg-clip-text text-transparent">
+                repair intelligence.
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#A7B0BD] leading-relaxed">
+              Register your technician profile to record persistent diagnostic telemetry, access OCR part decoding, and export repair estimates.
+            </p>
+          </div>
+        </div>
+
+        {/* Technical Specification Box */}
+        <div className="relative z-10 my-8 max-w-md rounded-xl border border-[#202731] bg-[#0C1015] p-5 font-mono text-[10px] space-y-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+          <div className="flex items-center justify-between text-[#667180] border-b border-[#181E26] pb-2 text-[9px]">
+            <span className="flex items-center gap-1.5">
+              <Activity className="w-3 h-3 text-[#8294AA]" />
+              PLATFORM PROVISIONING
+            </span>
+            <span className="text-[#4F8A68]">● ACTIVE</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-[#A7B0BD]">
+            <div>
+              <span className="text-[#667180] text-[9px] block">SECURITY LEVEL</span>
+              <span className="font-semibold text-[#F5F7FA]">ENTERPRISE SECURE</span>
+            </div>
+            <div>
+              <span className="text-[#667180] text-[9px] block">TELEMETRY RETENTION</span>
+              <span className="font-semibold text-[#8294AA]">UNLIMITED ARCHIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-[#667180] pt-4 border-t border-[#181E26]">
+          <span>REPAIRLENS CORE ENGINE</span>
+          <span className="text-[#8294AA]">VERSION 1.0</span>
+        </div>
+      </div>
+
+      {/* Right Column: Registration Form Container */}
+      <div className="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-[#07090C] overflow-y-auto">
+        <div className="w-full max-w-md space-y-6">
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-bold tracking-tight text-[#F5F7FA]">Create Technician Account</h2>
+            <p className="text-xs text-[#A7B0BD] leading-relaxed">
+              Register for verified hardware failure telemetry and report storage.
+            </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit} noValidate>
             <AuthInput
-              id="register-full-name"
+              id="register-fullName"
               label="Full Name"
               name="fullName"
+              type="text"
               value={formValues.fullName}
               onChange={handleChange}
               error={errors.fullName}
-              placeholder="Enter your full name"
+              placeholder="e.g. Yashvanth"
               autoComplete="name"
               required
             />
@@ -160,13 +217,13 @@ export default function Register() {
               value={formValues.password}
               onChange={handleChange}
               error={errors.password}
-              placeholder="Enter a password"
+              placeholder="At least 8 characters"
               autoComplete="new-password"
               required
             />
 
             <PasswordInput
-              id="register-confirm-password"
+              id="register-confirmPassword"
               label="Confirm Password"
               name="confirmPassword"
               value={formValues.confirmPassword}
@@ -190,7 +247,7 @@ export default function Register() {
             />
 
             {errors.form ? (
-              <p className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300" role="alert">
+              <p className="rounded-lg border border-[#A65D5D]/40 bg-[#A65D5D]/10 px-3 py-2 text-xs font-mono text-[#fca5a5]" role="alert">
                 {errors.form}
               </p>
             ) : null}
@@ -198,23 +255,23 @@ export default function Register() {
             <button
               type="submit"
               disabled={isRegistering}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#6b7cff] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#5d6ee8] disabled:cursor-not-allowed disabled:opacity-70"
+              className="premium-button w-full"
             >
-              <span>{isRegistering ? 'Creating account...' : 'Create Account'}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>{isRegistering ? 'Provisioning Account...' : 'Create Account'}</span>
+              <ArrowRight className="h-3.5 w-3.5 ml-2 text-[#8294AA]" />
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
-            <span>Already have an account?</span>
-            <Link to="/login" className="font-medium text-slate-200 transition-colors hover:text-white">
+          <div className="flex items-center justify-between pt-4 border-t border-[#181E26] text-xs">
+            <span className="text-[#667180]">Already have an account?</span>
+            <Link to="/login" className="font-semibold text-[#F5F7FA] hover:text-[#8294AA] transition-colors">
               Sign in
             </Link>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Secure diagnostic access</span>
+          <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-[#667180] pt-2">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#4F8A68]" />
+            <span>ENCRYPTED LAB ACCESS PROTOCOL</span>
           </div>
         </div>
       </div>

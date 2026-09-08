@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, CheckCircle2, ArrowRight, Trash2, Layers } from 'lucide-react';
+import { Sparkles, CheckCircle2, ArrowRight, Trash2 } from 'lucide-react';
 
 export default function ImagePreview({ angles, onAnalyze, onRemoveAngle, onClearAll }) {
   const uploadedPhotos = Object.entries(angles || {})
@@ -9,25 +9,25 @@ export default function ImagePreview({ angles, onAnalyze, onRemoveAngle, onClear
   if (uploadedPhotos.length === 0) return null;
 
   return (
-    <div className="w-full glass-panel rounded-2xl p-6 sm:p-8 border border-purple-500/40 shadow-2xl space-y-6 animate-fadeIn bg-slate-950/90">
+    <div className="w-full rounded-xl p-5 sm:p-6 border border-[#202731] bg-[#10141A] shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-5 animate-fadeIn">
       
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#202731]">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <CheckCircle2 className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-lg bg-[#141922] border border-[#202731] flex items-center justify-center text-[#4F8A68]">
+            <CheckCircle2 className="w-4 h-4 text-[#4F8A68]" />
           </div>
           <div>
-            <h4 className="font-bold text-white text-base flex items-center space-x-2">
-              <span>{uploadedPhotos.length} {uploadedPhotos.length === 1 ? 'Damage Photo' : 'Damage Photos'} Ready</span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
-                {uploadedPhotos.length === 1 ? 'Single Angle' : 'Multi-Angle Pack'}
+            <h4 className="font-semibold text-[#F5F7FA] text-sm flex items-center space-x-2">
+              <span>{uploadedPhotos.length} {uploadedPhotos.length === 1 ? 'Inspection Photo' : 'Inspection Photos'} Ready</span>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#141922] text-[#A7B0BD] border border-[#202731] font-mono">
+                {uploadedPhotos.length === 1 ? 'Single Angle' : 'Multi-Angle'}
               </span>
             </h4>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#A7B0BD]">
               {uploadedPhotos.length === 1 
-                ? 'Ready for instant AI visual defect & cost estimation' 
-                : 'Combined perspective inputs ready for high-accuracy composite inspection'
+                ? 'Ready for defect analysis and estimate computation' 
+                : 'Combined perspectives ready for composite diagnostic evaluation'
               }
             </p>
           </div>
@@ -35,13 +35,13 @@ export default function ImagePreview({ angles, onAnalyze, onRemoveAngle, onClear
 
         {/* Thumbnail Preview Strip & Clear */}
         <div className="flex items-center space-x-3">
-          <div className="flex -space-x-2 overflow-hidden py-1">
+          <div className="flex -space-x-1.5 overflow-hidden py-0.5">
             {uploadedPhotos.map((photo, i) => (
               <img
                 key={photo.key || i}
                 src={photo.previewUrl}
                 alt={photo.name}
-                className="inline-block h-8 w-8 rounded-lg ring-2 ring-slate-900 object-cover border border-purple-500/40"
+                className="inline-block h-7 w-7 rounded-md ring-1 ring-[#202731] object-cover border border-[#202731]"
                 title={photo.name}
               />
             ))}
@@ -50,9 +50,9 @@ export default function ImagePreview({ angles, onAnalyze, onRemoveAngle, onClear
           <button
             type="button"
             onClick={onClearAll}
-            className="text-xs font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded-lg border border-slate-700/60 transition-colors flex items-center space-x-1.5"
+            className="text-xs font-medium text-[#667180] hover:text-[#A65D5D] hover:bg-white/5 px-2.5 py-1 rounded-md border border-[#202731] transition-colors flex items-center space-x-1.5 cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-3 h-3" />
             <span>Clear All</span>
           </button>
         </div>
@@ -63,11 +63,11 @@ export default function ImagePreview({ angles, onAnalyze, onRemoveAngle, onClear
         <button
           type="button"
           onClick={onAnalyze}
-          className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:via-indigo-500 hover:to-blue-500 text-white font-extrabold text-base sm:text-lg shadow-xl shadow-purple-600/30 hover:shadow-purple-500/50 transition-all duration-300 flex items-center justify-center space-x-3 group cursor-pointer"
+          className="w-full py-3 px-5 rounded-lg border border-[#283240] bg-[#141922] hover:bg-[#1A222E] hover:border-[#4A586C] text-[#F5F7FA] font-semibold text-xs sm:text-sm uppercase tracking-wider transition-colors flex items-center justify-center space-x-2.5 cursor-pointer shadow-sm"
         >
-          <Sparkles className="w-6 h-6 text-purple-200 group-hover:rotate-12 transition-transform" />
-          <span>Run AI Damage Diagnosis ({uploadedPhotos.length} {uploadedPhotos.length === 1 ? 'Photo' : 'Photos'})</span>
-          <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          <Sparkles className="w-4 h-4 text-[#A7B0BD]" />
+          <span>Execute Damage Diagnosis ({uploadedPhotos.length} {uploadedPhotos.length === 1 ? 'Photo' : 'Photos'})</span>
+          <ArrowRight className="w-4 h-4 text-[#A7B0BD]" />
         </button>
       </div>
 

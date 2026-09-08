@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Activity, Cpu, Wrench } from 'lucide-react';
 import AuthInput from '../components/auth/AuthInput';
 import PasswordInput from '../components/auth/PasswordInput';
 import { useAuth } from '../context/AuthContext';
@@ -50,9 +50,9 @@ export default function Login() {
   }, [isAuthenticated, navigate]);
 
   const authStatusText = useMemo(() => {
-    if (status === 'login_error') return 'Unable to sign in.';
-    if (isLoggingIn) return 'Signing in...';
-    return 'Sign in to your RepairLens diagnostic workspace.';
+    if (status === 'login_error') return 'Authentication failed. Verify credentials.';
+    if (isLoggingIn) return 'Verifying operator credentials...';
+    return 'Enter authorized operator credentials to access the diagnostic lab.';
   }, [isLoggingIn, status]);
 
   const handleChange = (event) => {
@@ -91,27 +91,81 @@ export default function Login() {
       navigate('/dashboard', { replace: true });
     } else {
       setErrors({
-        form: result.error || 'Unable to sign in. Please try again.',
+        form: result.error || 'Unable to sign in. Please check your credentials.',
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1115] px-4 py-10 text-slate-100">
-      <div className="mx-auto flex max-w-md items-center justify-center">
-        <div className="w-full rounded-xl border border-[#2a303a] bg-[#151922] p-6 shadow-[0_10px_30px_rgba(8,11,17,0.18)] sm:p-7">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#2a303a] bg-[#111821] text-sm font-semibold text-slate-100">
-              RL
+    <div className="min-h-screen bg-[#07090C] text-[#F5F7FA] flex flex-col lg:flex-row">
+      {/* Left Column: Technical Enterprise Brand Panel */}
+      <div className="lg:w-1/2 bg-[#090C10] border-b lg:border-b-0 lg:border-r border-[#202731] p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden tech-grid">
+        <div className="space-y-6 relative z-10">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg bg-[#141922] border border-[#202731] flex items-center justify-center text-[#F5F7FA] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
+              <Wrench className="w-3.5 h-3.5 text-[#8294AA]" />
             </div>
             <div>
-              <div className="text-lg font-semibold tracking-[-0.03em] text-white">RepairLens</div>
+              <div className="flex items-baseline space-x-1">
+                <span className="font-bold text-xs tracking-tight text-[#F5F7FA]">REPAIR</span>
+                <span className="font-semibold text-[#8294AA] text-[10px] tracking-[0.14em]">LENS</span>
+              </div>
+              <div className="text-[9px] uppercase tracking-[0.14em] text-[#667180] font-mono">
+                ENTERPRISE SYSTEM
+              </div>
             </div>
           </div>
 
-          <div className="mb-6 space-y-2">
-            <h1 className="text-2xl font-semibold tracking-[-0.04em] text-white">Welcome back</h1>
-            <p className="text-sm leading-6 text-slate-400">{authStatusText}</p>
+          <div className="space-y-4 max-w-md pt-8">
+            <div className="eyebrow">
+              <span className="gold-dot"></span>
+              <span>OPERATOR CONSOLE</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.08] text-[#F5F7FA]">
+              Precision diagnostics,{' '}
+              <span className="bg-gradient-to-r from-[#8294AA] to-[#B8C5D3] bg-clip-text text-transparent">
+                built for professionals.
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#A7B0BD] leading-relaxed">
+              Optical defect mapping, multi-angle vision pipeline, and hardware failure telemetry for certified technicians and repair laboratories.
+            </p>
+          </div>
+        </div>
+
+        {/* Technical Schematic Telemetry Box */}
+        <div className="relative z-10 my-8 max-w-md rounded-xl border border-[#202731] bg-[#0C1015] p-5 font-mono text-[10px] space-y-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+          <div className="flex items-center justify-between text-[#667180] border-b border-[#181E26] pb-2 text-[9px]">
+            <span className="flex items-center gap-1.5">
+              <Activity className="w-3 h-3 text-[#8294AA]" />
+              SPECTRUM ENCLAVE
+            </span>
+            <span className="text-[#4F8A68]">● VERIFIED</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-[#A7B0BD]">
+            <div>
+              <span className="text-[#667180] text-[9px] block">SPECTRAL RESOLUTION</span>
+              <span className="font-semibold text-[#F5F7FA]">4K MULTI-ANGLE</span>
+            </div>
+            <div>
+              <span className="text-[#667180] text-[9px] block">DIAGNOSTIC ENGINE</span>
+              <span className="font-semibold text-[#8294AA]">RL-VISION v1.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-[#667180] pt-4 border-t border-[#181E26]">
+          <span>RL-OS // AUTHENTICATION CORE</span>
+          <span className="text-[#8294AA]">SECURE SHA-256</span>
+        </div>
+      </div>
+
+      {/* Right Column: Clean Form Container with Large Whitespace */}
+      <div className="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-[#07090C]">
+        <div className="w-full max-w-md space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold tracking-tight text-[#F5F7FA]">Sign In</h2>
+            <p className="text-xs text-[#A7B0BD] leading-relaxed">{authStatusText}</p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit} noValidate>
@@ -141,13 +195,13 @@ export default function Login() {
             />
 
             {errors.form ? (
-              <p className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300" role="alert">
+              <p className="rounded-lg border border-[#A65D5D]/40 bg-[#A65D5D]/10 px-3 py-2 text-xs font-mono text-[#fca5a5]" role="alert">
                 {errors.form}
               </p>
             ) : null}
 
             <div className="flex items-center justify-end">
-              <button type="button" className="text-sm font-medium text-slate-400 transition-colors hover:text-slate-200">
+              <button type="button" className="text-xs text-[#A7B0BD] transition-colors hover:text-[#F5F7FA]">
                 Forgot password?
               </button>
             </div>
@@ -155,29 +209,23 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#6b7cff] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#5d6ee8] disabled:cursor-not-allowed disabled:opacity-70"
+              className="premium-button w-full"
             >
-              <span>{isLoggingIn ? 'Signing In...' : 'Sign In'}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>{isLoggingIn ? 'Verifying...' : 'Sign In'}</span>
+              <ArrowRight className="h-3.5 w-3.5 ml-2 text-[#8294AA]" />
             </button>
           </form>
 
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[#2a303a]" />
-            <span className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Access</span>
-            <div className="h-px flex-1 bg-[#2a303a]" />
-          </div>
-
-          <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-            <span>Don’t have an account?</span>
-            <Link to="/register" className="font-medium text-slate-200 transition-colors hover:text-white">
+          <div className="flex items-center justify-between pt-4 border-t border-[#181E26] text-xs">
+            <span className="text-[#667180]">Don't have an account?</span>
+            <Link to="/register" className="font-semibold text-[#F5F7FA] hover:text-[#8294AA] transition-colors">
               Create account
             </Link>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-2 text-xs text-slate-500">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Secure diagnostic access</span>
+          <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-[#667180] pt-2">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#4F8A68]" />
+            <span>ENCRYPTED LAB ACCESS PROTOCOL</span>
           </div>
         </div>
       </div>

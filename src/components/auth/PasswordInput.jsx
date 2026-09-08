@@ -16,8 +16,8 @@ export default function PasswordInput({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <label htmlFor={id} className="block text-sm font-medium text-slate-200">
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="block text-xs font-medium text-[#A7B0BD]">
         {label}
       </label>
 
@@ -33,15 +33,15 @@ export default function PasswordInput({
           autoComplete={autoComplete}
           required={required}
           aria-invalid={Boolean(error)}
-          className={`w-full rounded-lg border bg-[#111821] px-3.5 py-2.5 pr-11 text-sm text-slate-100 placeholder:text-slate-500 transition-colors focus:outline-none focus:ring-2 focus:ring-[#6b7cff]/50 ${
-            error ? 'border-red-500/60' : 'border-[#2a303a] focus:border-[#6b7cff]'
+          className={`w-full rounded-lg border bg-[#0C1015] px-3.5 py-2.5 pr-10 text-xs text-[#F5F7FA] placeholder:text-[#596473] transition-colors focus:outline-none ${
+            error ? 'border-[#A65D5D] focus:border-[#A65D5D]' : 'border-[#202731] focus:border-[#8294AA]'
           }`}
         />
 
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition-colors hover:text-slate-200"
+          className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-[#667180] transition-colors hover:text-[#A7B0BD]"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
           tabIndex={0}
         >
@@ -50,7 +50,7 @@ export default function PasswordInput({
       </div>
 
       {error ? (
-        <p className="text-xs text-red-400" role="alert">
+        <p className="text-xs text-[#A65D5D]" role="alert">
           {error}
         </p>
       ) : null}

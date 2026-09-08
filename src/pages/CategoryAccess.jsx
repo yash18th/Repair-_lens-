@@ -1,45 +1,58 @@
 import React from 'react';
-import { Grid3X3, ChevronRight } from 'lucide-react';
+import { ChevronRight, Smartphone, Laptop, Cpu, Plug, Car, Package, Wrench } from 'lucide-react';
 import { ITEM_CATEGORIES } from '../services/api';
 
-const CATEGORY_ACCESS_ITEMS = ITEM_CATEGORIES;
+const CATEGORY_ICON_COMPONENTS = {
+  phone: Smartphone,
+  computer: Laptop,
+  electronics: Cpu,
+  appliance: Plug,
+  vehicles: Car,
+  other: Package,
+};
 
 export default function CategoryAccess({ onSelectCategoryAndNavigate }) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       <div className="flex items-center justify-between px-1">
-        <div className="flex items-center space-x-2 text-xs font-extrabold uppercase tracking-wider text-slate-300">
-          <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
-          <span>Category Access</span>
+        <div className="flex items-center space-x-2 text-xs font-mono font-bold uppercase tracking-wider text-[#A7B0BD]">
+          <span className="w-5 h-5 rounded-md bg-[#141922] border border-[#202731] text-[#8294AA] flex items-center justify-center text-[10px] font-bold">2</span>
+          <span>CATEGORY ACCESS // TARGET HARDWARE</span>
         </div>
-        <span className="text-[11px] text-slate-500">Choose a category</span>
+        <span className="text-[10px] font-mono uppercase text-[#667180]">SELECT MODULE</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {CATEGORY_ACCESS_ITEMS.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => onSelectCategoryAndNavigate(cat.id)}
-            className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-4 text-left transition-all duration-200 hover:border-purple-500/60 hover:bg-slate-900 shadow-xl"
-          >
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl flex-shrink-0">
-                {cat.icon}
+        {ITEM_CATEGORIES.map((cat, idx) => {
+          const IconComponent = CATEGORY_ICON_COMPONENTS[cat.id] || Wrench;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onSelectCategoryAndNavigate(cat.id)}
+              className="group flex items-center justify-between gap-4 rounded-xl border border-[#202731] bg-[#10141A] px-5 py-4 text-left transition-all duration-180 hover:border-[#283240] hover:bg-[#141922] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04),0_8px_24px_rgba(0,0,0,0.3)]"
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-[#0C1015] border border-[#202731] flex items-center justify-center text-[#8294AA] group-hover:text-[#F5F7FA] transition-colors flex-shrink-0 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+                  <IconComponent className="w-5 h-5" />
+                </div>
+
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px] text-[#667180]">{String(idx + 1).padStart(2, '0')}</span>
+                    <span className="font-bold text-[#F5F7FA] text-base group-hover:text-white transition-colors">{cat.label}</span>
+                  </div>
+                  <div className="text-xs text-[#A7B0BD] truncate mt-0.5">{cat.desc}</div>
+                </div>
               </div>
 
-              <div className="min-w-0">
-                <div className="font-extrabold text-white text-2xl group-hover:text-purple-300 transition-colors">{cat.label}</div>
-                <div className="text-sm text-slate-400 truncate">{cat.desc}</div>
-              </div>
-            </div>
-
-            <span className="inline-flex items-center gap-2 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30 px-4 py-2 text-sm font-bold flex-shrink-0">
-              Open
-              <ChevronRight className="w-4 h-4" />
-            </span>
-          </button>
-        ))}
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#0C1015] text-[#A7B0BD] border border-[#202731] px-3 py-1.5 text-xs font-medium group-hover:text-[#F5F7FA] group-hover:border-[#283240] flex-shrink-0 transition-colors">
+                <span>Select</span>
+                <ChevronRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

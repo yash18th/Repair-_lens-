@@ -35,37 +35,36 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 py-8 backdrop-blur-sm">
-      <div className="w-full max-w-lg overflow-hidden rounded-[26px] border border-[rgba(99,102,241,0.3)] bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(8,11,22,0.98))] shadow-[0_30px_80px_rgba(15,23,42,0.7)]">
-        <div className="border-b border-[rgba(148,163,184,0.18)] p-5 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4 py-8 backdrop-blur-sm">
+      <div className="w-full max-w-md overflow-hidden rounded-xl border border-[#202731] bg-[#10141A] shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
+        <div className="border-b border-[#202731] p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-purple-500/30 bg-[rgba(139,92,246,0.12)] text-purple-300">
-                <LockKeyhole className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#202731] bg-[#141922] text-[#A7B0BD]">
+                <LockKeyhole className="h-4 w-4 text-[#F5F7FA]" />
               </div>
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-300">Secure Access</div>
-                <h3 className="mt-1 text-xl font-bold tracking-[-0.05em] text-white">Sign in to start your diagnosis</h3>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8294AA]">Secure Access</div>
+                <h3 className="mt-0.5 text-base font-bold tracking-tight text-[#F5F7FA]">Sign in to start your diagnosis</h3>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-[rgba(148,163,184,0.2)] bg-white/5 p-2 text-slate-300 transition-colors hover:text-white"
+              className="rounded-md border border-[#202731] bg-[#0C1015] p-1.5 text-[#667180] transition-colors hover:text-[#F5F7FA] hover:border-[#283240]"
               aria-label="Close authentication prompt"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
-        <div className="space-y-6 p-5 sm:p-6">
-          <div className="flex items-center gap-2 rounded-2xl border border-violet-500/20 bg-[rgba(59,130,246,0.08)] px-3 py-2 text-sm text-slate-200">
-            <Sparkles className="h-4 w-4 text-violet-300" />
-            <span>Create an account or sign in to save your diagnostic reports and scan history.</span>
+        <div className="space-y-5 p-5 sm:p-6">
+          <div className="rounded-lg border border-[#202731] bg-[#0C1015] px-3.5 py-2.5 text-xs text-[#A7B0BD] leading-relaxed">
+            Create an account or sign in to save your diagnostic reports and scan history.
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => handleAuthRoute('/login')}
@@ -85,7 +84,7 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl border border-[rgba(148,163,184,0.2)] bg-transparent px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:text-white"
+            className="w-full rounded-lg border border-[#202731] bg-[#141922] px-3 py-2 text-xs font-medium text-[#A7B0BD] transition-colors hover:text-[#F5F7FA] hover:border-[#283240]"
           >
             Continue Browsing
           </button>
@@ -470,7 +469,7 @@ function RepairLensDashboard() {
   };
 
   return (
-    <div className="premium-shell min-h-screen flex flex-col selection:bg-[#b08a4a] selection:text-[#252321]">
+    <div className="premium-shell min-h-screen flex flex-col selection:bg-[#8294AA]/30 selection:text-[#F5F7FA]">
       <AuthGateModal
         isOpen={authGateOpen}
         pendingTarget={pendingDiagnosisTarget || { category: selectedCategory, view: 'studio-category' }}
@@ -560,11 +559,11 @@ function RepairLensDashboard() {
         <footer className="border-t border-[var(--border-soft)] bg-[var(--bg-secondary)] py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs text-[var(--text-secondary)]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-[var(--text-primary)]">RepairLens Dashboard</span>
-              <span className="text-[var(--text-secondary)]">— Diagnostic Platform</span>
+              <span className="font-semibold text-[var(--text-primary)]">RepairLens Diagnostic Workspace</span>
+              <span className="text-[var(--text-secondary)]">— Precision Diagnostics Platform</span>
             </div>
             <div className="text-[var(--text-muted)] text-[11px]">
-              Vite + React 18 + Tailwind CSS
+              Technician Operations Edition
             </div>
           </div>
         </footer>

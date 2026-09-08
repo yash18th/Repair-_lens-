@@ -59,13 +59,13 @@ export default function KnowledgeBase({ searchQuery }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       
       {/* Header */}
-      <div className="border-b border-slate-800 pb-6 space-y-2">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20 mb-1">
-          <BookOpen className="w-3.5 h-3.5" />
+      <div className="border-b border-[#252B33] pb-6 space-y-2">
+        <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-[#151A21] text-[#9AA3AF] text-xs font-semibold border border-[#252B33] mb-1">
+          <BookOpen className="w-3.5 h-3.5 text-[#9AA3AF]" />
           <span>DIY Repair Knowledge Base</span>
         </div>
-        <h1 className="text-3xl font-black text-white">Repair Manuals & Guides</h1>
-        <p className="text-xs text-slate-400">Curated disassembly guides, tool specifications, and safety procedures.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-[#F2F4F7]">Repair Manuals & Guides</h1>
+        <p className="text-xs text-[#9AA3AF]">Curated disassembly guides, tool specifications, and safety procedures.</p>
       </div>
 
       {/* Category Pills */}
@@ -74,10 +74,10 @@ export default function KnowledgeBase({ searchQuery }) {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
               selectedCategory === cat
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                ? 'bg-[#1C232D] text-[#F2F4F7] border border-[#364150] shadow-sm'
+                : 'bg-[#0D1015] border border-[#252B33] text-[#9AA3AF] hover:text-[#F2F4F7] hover:bg-[#151A21]'
             }`}
           >
             {cat === 'all' ? 'All Guides' : cat}
@@ -86,37 +86,37 @@ export default function KnowledgeBase({ searchQuery }) {
       </div>
 
       {/* Guides Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filteredGuides.map((guide) => (
           <div
             key={guide.id}
-            className="glass-panel p-6 rounded-2xl border border-slate-800 hover:border-purple-500/40 transition-all duration-200 space-y-4 flex flex-col justify-between group"
+            className="glass-panel p-6 rounded-2xl border border-[#252B33] bg-[#11151B] hover:bg-[#151A21] hover:border-[#363E4A] transition-all duration-200 space-y-4 flex flex-col justify-between group"
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-purple-400 uppercase tracking-wider">{guide.categoryLabel}</span>
-                <span className="text-slate-500">{guide.readTime} • <span className="text-slate-300">{guide.difficulty}</span></span>
+                <span className="font-semibold text-[#6B7C93] uppercase tracking-wider text-[11px]">{guide.categoryLabel}</span>
+                <span className="text-[#66707D] text-[11px]">{guide.readTime} • <span className="text-[#9AA3AF]">{guide.difficulty}</span></span>
               </div>
 
-              <h3 className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">
+              <h3 className="text-base font-bold text-[#F2F4F7] group-hover:text-white transition-colors">
                 {guide.title}
               </h3>
 
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#9AA3AF] leading-relaxed">
                 {guide.description}
               </p>
             </div>
 
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-              <div className="flex flex-wrap gap-1">
+            <div className="pt-3 border-t border-[#252B33] flex items-center justify-between">
+              <div className="flex flex-wrap gap-1.5">
                 {guide.tools.map((t, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-400">
+                  <span key={idx} className="px-2 py-0.5 rounded bg-[#0D1015] border border-[#252B33] text-[10px] font-mono text-[#9AA3AF]">
                     {t}
                   </span>
                 ))}
               </div>
 
-              <button className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center space-x-1">
+              <button className="text-xs font-medium text-[#9AA3AF] group-hover:text-[#F2F4F7] hover:text-[#F2F4F7] flex items-center space-x-1.5 transition-colors">
                 <span>Read Manual</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>

@@ -5,26 +5,34 @@
 @tailwind utilities;
 
 :root {
-  /* Classy, Minimal, Professional Dark Neutral Palette */
-  --bg-primary: #080A0D;
-  --bg-secondary: #0D1015;
-  --bg-surface: #11151B;
-  --bg-surface-strong: #151A21;
-  --bg-panel: #11151B;
-  --bg-elevated: #151A21;
-  --bg-subtle: #0D1015;
+  /* High-End, Award-Worthy Dark Engineering System */
+  --bg-primary: #07090C;
+  --bg-body: #07090C;
+  --bg-sidebar: #090C10;
+  --bg-secondary: #090C10;
+  --bg-main: #0B0E13;
+  --bg-surface: #10141A;
+  --bg-surface-strong: #141922;
+  --bg-panel: #10141A;
+  --bg-elevated: #141922;
+  --bg-card: #10141A;
+  --bg-card-elevated: #141922;
+  --bg-input: #0C1015;
+  --bg-subtle: #090C10;
 
-  --border-soft: #252B33;
-  --border-strong: #363E4A;
+  --border-soft: #202731;
+  --border-primary: #202731;
+  --border-secondary: #181E26;
+  --border-strong: #283240;
 
-  --text-primary: #F2F4F7;
-  --text-secondary: #9AA3AF;
-  --text-muted: #66707D;
+  --text-primary: #F5F7FA;
+  --text-secondary: #A7B0BD;
+  --text-muted: #667180;
 
-  /* Subtle Steel/Slate Accent */
-  --accent: #6B7C93;
-  --accent-hover: #8494A7;
-  --accent-subtle: rgba(107, 124, 147, 0.12);
+  /* Refined Steel / Titanium Blue Accent */
+  --accent: #8294AA;
+  --accent-hover: #98A7B9;
+  --accent-subtle: rgba(130, 148, 170, 0.12);
 
   /* Functional Status Colors */
   --success: #4F8A68;
@@ -34,22 +42,21 @@
   --danger: #A65D5D;
   --danger-subtle: rgba(166, 93, 93, 0.14);
 
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.35);
-  --shadow-glow: none;
-  --gradient-primary: #1C232D;
-  --gradient-hero: #080A0D;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.55);
+  --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 @layer base {
   html {
     color-scheme: dark;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-body);
   }
 
   body {
     @apply antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-primary);
+    background: var(--bg-body);
     color: var(--text-primary);
     line-height: 1.5;
   }
@@ -75,68 +82,75 @@
   }
 }
 
-/* Premium Technical Shell */
+/* Premium Technical Shell with Fine Grid & Subtle Vignette */
 .premium-shell {
-  background: var(--bg-primary);
+  background-color: var(--bg-body);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(130, 148, 170, 0.04), transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px, 28px 28px;
   color: var(--text-primary);
   min-height: 100vh;
 }
 
-/* Minimal Enterprise Panels */
+/* Layered Surfaces with Subtle Inner Highlights */
 .premium-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--inner-highlight), var(--shadow-soft);
+  border-radius: 10px;
 }
 
 .premium-panel-strong {
-  background: var(--bg-surface-strong);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--inner-highlight), var(--shadow-elevated);
+  border-radius: 10px;
 }
 
 .glass-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  box-shadow: var(--shadow-soft);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  box-shadow: var(--inner-highlight), var(--shadow-soft);
 }
 
 .premium-divider {
-  border-color: var(--border-soft);
+  border-color: var(--border-primary);
 }
 
-/* Restrained Technical Eyebrow & Status Badge */
+/* Technical Eyebrow & Status Badge */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  background: var(--bg-sidebar);
   color: var(--text-secondary);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 0.4rem 0.75rem;
+  padding: 0.35rem 0.7rem;
   border-radius: 6px;
+  box-shadow: var(--inner-highlight);
 }
 
 .gold-dot {
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.4rem;
+  height: 0.4rem;
   border-radius: 9999px;
   background: var(--success);
   display: inline-block;
 }
 
-/* Classy Professional Buttons */
+/* High-End Precision Action Buttons */
 .premium-button,
 .premium-button-secondary {
   transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
   border-radius: 8px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   font-size: 11px;
   font-weight: 600;
@@ -144,22 +158,22 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: var(--inner-highlight);
 }
 
 .premium-button {
-  background: #1C232D;
-  color: #F2F4F7;
-  border: 1px solid #364150;
-  padding: 0.75rem 1.25rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  background: #141922;
+  color: #F5F7FA;
+  border: 1px solid #283240;
+  padding: 0.7rem 1.25rem;
 }
 
 .premium-button:hover {
-  background: #252F3C;
-  border-color: #4A586C;
+  background: #1A222E;
+  border-color: #384556;
   color: #FFFFFF;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--inner-highlight), 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
 .premium-button:active {
@@ -168,15 +182,15 @@
 
 .premium-button-secondary {
   background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-soft);
-  padding: 0.75rem 1.25rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+  padding: 0.7rem 1.25rem;
 }
 
 .premium-button-secondary:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-card);
   border-color: var(--border-strong);
-  color: #FFFFFF;
+  color: var(--text-primary);
   transform: translateY(-1px);
 }
 
@@ -186,75 +200,83 @@
 
 /* Small Stat Container */
 .small-stat {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  box-shadow: var(--inner-highlight);
 }
 
-/* Category Cards */
+/* Diagnostic Module Cards */
 .category-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  transition: all 180ms ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--inner-highlight);
 }
 
 .category-card:hover {
-  background: var(--bg-elevated);
+  background: var(--bg-card-elevated);
   border-color: var(--border-strong);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+  box-shadow: var(--inner-highlight), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+}
+
+.category-card:hover .card-arrow {
+  transform: translateX(3px);
+  color: var(--text-primary);
 }
 
 /* Enterprise Sidebar Navigation Item */
 .nav-item-active {
   position: relative;
-  background: #151A21;
-  border: 1px solid var(--border-soft);
-  color: #F2F4F7;
+  background: #141922;
+  border: 1px solid var(--border-primary);
+  color: #F5F7FA;
+  box-shadow: var(--inner-highlight);
 }
 
 .nav-item-active::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 18%;
-  bottom: 18%;
-  width: 2.5px;
-  border-radius: 2px;
-  background: #6B7C93;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 1px;
+  background: #8294AA;
 }
 
 /* Technical Hero Panel */
 .hero-panel {
   position: relative;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
+  background: var(--bg-main);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--inner-highlight), var(--shadow-soft);
 }
 
-/* Very subtle, low-contrast monochromatic grid */
+/* Technical Engineering Grid */
 .tech-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Professional Laser / Scanning Animation */
+/* Laser / Scanning Animation */
 @keyframes laser-scan {
   0% {
     top: 0%;
-    opacity: 0.5;
+    opacity: 0.4;
   }
   50% {
-    opacity: 0.85;
+    opacity: 0.8;
   }
   100% {
     top: 100%;
-    opacity: 0.5;
+    opacity: 0.4;
   }
 }
 
