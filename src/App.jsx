@@ -385,15 +385,17 @@ function RepairLensDashboard() {
     setAnalysisResult(null);
     setAnalysisError('');
     setIsAnalyzing(true);
+    setDiagnosticStage('validating');
     try {
       const location = await Promise.race([
         getCurrentPositionPromise(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Location timeout')), 1000))
       ]).catch(() => null);
-      const result = await analyzeImage(angles, presetUsed, selectedCategory, location);
+      const result = await analyzeImage(angles, presetUsed, selectedCategory, location, (stage) => setDiagnosticStage(stage));
       if (activeRequestIdRef.current === requestId) {
         setAnalysisResult(result);
         setIsAnalyzing(false);
+        setDiagnosticStage('complete');
         setCurrentView('results');
       }
     } catch (error) {
@@ -401,6 +403,7 @@ function RepairLensDashboard() {
         console.error('Failed to analyze images:', error);
         setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
         setIsAnalyzing(false);
+        setDiagnosticStage('error');
       }
     }
   };
@@ -411,6 +414,7 @@ function RepairLensDashboard() {
     setAnalysisResult(null);
     setAnalysisError('');
     setIsAnalyzing(false);
+    setDiagnosticStage('idle');
     setPresetUsed(null);
     setCurrentView('home');
     setActiveTab('studio');
