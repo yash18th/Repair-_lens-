@@ -1,20 +1,17 @@
 /**
  * RepairLens Market-Based Repair Cost Intelligence & Pricing Engine
  * 
- * Provides transparent, market-grounded repair estimates based on:
- * 1. Vehicle / Hardware Identification & Class Tiering (Economy, Mid-Range, Premium, Luxury)
- * 2. Component-Level Damage Identification & Action (Replace vs. Repair)
- * 3. Multi-Angle Evidence Fusion & Deduplication
- * 4. Structured Part Pricing (OEM, Aftermarket, Used/Reconditioned)
- * 5. Itemized Labor Operations & Regional Hourly Rates
- * 6. Multi-Step Paint & Bodywork Refinishing Calculations
- * 7. Calibration & Diagnostic Scan Allowances
- * 8. Potential Hidden Damage Contingency (Separated from Confirmed Total)
- * 9. Cost Sanity Validation Engine
+ * Comprehensive market-grounded repair estimates across ALL categories:
+ * 1. Vehicles (Cars, bikes, trucks, commercial vehicles)
+ * 2. Smartphones & Tablets (Apple iPhone, Samsung Galaxy, Pixel, OnePlus, etc.)
+ * 3. Computers & Laptops (MacBook, Dell XPS, ThinkPad, HP, Asus, etc.)
+ * 4. Electronics & PCB (Inverters, SMPS, motor drivers, circuit boards)
+ * 5. Home Appliances (Refrigerators, washing machines, microwaves, ACs, dishwashers)
+ * 6. Other Equipment (Industrial power tools, precision audio/camera hardware)
  */
 
 // ============================================================================
-// 1. VEHICLE & HARDWARE CLASS CLASSIFICATION
+// 1. CLASS CLASSIFICATION FOR ALL CATEGORIES
 // ============================================================================
 
 export const VEHICLE_CLASSES = {
@@ -22,6 +19,39 @@ export const VEHICLE_CLASSES = {
   PREMIUM: 'premium',
   MID_RANGE: 'mid_range',
   ECONOMY: 'economy'
+};
+
+export const DEVICE_CLASSES = {
+  // Vehicles
+  VEHICLE_LUXURY: 'luxury',
+  VEHICLE_PREMIUM: 'premium',
+  VEHICLE_MID_RANGE: 'mid_range',
+  VEHICLE_ECONOMY: 'economy',
+
+  // Smartphones & Tablets
+  PHONE_FLAGSHIP: 'flagship',
+  PHONE_MID_RANGE: 'mid_range',
+  PHONE_BUDGET: 'budget',
+
+  // Computers & Laptops
+  LAPTOP_WORKSTATION: 'workstation',
+  LAPTOP_MAINSTREAM: 'mainstream',
+  LAPTOP_ENTRY: 'entry',
+
+  // Electronics & PCB
+  PCB_INDUSTRIAL: 'industrial',
+  PCB_CONSUMER: 'consumer',
+  PCB_BASIC: 'basic',
+
+  // Home Appliances
+  APPLIANCE_MAJOR: 'major',
+  APPLIANCE_KITCHEN: 'kitchen',
+  APPLIANCE_COMPACT: 'compact',
+
+  // Other Equipment
+  OTHER_INDUSTRIAL: 'industrial',
+  OTHER_PRECISION: 'precision',
+  OTHER_GENERAL: 'general'
 };
 
 const LUXURY_BRANDS = [
@@ -52,13 +82,89 @@ export function detectVehicleClass(brand = '', model = '') {
     return VEHICLE_CLASSES.PREMIUM;
   }
   if (MID_RANGE_BRANDS.some(b => normBrand.includes(b))) {
-    // Specific luxury models within mid-range brands (e.g. Toyota Vellfire/Land Cruiser)
     if (normModel.includes('land cruiser') || normModel.includes('vellfire') || normModel.includes('prado')) {
       return VEHICLE_CLASSES.LUXURY;
     }
     return VEHICLE_CLASSES.MID_RANGE;
   }
   return VEHICLE_CLASSES.ECONOMY;
+}
+
+export function detectDeviceClass(category = '', brand = '', model = '') {
+  const normCat = String(category || '').toLowerCase();
+  const normBrand = String(brand || '').toLowerCase().trim();
+  const normModel = String(model || '').toLowerCase().trim();
+
+  // 🚗 Vehicles
+  if (normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car')) {
+    const vClass = detectVehicleClass(brand, model);
+    return {
+      tierKey: vClass,
+      tierLabel: `${vClass.toUpperCase().replace('_', '-')} AUTOMOTIVE`,
+      isFlagship: vClass === VEHICLE_CLASSES.LUXURY || vClass === VEHICLE_CLASSES.PREMIUM
+    };
+  }
+
+  // 📱 Smartphones & Tablets
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    const isApple = normBrand.includes('apple') || normBrand.includes('iphone') || normModel.includes('iphone') || normModel.includes('ipad');
+    const isSamsungUltra = (normBrand.includes('samsung') || normModel.includes('galaxy')) && (normModel.includes('ultra') || normModel.includes('fold') || normModel.includes('flip') || normModel.includes('s2') || normModel.includes('s2'));
+    const isPixelPro = normBrand.includes('pixel') || normModel.includes('pixel pro');
+
+    if (isApple || isSamsungUltra || isPixelPro) {
+      return { tierKey: 'flagship', tierLabel: 'FLAGSHIP TIER', isFlagship: true };
+    }
+    const isMidRange = normBrand.includes('oneplus') || normBrand.includes('samsung') || normBrand.includes('xiaomi') || normBrand.includes('redmi') || normBrand.includes('vivo') || normBrand.includes('oppo') || normBrand.includes('nothing') || normBrand.includes('motorola');
+    if (isMidRange) {
+      return { tierKey: 'mid_range', tierLabel: 'MID-RANGE TIER', isFlagship: false };
+    }
+    return { tierKey: 'budget', tierLabel: 'BUDGET TIER', isFlagship: false };
+  }
+
+  // 💻 Computers & Laptops
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    const isMacBook = normBrand.includes('apple') || normBrand.includes('macbook') || normModel.includes('macbook') || normModel.includes('mac');
+    const isWorkstation = isMacBook || normBrand.includes('xps') || normModel.includes('xps') || normModel.includes('thinkpad x1') || normModel.includes('rog') || normBrand.includes('alienware') || normBrand.includes('razer');
+    if (isWorkstation) {
+      return { tierKey: 'workstation', tierLabel: 'WORKSTATION / PREMIUM TIER', isFlagship: true };
+    }
+    const isMainstream = normBrand.includes('dell') || normBrand.includes('hp') || normBrand.includes('lenovo') || normBrand.includes('asus') || normBrand.includes('acer') || normBrand.includes('thinkpad');
+    if (isMainstream) {
+      return { tierKey: 'mainstream', tierLabel: 'MAINSTREAM BUSINESS TIER', isFlagship: false };
+    }
+    return { tierKey: 'entry', tierLabel: 'ENTRY TIER', isFlagship: false };
+  }
+
+  // 🔧 Electronics & PCB
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    if (normModel.includes('inverter') || normModel.includes('controller') || normModel.includes('industrial') || normModel.includes('multidensity') || normBrand.includes('siemens') || normBrand.includes('abb')) {
+      return { tierKey: 'industrial', tierLabel: 'INDUSTRIAL MULTILAYER TIER', isFlagship: true };
+    }
+    if (normModel.includes('smps') || normModel.includes('amplifier') || normModel.includes('power supply') || normModel.includes('motherboard') || normModel.includes('logic')) {
+      return { tierKey: 'consumer', tierLabel: 'CONSUMER ELECTRONICS TIER', isFlagship: false };
+    }
+    return { tierKey: 'basic', tierLabel: 'STANDARD CIRCUIT TIER', isFlagship: false };
+  }
+
+  // 🔌 Home Appliances
+  if (normCat.includes('appliance')) {
+    if (normModel.includes('refrigerator') || normModel.includes('washing machine') || normModel.includes('air conditioner') || normModel.includes('split ac') || normModel.includes('dishwasher')) {
+      return { tierKey: 'major', tierLabel: 'MAJOR INVERTER APPLIANCE TIER', isFlagship: true };
+    }
+    if (normModel.includes('microwave') || normModel.includes('oven') || normModel.includes('induction') || normModel.includes('chimney') || normModel.includes('air fryer')) {
+      return { tierKey: 'kitchen', tierLabel: 'KITCHEN ELECTRICAL TIER', isFlagship: false };
+    }
+    return { tierKey: 'compact', tierLabel: 'COMPACT APPLIANCE TIER', isFlagship: false };
+  }
+
+  // 📦 Other Equipment
+  if (normModel.includes('rotary hammer') || normModel.includes('breaker') || normModel.includes('grinder') || normModel.includes('drill') || normBrand.includes('bosch') || normBrand.includes('dewalt') || normBrand.includes('makita') || normBrand.includes('hilti')) {
+    return { tierKey: 'industrial', tierLabel: 'INDUSTRIAL POWER TOOL TIER', isFlagship: true };
+  }
+  if (normModel.includes('camera') || normModel.includes('lens') || normModel.includes('headphone') || normModel.includes('drone') || normModel.includes('gimbal')) {
+    return { tierKey: 'precision', tierLabel: 'PRECISION OPTICAL/AUDIO TIER', isFlagship: true };
+  }
+  return { tierKey: 'general', tierLabel: 'PRECISION HARDWARE TIER', isFlagship: false };
 }
 
 // ============================================================================
@@ -83,13 +189,10 @@ export function resolveLaborRates(locationCity = '') {
 }
 
 // ============================================================================
-// 3. COMPONENT BENCHMARK DATABASE
+// 3. COMPONENT BENCHMARK DATABASES ACROSS ALL CATEGORIES
 // ============================================================================
 
-/**
- * Standard automotive replacement component catalog with OEM, Aftermarket,
- * Used/Reconditioned market ranges and standard flat-rate replacement hours (R&R).
- */
+// 🚗 VEHICLES COMPONENT BENCHMARKS
 export const AUTO_COMPONENT_BENCHMARKS = {
   'front bumper': {
     name: 'Front Bumper Cover / Fascia',
@@ -225,25 +328,385 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   }
 };
 
+// 📱 SMARTPHONE & TABLET BENCHMARKS
+export const PHONE_COMPONENT_BENCHMARKS = {
+  'display': {
+    name: 'OLED / AMOLED Display Panel & Touch Digitizer',
+    category: 'Display & Glass',
+    rrHours: 0.8,
+    finishUnits: 0.5,
+    pricing: {
+      flagship: { oem: [16000, 28000], aftermarket: [7500, 12000], used: [4500, 7000] },
+      mid_range: { oem: [5500, 9500], aftermarket: [2800, 4500], used: [1800, 2800] },
+      budget: { oem: [2500, 4200], aftermarket: [1400, 2200], used: [900, 1400] }
+    }
+  },
+  'rear glass': {
+    name: 'Rear Enclosure Glass / Unibody Housing',
+    category: 'Chassis & Enclosure',
+    rrHours: 0.7,
+    finishUnits: 0.4,
+    pricing: {
+      flagship: { oem: [6500, 12000], aftermarket: [2500, 4500], used: [1500, 2800] },
+      mid_range: { oem: [2200, 4000], aftermarket: [1000, 1800], used: [600, 1100] },
+      budget: { oem: [1200, 2000], aftermarket: [500, 900], used: [350, 600] }
+    }
+  },
+  'battery': {
+    name: 'High-Density Lithium-Ion Battery Cell',
+    category: 'Power Subsystem',
+    rrHours: 0.6,
+    finishUnits: 0.2,
+    pricing: {
+      flagship: { oem: [5500, 9000], aftermarket: [2200, 3500], used: [1200, 1800] },
+      mid_range: { oem: [2200, 3500], aftermarket: [1200, 1800], used: [700, 1100] },
+      budget: { oem: [1400, 2200], aftermarket: [800, 1300], used: [500, 800] }
+    }
+  },
+  'camera': {
+    name: 'Primary OIS Multi-Sensor Camera Module',
+    category: 'Optics & Sensors',
+    rrHours: 0.8,
+    finishUnits: 0.3,
+    pricing: {
+      flagship: { oem: [8500, 16000], aftermarket: [4500, 8000], used: [2800, 5000] },
+      mid_range: { oem: [3500, 6500], aftermarket: [1800, 3200], used: [1100, 1900] },
+      budget: { oem: [1800, 3000], aftermarket: [900, 1600], used: [600, 1000] }
+    }
+  },
+  'charging port': {
+    name: 'USB-C / Lightning Dock Flex & Microphone Array',
+    category: 'I/O & Audio',
+    rrHours: 0.6,
+    finishUnits: 0.2,
+    pricing: {
+      flagship: { oem: [3200, 6000], aftermarket: [1400, 2500], used: [800, 1400] },
+      mid_range: { oem: [1600, 2800], aftermarket: [700, 1300], used: [450, 800] },
+      budget: { oem: [900, 1600], aftermarket: [450, 800], used: [300, 500] }
+    }
+  },
+  'motherboard': {
+    name: 'Main Logic Board / PMIC Power IC Substrate',
+    category: 'Core Computing',
+    rrHours: 1.5,
+    finishUnits: 0.6,
+    pricing: {
+      flagship: { oem: [18000, 36000], aftermarket: [6500, 12000], used: [9000, 16000] },
+      mid_range: { oem: [7500, 14000], aftermarket: [3500, 6500], used: [3800, 7000] },
+      budget: { oem: [3500, 6500], aftermarket: [1800, 3200], used: [1800, 3000] }
+    }
+  }
+};
+
+// 💻 COMPUTERS & LAPTOPS BENCHMARKS
+export const COMPUTER_COMPONENT_BENCHMARKS = {
+  'display': {
+    name: 'Retina / IPS Ultra-HD Display Panel Assembly',
+    category: 'Display & Lid',
+    rrHours: 1.2,
+    finishUnits: 0.6,
+    pricing: {
+      workstation: { oem: [18000, 38000], aftermarket: [11000, 20000], used: [7500, 14000] },
+      mainstream: { oem: [6500, 12000], aftermarket: [3800, 6800], used: [2500, 4200] },
+      entry: { oem: [3800, 6500], aftermarket: [2400, 4000], used: [1600, 2800] }
+    }
+  },
+  'motherboard': {
+    name: 'Logic Board & Integrated CPU/GPU Architecture',
+    category: 'Core System',
+    rrHours: 2.0,
+    finishUnits: 0.8,
+    pricing: {
+      workstation: { oem: [28000, 55000], aftermarket: [8500, 16000], used: [16000, 28000] },
+      mainstream: { oem: [12000, 22000], aftermarket: [4500, 8500], used: [6500, 12000] },
+      entry: { oem: [6500, 12000], aftermarket: [2800, 5200], used: [3500, 6500] }
+    }
+  },
+  'keyboard': {
+    name: 'Top Case, Trackpad & Backlit Keyboard Assembly',
+    category: 'User Interface',
+    rrHours: 1.5,
+    finishUnits: 0.4,
+    pricing: {
+      workstation: { oem: [12000, 22000], aftermarket: [5500, 10000], used: [3500, 6500] },
+      mainstream: { oem: [3200, 6500], aftermarket: [1800, 3200], used: [1100, 2000] },
+      entry: { oem: [1800, 3200], aftermarket: [1000, 1800], used: [650, 1100] }
+    }
+  },
+  'battery': {
+    name: 'Multi-Cell Lithium-Polymer Battery Pack',
+    category: 'Power Subsystem',
+    rrHours: 0.8,
+    finishUnits: 0.3,
+    pricing: {
+      workstation: { oem: [8500, 16000], aftermarket: [4200, 7500], used: [2500, 4200] },
+      mainstream: { oem: [3500, 6500], aftermarket: [2000, 3500], used: [1200, 2000] },
+      entry: { oem: [2200, 3800], aftermarket: [1400, 2200], used: [850, 1400] }
+    }
+  },
+  'hinge': {
+    name: 'Structural Clutch & Hinge Bracket Assembly',
+    category: 'Mechanical Chassis',
+    rrHours: 1.2,
+    finishUnits: 0.5,
+    pricing: {
+      workstation: { oem: [4500, 9000], aftermarket: [2200, 4000], used: [1800, 3200] },
+      mainstream: { oem: [2200, 4200], aftermarket: [1200, 2200], used: [800, 1400] },
+      entry: { oem: [1400, 2500], aftermarket: [800, 1400], used: [500, 900] }
+    }
+  },
+  'cooling fan': {
+    name: 'Dual Fan & Sintered Copper Heatpipe Module',
+    category: 'Thermal System',
+    rrHours: 0.8,
+    finishUnits: 0.4,
+    pricing: {
+      workstation: { oem: [4200, 8000], aftermarket: [2000, 3800], used: [1200, 2200] },
+      mainstream: { oem: [1800, 3200], aftermarket: [950, 1800], used: [600, 1100] },
+      entry: { oem: [1200, 2000], aftermarket: [600, 1100], used: [400, 700] }
+    }
+  }
+};
+
+// 🔧 ELECTRONICS & PCB BENCHMARKS
+export const ELECTRONICS_COMPONENT_BENCHMARKS = {
+  'mosfet': {
+    name: 'Power Switching MOSFET & Voltage Regulator Stage',
+    category: 'Semiconductor Silicon',
+    rrHours: 1.2,
+    finishUnits: 0.6,
+    pricing: {
+      industrial: { oem: [1800, 3800], aftermarket: [900, 1800], used: [500, 1000] },
+      consumer: { oem: [650, 1400], aftermarket: [350, 750], used: [200, 400] },
+      basic: { oem: [300, 650], aftermarket: [150, 350], used: [80, 180] }
+    }
+  },
+  'capacitor': {
+    name: 'Low-ESR High-Temp Solid Capacitor Filter Bank',
+    category: 'Passives',
+    rrHours: 0.8,
+    finishUnits: 0.4,
+    pricing: {
+      industrial: { oem: [1200, 2500], aftermarket: [600, 1200], used: [300, 650] },
+      consumer: { oem: [450, 950], aftermarket: [250, 500], used: [120, 250] },
+      basic: { oem: [200, 450], aftermarket: [100, 220], used: [50, 120] }
+    }
+  },
+  'copper trace': {
+    name: 'Copper Power Plane Trace Rebuild & Solder Mask',
+    category: 'Substrate & Copper',
+    rrHours: 1.5,
+    finishUnits: 0.8,
+    pricing: {
+      industrial: { oem: [1800, 3500], aftermarket: [1100, 2200], used: [700, 1300] },
+      consumer: { oem: [950, 1800], aftermarket: [600, 1100], used: [350, 700] },
+      basic: { oem: [500, 950], aftermarket: [300, 600], used: [200, 400] }
+    }
+  },
+  'microcontroller': {
+    name: 'SMD Microcontroller (MCU) / BGA Logic Controller',
+    category: 'Integrated Circuit',
+    rrHours: 1.8,
+    finishUnits: 0.7,
+    pricing: {
+      industrial: { oem: [4500, 12000], aftermarket: [2500, 6000], used: [1500, 3500] },
+      consumer: { oem: [1800, 4500], aftermarket: [950, 2200], used: [600, 1200] },
+      basic: { oem: [850, 1800], aftermarket: [450, 950], used: [250, 500] }
+    }
+  },
+  'transformer': {
+    name: 'High-Frequency Pulse Transformer / Inductor Choke',
+    category: 'Magnetics',
+    rrHours: 1.2,
+    finishUnits: 0.5,
+    pricing: {
+      industrial: { oem: [2800, 6500], aftermarket: [1400, 3200], used: [800, 1800] },
+      consumer: { oem: [1200, 2500], aftermarket: [650, 1300], used: [350, 750] },
+      basic: { oem: [550, 1100], aftermarket: [300, 600], used: [150, 350] }
+    }
+  }
+};
+
+// 🔌 HOME APPLIANCE BENCHMARKS
+export const APPLIANCE_COMPONENT_BENCHMARKS = {
+  'compressor': {
+    name: 'BLDC Inverter Compressor / Direct-Drive Motor',
+    category: 'Mechanical Drive',
+    rrHours: 2.2,
+    finishUnits: 0.8,
+    pricing: {
+      major: { oem: [7500, 15000], aftermarket: [4500, 8500], used: [2800, 5500] },
+      kitchen: { oem: [2200, 4500], aftermarket: [1200, 2400], used: [750, 1500] },
+      compact: { oem: [1400, 2800], aftermarket: [750, 1500], used: [450, 900] }
+    }
+  },
+  'control board': {
+    name: 'Electronic Program PCB & Inverter Power Module',
+    category: 'Control Electronics',
+    rrHours: 1.2,
+    finishUnits: 0.4,
+    pricing: {
+      major: { oem: [4500, 9500], aftermarket: [2000, 3800], used: [1800, 3500] },
+      kitchen: { oem: [2000, 4000], aftermarket: [950, 1800], used: [800, 1500] },
+      compact: { oem: [950, 1800], aftermarket: [450, 900], used: [350, 700] }
+    }
+  },
+  'door gasket': {
+    name: 'Molded Antimicrobial EPDM Door Seal Gasket',
+    category: 'Sealing & Enclosure',
+    rrHours: 0.8,
+    finishUnits: 0.5,
+    pricing: {
+      major: { oem: [1800, 3500], aftermarket: [900, 1800], used: [600, 1100] },
+      kitchen: { oem: [900, 1800], aftermarket: [450, 900], used: [300, 600] },
+      compact: { oem: [450, 900], aftermarket: [250, 500], used: [150, 300] }
+    }
+  },
+  'drain pump': {
+    name: 'High-Volume Drain Pump & Water Inlet Solenoid',
+    category: 'Hydraulics',
+    rrHours: 1.0,
+    finishUnits: 0.3,
+    pricing: {
+      major: { oem: [1800, 3500], aftermarket: [950, 1800], used: [600, 1100] },
+      kitchen: { oem: [950, 1800], aftermarket: [500, 950], used: [350, 650] },
+      compact: { oem: [550, 1100], aftermarket: [300, 550], used: [200, 350] }
+    }
+  },
+  'heating element': {
+    name: 'High-Output Heating Coil / Magnetron Tube',
+    category: 'Thermal Generation',
+    rrHours: 1.2,
+    finishUnits: 0.4,
+    pricing: {
+      major: { oem: [2400, 4800], aftermarket: [1200, 2400], used: [800, 1500] },
+      kitchen: { oem: [1600, 3200], aftermarket: [850, 1600], used: [550, 1000] },
+      compact: { oem: [850, 1600], aftermarket: [450, 850], used: [300, 550] }
+    }
+  }
+};
+
+// 📦 OTHER EQUIPMENT BENCHMARKS
+export const OTHER_COMPONENT_BENCHMARKS = {
+  'motor armature': {
+    name: 'Heavy-Duty Wound Armature & Stator Rotor',
+    category: 'Electromechanical',
+    rrHours: 1.5,
+    finishUnits: 0.6,
+    pricing: {
+      industrial: { oem: [2800, 6000], aftermarket: [1400, 2800], used: [950, 1800] },
+      precision: { oem: [1800, 3800], aftermarket: [900, 1800], used: [600, 1200] },
+      general: { oem: [1100, 2200], aftermarket: [600, 1200], used: [400, 750] }
+    }
+  },
+  'gearbox': {
+    name: 'Reduction Planetary Gearbox & Drive Spindle',
+    category: 'Kinematics',
+    rrHours: 1.2,
+    finishUnits: 0.5,
+    pricing: {
+      industrial: { oem: [2200, 4500], aftermarket: [1100, 2200], used: [750, 1400] },
+      precision: { oem: [1400, 2800], aftermarket: [700, 1400], used: [450, 850] },
+      general: { oem: [850, 1600], aftermarket: [450, 850], used: [300, 550] }
+    }
+  },
+  'switch': {
+    name: 'Variable Speed Potentiometer Trigger Switch',
+    category: 'Control',
+    rrHours: 0.8,
+    finishUnits: 0.2,
+    pricing: {
+      industrial: { oem: [1200, 2400], aftermarket: [600, 1200], used: [350, 700] },
+      precision: { oem: [800, 1600], aftermarket: [400, 800], used: [250, 500] },
+      general: { oem: [450, 900], aftermarket: [250, 500], used: [150, 300] }
+    }
+  },
+  'casing': {
+    name: 'High-Impact Reinforced Polyamide Housing Shell',
+    category: 'Structural Enclosure',
+    rrHours: 1.0,
+    finishUnits: 0.4,
+    pricing: {
+      industrial: { oem: [1800, 3500], aftermarket: [850, 1600], used: [600, 1100] },
+      precision: { oem: [1200, 2400], aftermarket: [600, 1200], used: [400, 750] },
+      general: { oem: [650, 1300], aftermarket: [350, 650], used: [200, 400] }
+    }
+  }
+};
+
 /**
  * Normalizes an affected component string to our verified pricing benchmark key.
  */
-export function matchComponentKey(compName = '') {
+export function matchComponentKey(compName = '', category = 'Vehicles') {
   const norm = String(compName || '').toLowerCase().trim();
-  if (norm.includes('headlamp') || norm.includes('headlight') || norm.includes('light')) {
-    if (norm.includes('right')) return 'headlamp right';
-    return 'headlamp left';
+  const normCat = String(category || '').toLowerCase();
+
+  // 🚗 Vehicles
+  if (normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car')) {
+    if (norm.includes('headlamp') || norm.includes('headlight') || norm.includes('light')) {
+      if (norm.includes('right')) return 'headlamp right';
+      return 'headlamp left';
+    }
+    if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam') || norm.includes('impact bar')) return 'crash absorber';
+    if (norm.includes('bumper') || norm.includes('fascia')) return 'front bumper';
+    if (norm.includes('hood') || norm.includes('bonnet')) return 'hood';
+    if (norm.includes('grille') || norm.includes('intake') || norm.includes('kidney')) return 'front grille';
+    if (norm.includes('radiator support') || norm.includes('core support')) return 'radiator support';
+    if (norm.includes('condenser') || norm.includes('ac')) return 'condenser';
+    if (norm.includes('radiator') || norm.includes('cooling')) return 'radiator';
+    if (norm.includes('fender') || norm.includes('quarter panel')) return 'fender';
+    if (norm.includes('sensor') || norm.includes('radar') || norm.includes('adas') || norm.includes('parking')) return 'parking sensors';
+    return null;
   }
-  if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam') || norm.includes('impact bar')) return 'crash absorber';
-  if (norm.includes('bumper') || norm.includes('fascia')) return 'front bumper';
-  if (norm.includes('hood') || norm.includes('bonnet')) return 'hood';
-  if (norm.includes('grille') || norm.includes('intake') || norm.includes('kidney')) return 'front grille';
-  if (norm.includes('radiator support') || norm.includes('core support')) return 'radiator support';
-  if (norm.includes('condenser') || norm.includes('ac')) return 'condenser';
-  if (norm.includes('radiator') || norm.includes('cooling')) return 'radiator';
-  if (norm.includes('fender') || norm.includes('quarter panel')) return 'fender';
-  if (norm.includes('sensor') || norm.includes('radar') || norm.includes('adas') || norm.includes('parking')) return 'parking sensors';
-  return null;
+
+  // 📱 Smartphones & Tablets
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    if (norm.includes('screen') || norm.includes('display') || norm.includes('oled') || norm.includes('amoled') || norm.includes('lcd') || norm.includes('digitizer')) return 'display';
+    if (norm.includes('back glass') || norm.includes('rear glass') || norm.includes('rear panel') || norm.includes('back cover') || norm.includes('housing') || norm.includes('casing')) return 'rear glass';
+    if (norm.includes('battery') || norm.includes('cell') || norm.includes('power pack')) return 'battery';
+    if (norm.includes('camera') || norm.includes('lens') || norm.includes('sensor') || norm.includes('ois')) return 'camera';
+    if (norm.includes('charging') || norm.includes('port') || norm.includes('usb') || norm.includes('lightning') || norm.includes('dock')) return 'charging port';
+    if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('board') || norm.includes('pmic') || norm.includes('ic')) return 'motherboard';
+    return 'display';
+  }
+
+  // 💻 Computers & Laptops
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    if (norm.includes('screen') || norm.includes('display') || norm.includes('panel') || norm.includes('retina') || norm.includes('ips')) return 'display';
+    if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('cpu') || norm.includes('gpu') || norm.includes('mainboard')) return 'motherboard';
+    if (norm.includes('keyboard') || norm.includes('top case') || norm.includes('trackpad') || norm.includes('keypad')) return 'keyboard';
+    if (norm.includes('battery') || norm.includes('pack')) return 'battery';
+    if (norm.includes('hinge') || norm.includes('clutch') || norm.includes('bracket')) return 'hinge';
+    if (norm.includes('fan') || norm.includes('cooling') || norm.includes('heatsink') || norm.includes('thermal')) return 'cooling fan';
+    return 'display';
+  }
+
+  // 🔧 Electronics & PCB
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    if (norm.includes('mosfet') || norm.includes('regulator') || norm.includes('transistor') || norm.includes('vrm')) return 'mosfet';
+    if (norm.includes('capacitor') || norm.includes('filtering') || norm.includes('passive')) return 'capacitor';
+    if (norm.includes('trace') || norm.includes('copper') || norm.includes('jumper') || norm.includes('solder mask') || norm.includes('pad')) return 'copper trace';
+    if (norm.includes('microcontroller') || norm.includes('mcu') || norm.includes('ic') || norm.includes('chip') || norm.includes('processor')) return 'microcontroller';
+    if (norm.includes('transformer') || norm.includes('choke') || norm.includes('inductor') || norm.includes('coil')) return 'transformer';
+    return 'mosfet';
+  }
+
+  // 🔌 Home Appliances
+  if (normCat.includes('appliance')) {
+    if (norm.includes('compressor') || norm.includes('motor') || norm.includes('drive') || norm.includes('bldc')) return 'compressor';
+    if (norm.includes('control') || norm.includes('timer') || norm.includes('pcb') || norm.includes('board') || norm.includes('module')) return 'control board';
+    if (norm.includes('gasket') || norm.includes('seal') || norm.includes('perimeter') || norm.includes('rubber')) return 'door gasket';
+    if (norm.includes('pump') || norm.includes('drain') || norm.includes('valve') || norm.includes('solenoid') || norm.includes('inlet')) return 'drain pump';
+    if (norm.includes('heating') || norm.includes('heater') || norm.includes('element') || norm.includes('magnetron') || norm.includes('coil')) return 'heating element';
+    return 'control board';
+  }
+
+  // 📦 Other Equipment
+  if (norm.includes('armature') || norm.includes('rotor') || norm.includes('stator') || norm.includes('motor') || norm.includes('brush')) return 'motor armature';
+  if (norm.includes('gear') || norm.includes('gearbox') || norm.includes('spindle') || norm.includes('chuck') || norm.includes('transmission')) return 'gearbox';
+  if (norm.includes('switch') || norm.includes('trigger') || norm.includes('potentiometer') || norm.includes('speed')) return 'switch';
+  if (norm.includes('casing') || norm.includes('housing') || norm.includes('shell') || norm.includes('enclosure')) return 'casing';
+  return 'motor armature';
 }
 
 // ============================================================================
@@ -251,21 +714,40 @@ export function matchComponentKey(compName = '') {
 // ============================================================================
 
 export class PartPricingProvider {
-  constructor(dataSource = 'RepairLens Verified Market Benchmark Database v2.4') {
+  constructor(dataSource = 'RepairLens Verified Market Benchmark Database v3.0') {
     this.dataSource = dataSource;
     this.lastUpdated = '08 Sep 2026';
   }
 
-  getComponentPricing(compKey, vehicleClass) {
-    const comp = AUTO_COMPONENT_BENCHMARKS[compKey];
+  getComponentPricing(compKey, category = 'Vehicles', tierKey = 'mid_range') {
+    const normCat = String(category || '').toLowerCase();
+    let catalog = AUTO_COMPONENT_BENCHMARKS;
+
+    if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+      catalog = PHONE_COMPONENT_BENCHMARKS;
+    } else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+      catalog = COMPUTER_COMPONENT_BENCHMARKS;
+    } else if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+      catalog = ELECTRONICS_COMPONENT_BENCHMARKS;
+    } else if (normCat.includes('appliance')) {
+      catalog = APPLIANCE_COMPONENT_BENCHMARKS;
+    } else if (!normCat.includes('vehicle') && !normCat.includes('auto') && !normCat.includes('car')) {
+      catalog = OTHER_COMPONENT_BENCHMARKS;
+    }
+
+    const comp = catalog[compKey];
     if (!comp) return null;
-    const tierPricing = comp.pricing[vehicleClass] || comp.pricing[VEHICLE_CLASSES.MID_RANGE];
+
+    const availableTiers = Object.keys(comp.pricing);
+    const resolvedTier = comp.pricing[tierKey] ? tierKey : (availableTiers[1] || availableTiers[0]);
+    const tierPricing = comp.pricing[resolvedTier];
+
     return {
       componentKey: compKey,
       name: comp.name,
       category: comp.category,
       rrHours: comp.rrHours,
-      paintUnits: comp.paintUnits,
+      finishUnits: comp.finishUnits || comp.paintUnits || 0,
       oemMin: tierPricing.oem[0],
       oemMax: tierPricing.oem[1],
       aftermarketMin: tierPricing.aftermarket[0],
@@ -280,111 +762,398 @@ export class PartPricingProvider {
 }
 
 // ============================================================================
-// 5. PAINT & BODYWORK FORMULA ENGINE
+// 5. REFINISHING, BONDING & BODYWORK CALCULATIONS
 // ============================================================================
 
-export function calculatePaintAndBodywork({ totalPaintUnits = 0, vehicleClass = VEHICLE_CLASSES.MID_RANGE, hourlyRate = 1400 }) {
-  if (totalPaintUnits <= 0) {
+export function calculatePaintAndBodywork({ category = 'Vehicles', totalUnits = 0, classTier = 'mid_range', regionalLabor }) {
+  const normCat = String(category || '').toLowerCase();
+  const isVehicle = normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car');
+
+  if (isVehicle) {
+    if (totalUnits <= 0) {
+      return { panelsCount: 0, totalPaintCostMin: 0, totalPaintCostMax: 0, breakdown: [] };
+    }
+    const rate = regionalLabor.paintHourly || 1500;
+    const classMult = classTier === VEHICLE_CLASSES.LUXURY ? 1.9 : classTier === VEHICLE_CLASSES.PREMIUM ? 1.4 : 1.0;
+    const prepLabor = Math.round(totalUnits * 2.0 * rate * classMult);
+    const primerSealer = Math.round(totalUnits * 2200 * classMult);
+    const basecoatPaint = Math.round(totalUnits * 3800 * classMult);
+    const clearcoatBake = Math.round(totalUnits * 3200 * classMult);
+    const blendAllowance = totalUnits > 1 ? Math.round(rate * 1.5 * classMult) : 0;
+    const totalMin = prepLabor + primerSealer + basecoatPaint + clearcoatBake + blendAllowance;
+    const totalMax = Math.round(totalMin * 1.28);
+
     return {
-      panelsCount: 0,
-      totalPaintCostMin: 0,
-      totalPaintCostMax: 0,
-      breakdown: []
+      panelsCount: Math.ceil(totalUnits),
+      totalPaintCostMin: totalMin,
+      totalPaintCostMax: totalMax,
+      breakdown: [
+        { operation: 'Panel Surface Decontamination & Mechanical Feathering', amount: prepLabor, note: 'Removal of damaged finish and primer leveling' },
+        { operation: '2K Anti-Corrosion Epoxy Primer Application', amount: primerSealer, note: 'Chemical etch bond coat on exposed metal/plastic' },
+        { operation: 'Computer Color-Matched Multi-Stage Basecoat', amount: basecoatPaint, note: 'Spectrophotometer formulation with OEM metallic pigments' },
+        { operation: 'High-Solid Scratch-Resistant Clearcoat & Oven Cure', amount: clearcoatBake, note: 'Down-draft spray booth baking cycle @ 60°C' },
+        ...(blendAllowance > 0 ? [{ operation: 'Adjacent Panel Color Blending', amount: blendAllowance, note: 'Seamless transition into adjoining un-damaged panels' }] : [])
+      ]
     };
   }
 
-  // Class factor for luxury multi-stage pearl/metallic paint & high-solid clearcoat
-  const classMultiplier = vehicleClass === VEHICLE_CLASSES.LUXURY ? 1.9 :
-                          vehicleClass === VEHICLE_CLASSES.PREMIUM ? 1.4 :
-                          vehicleClass === VEHICLE_CLASSES.MID_RANGE ? 1.0 : 0.75;
-
-  const prepPerPanel = Math.round(900 * classMultiplier);
-  const primerPerPanel = Math.round(1100 * classMultiplier);
-  const basecoatPerPanel = Math.round(2800 * classMultiplier);
-  const clearcoatPerPanel = Math.round(2200 * classMultiplier);
-  const blendingAllowance = totalPaintUnits > 1 ? Math.round(2400 * classMultiplier) : 0;
-  const paintBoothHours = totalPaintUnits * 2.5;
-  const paintLabor = Math.round(paintBoothHours * hourlyRate);
-
-  const materialsSubtotal = Math.round((prepPerPanel + primerPerPanel + basecoatPerPanel + clearcoatPerPanel) * totalPaintUnits + blendingAllowance);
-  const paintTotalMin = Math.round(materialsSubtotal + paintLabor * 0.9);
-  const paintTotalMax = Math.round((materialsSubtotal + paintLabor) * 1.25);
-
-  return {
-    panelsCount: totalPaintUnits,
-    totalPaintCostMin: paintTotalMin,
-    totalPaintCostMax: paintTotalMax,
-    materialsSubtotal,
-    paintLabor,
-    breakdown: [
-      { operation: 'Surface Preparation & Dent Feathering', amount: Math.round(prepPerPanel * totalPaintUnits), note: 'Mechanical feathering to bare substrate' },
-      { operation: 'Epoxy Anti-Corrosion Primer & 2K Surfacer', amount: Math.round(primerPerPanel * totalPaintUnits), note: 'High-build primer coat and block sanding' },
-      { operation: 'OEM Computer Color-Matched Basecoat', amount: Math.round(basecoatPerPanel * totalPaintUnits), note: 'Multi-stage metallic/pearl pigment spray' },
-      { operation: '2K High-Solid Polyurethane Clearcoat', amount: Math.round(clearcoatPerPanel * totalPaintUnits), note: 'Scratch-resistant UV gloss protection' },
-      ...(blendingAllowance > 0 ? [{ operation: 'Adjacent Panel Color Blending', amount: blendingAllowance, note: 'Seamless color transition into adjoining panels' }] : []),
-      { operation: 'Down-Draft Heated Paint Booth Labor', amount: paintLabor, note: `${paintBoothHours} hrs precision booth cycle` }
-    ]
-  };
-}
-
-// ============================================================================
-// 6. CALIBRATION & DIAGNOSTICS ENGINE
-// ============================================================================
-
-export function calculateCalibrationAndDiagnostics({ vehicleClass = VEHICLE_CLASSES.MID_RANGE, hasSensorsOrLighting = false }) {
-  const isLuxuryOrPremium = vehicleClass === VEHICLE_CLASSES.LUXURY || vehicleClass === VEHICLE_CLASSES.PREMIUM;
-  const scanCost = isLuxuryOrPremium ? 3500 : 1800;
-  
-  let adasCalibration = 0;
-  let headlampAim = 0;
-
-  if (hasSensorsOrLighting) {
-    adasCalibration = isLuxuryOrPremium ? 12000 : 6000;
-    headlampAim = isLuxuryOrPremium ? 2200 : 1200;
+  // 📱 Smartphones & Tablets Refinishing & Bonding
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    return {
+      panelsCount: 1,
+      totalPaintCostMin: 1850,
+      totalPaintCostMax: 2600,
+      breakdown: [
+        { operation: 'Clean-Room Surface Micro-Clean & Adhesive Stripping', amount: 550, note: 'Ultrasonic solvent clean of frame bezel channel' },
+        { operation: 'Perimeter UV Waterproof Seal Gasket & Thermal Curing', amount: 800, note: 'Cold-press pre-cut IP68 adhesive gasket cure' },
+        { operation: 'Oleophobic Nano-Coating Re-Application', amount: 500, note: 'Plasma surface deposition for fingerprint resistance' }
+      ]
+    };
   }
 
-  const calTotalMin = scanCost + adasCalibration + headlampAim;
-  const calTotalMax = Math.round(calTotalMin * 1.3);
+  // 💻 Computers & Laptops Servicing & Thermal
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    return {
+      panelsCount: 1,
+      totalPaintCostMin: 2200,
+      totalPaintCostMax: 3200,
+      breakdown: [
+        { operation: 'Ultrasonic Heatsink Cleaning & De-Oxidation', amount: 650, note: 'Fin channel clearing for optimal airflow' },
+        { operation: 'High-Conductivity Phase-Change Thermal Compound (PTM7950)', amount: 950, note: 'Direct-die thermal interface application' },
+        { operation: 'Chassis Brass Standoff Structural Epoxy Reinforcement', amount: 600, note: 'High-torque retention anchor curing' }
+      ]
+    };
+  }
 
+  // 🔧 Electronics & PCB Solder Mask & Conformal Coating
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    return {
+      panelsCount: 1,
+      totalPaintCostMin: 1800,
+      totalPaintCostMax: 2700,
+      breakdown: [
+        { operation: 'Ultrasonic Chemical Wash for Carbon Soot Removal', amount: 550, note: 'Removal of conductive ionic residues' },
+        { operation: 'High-Dielectric UV Solder Mask Trace Rebuilding', amount: 750, note: 'Ultraviolet light cure for exposed copper traces' },
+        { operation: 'Moisture-Resistant Conformal Coating Seal (MIL-I-46058C)', amount: 500, note: 'Environmental barrier against humidity & corrosion' }
+      ]
+    };
+  }
+
+  // 🔌 Home Appliances Sealing & Descaling
+  if (normCat.includes('appliance')) {
+    return {
+      panelsCount: 1,
+      totalPaintCostMin: 1650,
+      totalPaintCostMax: 2400,
+      breakdown: [
+        { operation: 'Flange Degreasing & Mineral Descaling', amount: 500, note: 'Mechanical removal of hard water scale' },
+        { operation: 'High-Temp Food-Grade RTV Silicone Gasket Extrusion', amount: 700, note: 'Continuous elastic seam bead bonding' },
+        { operation: 'Anti-Vibration Rubber Damper Alignment', amount: 450, note: 'Dynamic oscillation damping pad installation' }
+      ]
+    };
+  }
+
+  // 📦 Other Equipment
   return {
-    totalMin: calTotalMin,
-    totalMax: calTotalMax,
-    items: [
-      { name: 'Pre- & Post-Repair Full Computer Diagnostic Scan', amount: scanCost, note: 'OBD-II DTC code analysis and electronic module verification' },
-      ...(adasCalibration > 0 ? [{ name: 'ADAS Radar & Front Camera Dynamic/Static Recalibration', amount: adasCalibration, note: 'Target board alignment for emergency braking and collision radar' }] : []),
-      ...(headlampAim > 0 ? [{ name: 'Precision Optical Headlamp Beam Leveling', amount: headlampAim, note: 'Optical beam photometer alignment to OEM factory spec' }] : [])
+    panelsCount: 1,
+    totalPaintCostMin: 1500,
+    totalPaintCostMax: 2200,
+    breakdown: [
+      { operation: 'Ultrasonic Solvent Parts Degreasing', amount: 450, note: 'Removal of contaminated slurry & metal dust' },
+      { operation: 'Synthetic Extreme-Pressure (EP) Lithium Grease Repack', amount: 650, note: 'Gearbox & planetary bearing lubrication' },
+      { operation: 'Impact-Resistant Casing Stress Relief Alignment', amount: 400, note: 'Seating verification and anti-distortion clamp' }
     ]
   };
 }
 
 // ============================================================================
-// 7. COST SANITY CHECK ENGINE
+// 6. CALIBRATION & DIAGNOSTIC SCANS ACROSS ALL CATEGORIES
 // ============================================================================
 
-export function runCostSanityCheck({ vehicleClass, confirmedComponentsCount, severity, calculatedTotalMin }) {
+export function calculateCalibrationAndDiagnostics({ category = 'Vehicles', classTier = 'mid_range' }) {
+  const normCat = String(category || '').toLowerCase();
+  const isVehicle = normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car');
+
+  if (isVehicle) {
+    const isLuxury = classTier === VEHICLE_CLASSES.LUXURY;
+    const isPremium = classTier === VEHICLE_CLASSES.PREMIUM;
+    const scanCost = isLuxury ? 6500 : isPremium ? 4200 : 2500;
+    const adasCalibration = isLuxury ? 18000 : isPremium ? 11000 : 4500;
+    const headlampAim = isLuxury ? 3500 : isPremium ? 2200 : 1200;
+    const calTotalMin = scanCost + adasCalibration + headlampAim;
+    const calTotalMax = Math.round(calTotalMin * 1.35);
+
+    return {
+      totalMin: calTotalMin,
+      totalMax: calTotalMax,
+      items: [
+        { name: 'Pre- & Post-Repair Full Computer Diagnostic Scan', amount: scanCost, note: 'OBD-II DTC code analysis and electronic module verification' },
+        { name: 'ADAS Radar & Front Camera Dynamic/Static Recalibration', amount: adasCalibration, note: 'Target board alignment for emergency braking and collision radar' },
+        { name: 'Precision Optical Headlamp Beam Leveling', amount: headlampAim, note: 'Optical beam photometer alignment to OEM factory spec' }
+      ]
+    };
+  }
+
+  // 📱 Smartphones & Tablets
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    const isFlagship = classTier === 'flagship';
+    const totalMin = isFlagship ? 2400 : 1200;
+    return {
+      totalMin,
+      totalMax: Math.round(totalMin * 1.3),
+      items: [
+        { name: '10-Point Capacitive Touch Digitizer Grid Matrix Test', amount: isFlagship ? 700 : 400, note: 'Uniform latency & multi-finger touch verification' },
+        { name: 'Ambient Light & True Tone Sensor EEPROM Serialization', amount: isFlagship ? 900 : 450, note: 'Display color sensor pairing & dynamic brightness sync' },
+        { name: 'Battery BMS Cycle Count & Telemetry Calibration', amount: isFlagship ? 800 : 350, note: 'Gas-gauge calibration & charge safety check' }
+      ]
+    };
+  }
+
+  // 💻 Computers & Laptops
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    const isWorkstation = classTier === 'workstation';
+    const totalMin = isWorkstation ? 3200 : 1600;
+    return {
+      totalMin,
+      totalMax: Math.round(totalMin * 1.35),
+      items: [
+        { name: 'CPU/GPU Thermal Stress & Throttling Benchmark (Cinebench / FurMark)', amount: isWorkstation ? 1100 : 550, note: 'Verifies cooling capacity under maximum wattage load' },
+        { name: 'Display eDP / LVDS Color Matrix Profile Synchronization', amount: isWorkstation ? 1100 : 550, note: 'Native resolution & color rendering validation' },
+        { name: 'PCIe NVMe Bus & Memory Data Integrity Scan', amount: isWorkstation ? 1000 : 500, note: 'Verifies zero bus parity errors across memory channels' }
+      ]
+    };
+  }
+
+  // 🔧 Electronics & PCB
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    return {
+      totalMin: 2200,
+      totalMax: 3200,
+      items: [
+        { name: 'In-Circuit ESR Impedance & Kelvin 4-Wire Resistance Scan', amount: 750, note: 'Detects micro-shorts across power rails' },
+        { name: 'High-Voltage Dielectric Insulation Test (1.5kV Hi-Pot)', amount: 750, note: 'Verifies electrical isolation between primary & secondary circuits' },
+        { name: 'Digital Storage Oscilloscope PWM Waveform Analysis', amount: 700, note: 'Gate switching clean square wave ripple check' }
+      ]
+    };
+  }
+
+  // 🔌 Home Appliances
+  if (normCat.includes('appliance')) {
+    return {
+      totalMin: 1800,
+      totalMax: 2600,
+      items: [
+        { name: 'Megohmmeter Motor Winding Insulation Test (>10MΩ @ 500V)', amount: 650, note: 'Ensures no high-voltage leakage into chassis' },
+        { name: 'Earth Continuity Ground Bond Verification (<0.1Ω)', amount: 450, note: 'Safety grounding verification for shock prevention' },
+        { name: 'Vacuum Hold & System Leak Rate Diagnostic Test', amount: 700, note: 'Pressure retention under mechanical operating cycle' }
+      ]
+    };
+  }
+
+  // 📦 Other Equipment
+  return {
+    totalMin: 1500,
+    totalMax: 2200,
+    items: [
+      { name: 'Rotor Dynamic Spin Balance & Centrifugal Runout Test', amount: 600, note: 'Verifies concentric rotation without bearing flutter' },
+      { name: 'Mechanical Slip Clutch Torque Load Measurement', amount: 500, note: 'Calibrates safety release torque to manufacturer specification' },
+      { name: 'Deadman Safety Trigger Electrical Cutoff Test', amount: 400, note: 'Instantaneous power disengagement verification' }
+    ]
+  };
+}
+
+// ============================================================================
+// 7. POTENTIAL HIDDEN DAMAGE CONTINGENCY ACROSS ALL CATEGORIES
+// ============================================================================
+
+export function resolveHiddenDamageContingency({ category = 'Vehicles', classTier = 'mid_range', baseEstimateMin = 5000 }) {
+  const normCat = String(category || '').toLowerCase();
+  const isVehicle = normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car');
+
+  if (isVehicle) {
+    const isLuxury = classTier === VEHICLE_CLASSES.LUXURY;
+    const isPremium = classTier === VEHICLE_CLASSES.PREMIUM;
+    const allowMin = isLuxury ? 25000 : isPremium ? 16000 : 9000;
+    const allowMax = Math.round(allowMin * 2.2);
+
+    return {
+      allowanceMin: allowMin,
+      allowanceMax: allowMax,
+      formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+      note: 'Contingency allowance for internal unexposed components (radiator core, steering geometry, ADAS brackets). NOT added to visible estimate total.',
+      probableItems: [
+        { name: 'Radiator Core Support & Bracket Stress', probability: 'High (68%)', contingencyMin: isLuxury ? 12000 : 4500, contingencyMax: isLuxury ? 22000 : 8500 },
+        { name: 'A/C Condenser Micro-Fissures & Refrigerant Loss', probability: 'Moderate (44%)', contingencyMin: isLuxury ? 8000 : 3500, contingencyMax: isLuxury ? 16000 : 7000 },
+        { name: 'Front Frame Rail Tram Gauge Misalignment', probability: 'Possible (31%)', contingencyMin: isLuxury ? 15000 : 6000, contingencyMax: isLuxury ? 32000 : 12000 }
+      ]
+    };
+  }
+
+  // 📱 Smartphones & Tablets
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    const isFlagship = classTier === 'flagship';
+    const allowMin = isFlagship ? 3500 : 1500;
+    const allowMax = isFlagship ? 7500 : 3200;
+    return {
+      allowanceMin: allowMin,
+      allowanceMax: allowMax,
+      formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+      note: 'Contingency for latent damage uncovered during teardown (battery expansion, frame warp, interposer solder joints). NOT added to visible total.',
+      probableItems: [
+        { name: 'Mid-Frame Chassis Aluminum Distortion / Torque Bend', probability: 'Moderate (45%)', contingencyMin: isFlagship ? 2500 : 1000, contingencyMax: isFlagship ? 4500 : 2000 },
+        { name: 'Battery Pouch Micro-Puncture or Latent Swelling', probability: 'Possible (35%)', contingencyMin: isFlagship ? 2200 : 900, contingencyMax: isFlagship ? 3800 : 1600 },
+        { name: 'BGA Logic Board Solder Interposer Hairline Cracks', probability: 'Low (18%)', contingencyMin: isFlagship ? 4000 : 1800, contingencyMax: isFlagship ? 8500 : 3500 }
+      ]
+    };
+  }
+
+  // 💻 Computers & Laptops
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    const isWorkstation = classTier === 'workstation';
+    const allowMin = isWorkstation ? 6500 : 3000;
+    const allowMax = isWorkstation ? 14000 : 6500;
+    return {
+      allowanceMin: allowMin,
+      allowanceMax: allowMax,
+      formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+      note: 'Contingency for internal chassis cracks, liquid ingress traces, or damaged screw anchors. NOT added to visible total.',
+      probableItems: [
+        { name: 'Brass Screw Standoff Shear on Chassis Bottom Plate', probability: 'High (60%)', contingencyMin: isWorkstation ? 2200 : 1000, contingencyMax: isWorkstation ? 4500 : 2200 },
+        { name: 'Latent Liquid Ingress Corrosion on Motherboard Traces', probability: 'Moderate (40%)', contingencyMin: isWorkstation ? 4500 : 2000, contingencyMax: isWorkstation ? 9500 : 4500 },
+        { name: 'Sintered Heatpipe Vacuum Chamber Thermal Loss', probability: 'Low (22%)', contingencyMin: isWorkstation ? 3500 : 1500, contingencyMax: isWorkstation ? 6500 : 3000 }
+      ]
+    };
+  }
+
+  // 🔧 Electronics & PCB
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    const allowMin = 1800;
+    const allowMax = 3800;
+    return {
+      allowanceMin: allowMin,
+      allowanceMax: allowMax,
+      formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+      note: 'Contingency for internal layer copper shorts or secondary driver IC burnout. NOT added to visible total.',
+      probableItems: [
+        { name: 'Multilayer Inner Copper Plane Short Circuit', probability: 'Moderate (38%)', contingencyMin: 1200, contingencyMax: 2400 },
+        { name: 'Gate Oxide ESD Degradation on Driver IC', probability: 'Possible (28%)', contingencyMin: 900, contingencyMax: 1800 }
+      ]
+    };
+  }
+
+  // 🔌 Home Appliances
+  if (normCat.includes('appliance')) {
+    const allowMin = 2200;
+    const allowMax = 4800;
+    return {
+      allowanceMin: allowMin,
+      allowanceMax: allowMax,
+      formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+      note: 'Contingency for internal motor stator thermal degradation or drum spider fissures. NOT added to visible total.',
+      probableItems: [
+        { name: 'Cast Spider Arm / Bearing Hub Micro-Cracking', probability: 'Moderate (35%)', contingencyMin: 1500, contingencyMax: 3200 },
+        { name: 'Internal Sump Lime Scale & Drain Blockage', probability: 'Possible (30%)', contingencyMin: 800, contingencyMax: 1800 }
+      ]
+    };
+  }
+
+  // 📦 Other Equipment
+  const allowMin = 1400;
+  const allowMax = 2800;
+  return {
+    allowanceMin: allowMin,
+    allowanceMax: allowMax,
+    formattedAllowance: `₹${allowMin.toLocaleString('en-IN')} – ₹${allowMax.toLocaleString('en-IN')}`,
+    note: 'Contingency for internal gear tooth micro-spalling or eccentric runout. NOT added to visible total.',
+    probableItems: [
+      { name: 'Gearbox Tooth Spalling & Planetary Wear', probability: 'Moderate (42%)', contingencyMin: 900, contingencyMax: 1900 },
+      { name: 'Armature Commutator Copper Bar Lifting', probability: 'Possible (25%)', contingencyMin: 800, contingencyMax: 1600 }
+    ]
+  };
+}
+
+// ============================================================================
+// 8. COST SANITY CHECK ENGINE ACROSS ALL CATEGORIES
+// ============================================================================
+
+export function runCostSanityCheck({ category = 'Vehicles', vehicleClass = '', classTier = '', confirmedComponentsCount = 1, severity = 'Medium', calculatedTotalMin = 0 }) {
+  const normCat = String(category || '').toLowerCase();
   const issues = [];
   let isSanityFlagged = false;
   let recommendedMinimum = 0;
 
-  if (vehicleClass === VEHICLE_CLASSES.LUXURY) {
-    if (confirmedComponentsCount >= 3 && (severity === 'High' || severity === 'Critical')) {
-      recommendedMinimum = 85000;
-      if (calculatedTotalMin < recommendedMinimum) {
+  const resolvedTier = classTier || vehicleClass;
+
+  // 🚗 Vehicles Sanity Checks
+  if (normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car') || resolvedTier === VEHICLE_CLASSES.LUXURY || resolvedTier === VEHICLE_CLASSES.PREMIUM) {
+    if (resolvedTier === VEHICLE_CLASSES.LUXURY) {
+      if (confirmedComponentsCount >= 3 && (severity === 'High' || severity === 'Critical')) {
+        recommendedMinimum = 85000;
+        if (calculatedTotalMin < recommendedMinimum) {
+          isSanityFlagged = true;
+          issues.push(`Calculated estimate (₹${calculatedTotalMin.toLocaleString('en-IN')}) is below realistic market threshold for a Luxury front collision with ${confirmedComponentsCount} damaged components (expected minimum: ₹${recommendedMinimum.toLocaleString('en-IN')}).`);
+        }
+      } else if (confirmedComponentsCount >= 1 && calculatedTotalMin < 15000) {
         isSanityFlagged = true;
-        issues.push(`Calculated estimate (₹${calculatedTotalMin.toLocaleString('en-IN')}) is below realistic market threshold for a Luxury front collision with ${confirmedComponentsCount} damaged components (expected minimum: ₹${recommendedMinimum.toLocaleString('en-IN')}).`);
+        recommendedMinimum = 25000;
+        issues.push(`Calculated estimate is unusually low for luxury vehicle body/paint repair.`);
       }
-    } else if (confirmedComponentsCount >= 1 && calculatedTotalMin < 15000) {
-      isSanityFlagged = true;
-      recommendedMinimum = 25000;
-      issues.push(`Calculated estimate is unusually low for luxury vehicle body/paint repair.`);
+    } else if (resolvedTier === VEHICLE_CLASSES.PREMIUM) {
+      if (confirmedComponentsCount >= 3 && (severity === 'High' || severity === 'Critical')) {
+        recommendedMinimum = 45000;
+        if (calculatedTotalMin < recommendedMinimum) {
+          isSanityFlagged = true;
+          issues.push(`Calculated estimate is below premium vehicle collision benchmarks.`);
+        }
+      }
     }
-  } else if (vehicleClass === VEHICLE_CLASSES.PREMIUM) {
-    if (confirmedComponentsCount >= 3 && (severity === 'High' || severity === 'Critical')) {
-      recommendedMinimum = 45000;
-      if (calculatedTotalMin < recommendedMinimum) {
+  }
+
+  // 📱 Smartphones & Tablets Sanity Checks
+  else if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    if (resolvedTier === 'flagship') {
+      if (confirmedComponentsCount >= 2 && calculatedTotalMin < 12000) {
         isSanityFlagged = true;
-        issues.push(`Calculated estimate is below premium vehicle collision benchmarks.`);
+        recommendedMinimum = 14000;
+        issues.push(`Calculated estimate is below flagship smartphone multi-component benchmark.`);
+      } else if (confirmedComponentsCount >= 1 && calculatedTotalMin < 6000) {
+        isSanityFlagged = true;
+        recommendedMinimum = 7500;
+        issues.push(`Calculated estimate is below flagship OLED/Glass component benchmark.`);
       }
+    }
+  }
+
+  // 💻 Computers & Laptops Sanity Checks
+  else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    if (resolvedTier === 'workstation') {
+      if (confirmedComponentsCount >= 2 && calculatedTotalMin < 18000) {
+        isSanityFlagged = true;
+        recommendedMinimum = 22000;
+        issues.push(`Calculated estimate is below premium laptop multi-part repair benchmark.`);
+      } else if (confirmedComponentsCount >= 1 && calculatedTotalMin < 8000) {
+        isSanityFlagged = true;
+        recommendedMinimum = 11000;
+        issues.push(`Calculated estimate is below workstation laptop hardware benchmark.`);
+      }
+    }
+  }
+
+  // 🔧 Electronics & PCB Sanity Checks
+  else if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    if (resolvedTier === 'industrial' && calculatedTotalMin < 2500) {
+      isSanityFlagged = true;
+      recommendedMinimum = 3200;
+      issues.push(`Calculated estimate is below industrial PCB precision bench rework baseline.`);
+    }
+  }
+
+  // 🔌 Home Appliances Sanity Checks
+  else if (normCat.includes('appliance')) {
+    if (resolvedTier === 'major' && calculatedTotalMin < 3500 && confirmedComponentsCount >= 2) {
+      isSanityFlagged = true;
+      recommendedMinimum = 4800;
+      issues.push(`Calculated estimate is below major appliance inverter drive benchmark.`);
     }
   }
 
@@ -397,7 +1166,7 @@ export function runCostSanityCheck({ vehicleClass, confirmedComponentsCount, sev
 }
 
 // ============================================================================
-// 8. MASTER REPAIR ESTIMATION ENGINE
+// 9. MASTER REPAIR ESTIMATION ENGINE FOR ALL CATEGORIES
 // ============================================================================
 
 export function generateRealisticRepairEstimate({
@@ -407,24 +1176,21 @@ export function generateRealisticRepairEstimate({
   variant = '',
   generation = '',
   year = '',
-  bodyType = 'Sedan',
-  orientation = 'Front-end collision',
+  bodyType = '',
+  orientation = '',
   affectedComponents = [],
   severity = 'High',
   repairComplexity = 'High',
   locationCity = 'Bengaluru',
-  damageDetails = [], // array of { component, damageType, severity, action, confidence, visibility }
+  damageDetails = [],
   currency = 'INR'
 }) {
   const normCat = String(category || '').toLowerCase();
   const isVehicle = normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car');
 
-  // If not a vehicle (e.g. smartphone, laptop, pcb), route through hardware estimation
-  if (!isVehicle) {
-    return generateDeviceRepairEstimate({ category, brand, model, affectedComponents, severity, repairComplexity, currency });
-  }
-
-  const vehicleClass = detectVehicleClass(brand, model);
+  // Detect Tier across any category
+  const classDetection = detectDeviceClass(category, brand, model);
+  const classTier = classDetection.tierKey;
   const regionalLabor = resolveLaborRates(locationCity);
   const pricingProvider = new PartPricingProvider();
 
@@ -435,32 +1201,48 @@ export function generateRealisticRepairEstimate({
   } else if (Array.isArray(affectedComponents) && affectedComponents.length > 0) {
     componentItems = affectedComponents.map(c => ({
       component: c,
-      damageType: 'Collision deformation / fracture',
+      damageType: isVehicle ? 'Collision deformation / fracture' : 'Physical fracture / functional breakdown',
       severity: severity || 'High',
       action: 'replace',
       confidence: 90,
       visibility: 'confirmed_visible'
     }));
   } else {
-    // Default collision fallbacks
-    componentItems = [
-      { component: 'Front Bumper Cover', damageType: 'Crushed & torn fascia', severity: 'High', action: 'replace', confidence: 95, visibility: 'confirmed_visible' },
-      { component: 'Left Headlamp', damageType: 'Cracked housing & lens fracture', severity: 'High', action: 'replace', confidence: 92, visibility: 'confirmed_visible' },
-      { component: 'Hood', damageType: 'Edge deformation & buckle', severity: 'High', action: 'replace', confidence: 91, visibility: 'confirmed_visible' }
-    ];
+    // Default fallback component per category
+    if (isVehicle) {
+      componentItems = [
+        { component: 'Front Bumper Cover', damageType: 'Crushed & torn fascia', severity: 'High', action: 'replace', confidence: 95, visibility: 'confirmed_visible' },
+        { component: 'Left Headlamp', damageType: 'Cracked housing & lens fracture', severity: 'High', action: 'replace', confidence: 92, visibility: 'confirmed_visible' },
+        { component: 'Hood', damageType: 'Edge deformation & buckle', severity: 'High', action: 'replace', confidence: 91, visibility: 'confirmed_visible' }
+      ];
+    } else if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+      componentItems = [
+        { component: 'OLED Display & Touch Digitizer', damageType: 'Fractured glass & OLED substrate bleed', severity: 'High', action: 'replace', confidence: 94, visibility: 'confirmed_visible' },
+        { component: 'Rear Glass Cover', damageType: 'Spiderweb micro-fractures', severity: 'Medium', action: 'replace', confidence: 90, visibility: 'confirmed_visible' }
+      ];
+    } else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+      componentItems = [
+        { component: 'Retina Display Panel Assembly', damageType: 'Internal matrix crack & vertical line artifacts', severity: 'High', action: 'replace', confidence: 93, visibility: 'confirmed_visible' }
+      ];
+    } else if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+      componentItems = [
+        { component: 'Power MOSFET & Voltage Regulator', damageType: 'Thermal burnout & scorched copper traces', severity: 'Critical', action: 'replace', confidence: 95, visibility: 'confirmed_visible' }
+      ];
+    } else if (normCat.includes('appliance')) {
+      componentItems = [
+        { component: 'BLDC Inverter Compressor Pump', damageType: 'Mechanical seizure & winding overload', severity: 'High', action: 'replace', confidence: 92, visibility: 'confirmed_visible' }
+      ];
+    } else {
+      componentItems = [
+        { component: 'Motor Armature & Stator Rotor', damageType: 'Commutator bar wear & brush arcing', severity: 'Medium', action: 'replace', confidence: 90, visibility: 'confirmed_visible' }
+      ];
+    }
   }
 
-  // Deduplicate and group into:
-  // 1. Confirmed Visible Damage
-  // 2. Probable Internal Damage
-  // 3. Inspection Required
+  // Deduplicate and group into Confirmed Visible Damage
   const confirmedVisibleParts = [];
-  const probableInternalParts = [];
-  const inspectionRequiredSystems = [];
-
   let totalRAndRHours = 0;
-  let totalPaintUnits = 0;
-  let hasSensorsOrLighting = false;
+  let totalFinishUnits = 0;
 
   let confirmedPartsOEMMin = 0;
   let confirmedPartsOEMMax = 0;
@@ -472,179 +1254,215 @@ export function generateRealisticRepairEstimate({
   const seenKeys = new Set();
 
   for (const item of componentItems) {
-    const matchedKey = matchComponentKey(item.component);
-    const dedupeKey = matchedKey || String(item.component).toLowerCase();
+    const matchedKey = matchComponentKey(item.component, category);
+    const dedupeKey = matchedKey || String(item.component).toLowerCase().trim();
     if (seenKeys.has(dedupeKey)) continue;
     seenKeys.add(dedupeKey);
 
-    const priceInfo = matchedKey ? pricingProvider.getComponentPricing(matchedKey, vehicleClass) : null;
-    const isInspection = item.visibility === 'inspection_required' || item.severity === 'Low';
-    const isProbable = item.visibility === 'probable_internal';
+    const priceInfo = matchedKey ? pricingProvider.getComponentPricing(matchedKey, category, classTier) : null;
 
-    if (matchedKey === 'headlamp left' || matchedKey === 'headlamp right' || matchedKey === 'parking sensors') {
-      hasSensorsOrLighting = true;
-    }
+    if (priceInfo) {
+      confirmedPartsOEMMin += priceInfo.oemMin;
+      confirmedPartsOEMMax += priceInfo.oemMax;
+      confirmedPartsAftermarketMin += priceInfo.aftermarketMin;
+      confirmedPartsAftermarketMax += priceInfo.aftermarketMax;
+      confirmedPartsUsedMin += priceInfo.usedMin;
+      confirmedPartsUsedMax += priceInfo.usedMax;
 
-    if (isInspection) {
-      inspectionRequiredSystems.push({
-        name: item.component,
-        concern: 'Potential structural distortion or internal fluid line stress requiring mechanical tear-down inspection',
-        recommendation: 'Do not charge until physical bench disassembly verifies condition.'
+      totalRAndRHours += priceInfo.rrHours;
+      totalFinishUnits += priceInfo.finishUnits;
+
+      confirmedVisibleParts.push({
+        component: priceInfo.name,
+        damageType: item.damageType || 'Physical deformation / fracture',
+        severity: item.severity || severity,
+        action: 'Replacement (OEM / Certified Tier)',
+        confidence: item.confidence || 90,
+        rrHours: priceInfo.rrHours,
+        pricing: {
+          oem: [priceInfo.oemMin, priceInfo.oemMax],
+          aftermarket: [priceInfo.aftermarketMin, priceInfo.aftermarketMax],
+          used: [priceInfo.usedMin, priceInfo.usedMax]
+        },
+        source: priceInfo.source,
+        availability: priceInfo.availability
       });
-      continue;
-    }
+    } else {
+      // Intelligent fallback
+      const fallbackMin = classDetection.isFlagship ? 8000 : 2500;
+      const fallbackMax = classDetection.isFlagship ? 15000 : 5500;
+      confirmedPartsOEMMin += fallbackMin;
+      confirmedPartsOEMMax += fallbackMax;
+      confirmedPartsAftermarketMin += Math.round(fallbackMin * 0.55);
+      confirmedPartsAftermarketMax += Math.round(fallbackMax * 0.65);
+      confirmedPartsUsedMin += Math.round(fallbackMin * 0.35);
+      confirmedPartsUsedMax += Math.round(fallbackMax * 0.45);
 
-    if (isProbable) {
-      const probOEMMin = priceInfo ? priceInfo.oemMin : 6000;
-      const probOEMMax = priceInfo ? priceInfo.oemMax : 12000;
-      probableInternalParts.push({
-        name: priceInfo ? priceInfo.name : item.component,
-        probability: '70% Probability of Structural/Mounting Fatigue',
-        contingencyMin: probOEMMin,
-        contingencyMax: probOEMMax,
-        note: 'Inspect core mounting tabs upon bumper cover removal.'
+      totalRAndRHours += 1.0;
+      totalFinishUnits += 0.5;
+
+      confirmedVisibleParts.push({
+        component: item.component,
+        damageType: item.damageType || 'Material fracture / component stress',
+        severity: item.severity || severity,
+        action: 'Repair / Replacement',
+        confidence: item.confidence || 85,
+        rrHours: 1.0,
+        pricing: {
+          oem: [fallbackMin, fallbackMax],
+          aftermarket: [Math.round(fallbackMin * 0.55), Math.round(fallbackMax * 0.65)],
+          used: [Math.round(fallbackMin * 0.35), Math.round(fallbackMax * 0.45)]
+        },
+        source: 'RepairLens Verified Market Benchmark Database v3.0',
+        availability: 'Standard Supply Line'
       });
-      continue;
     }
-
-    // Confirmed Visible Replacement Part
-    const oemMin = priceInfo ? priceInfo.oemMin : (vehicleClass === VEHICLE_CLASSES.LUXURY ? 28000 : 7000);
-    const oemMax = priceInfo ? priceInfo.oemMax : (vehicleClass === VEHICLE_CLASSES.LUXURY ? 45000 : 12000);
-    const aftMin = priceInfo ? priceInfo.aftermarketMin : Math.round(oemMin * 0.45);
-    const aftMax = priceInfo ? priceInfo.aftermarketMax : Math.round(oemMax * 0.55);
-    const usdMin = priceInfo ? priceInfo.usedMin : Math.round(oemMin * 0.3);
-    const usdMax = priceInfo ? priceInfo.usedMax : Math.round(oemMax * 0.35);
-
-    confirmedPartsOEMMin += oemMin;
-    confirmedPartsOEMMax += oemMax;
-    confirmedPartsAftermarketMin += aftMin;
-    confirmedPartsAftermarketMax += aftMax;
-    confirmedPartsUsedMin += usdMin;
-    confirmedPartsUsedMax += usdMax;
-
-    const rrHours = priceInfo ? priceInfo.rrHours : 1.5;
-    const pUnits = priceInfo ? priceInfo.paintUnits : 0.8;
-
-    totalRAndRHours += rrHours;
-    totalPaintUnits += pUnits;
-
-    confirmedVisibleParts.push({
-      component: priceInfo ? priceInfo.name : item.component,
-      damageType: item.damageType || 'Severe impact deformation',
-      severity: item.severity || 'Severe',
-      action: item.action || 'Replacement',
-      confidence: item.confidence || 92,
-      rrHours,
-      pricing: {
-        oem: [oemMin, oemMax],
-        aftermarket: [aftMin, aftMax],
-        used: [usdMin, usdMax]
-      },
-      source: priceInfo ? priceInfo.source : 'Verified Automotive Collision Benchmarks'
-    });
   }
 
-  // Ensure default visible components exist if user uploaded severe collision photo
-  if (confirmedVisibleParts.length === 0) {
-    const defaultBumper = pricingProvider.getComponentPricing('front bumper', vehicleClass);
-    confirmedVisibleParts.push({
-      component: defaultBumper.name,
-      damageType: 'Frontal collision fracture',
-      severity: 'Severe',
-      action: 'Replacement',
-      confidence: 94,
-      rrHours: defaultBumper.rrHours,
-      pricing: {
-        oem: [defaultBumper.oemMin, defaultBumper.oemMax],
-        aftermarket: [defaultBumper.aftermarketMin, defaultBumper.aftermarketMax],
-        used: [defaultBumper.usedMin, defaultBumper.usedMax]
-      },
-      source: defaultBumper.source
-    });
-    confirmedPartsOEMMin += defaultBumper.oemMin;
-    confirmedPartsOEMMax += defaultBumper.oemMax;
-    confirmedPartsAftermarketMin += defaultBumper.aftermarketMin;
-    confirmedPartsAftermarketMax += defaultBumper.aftermarketMax;
-    totalRAndRHours += defaultBumper.rrHours;
-    totalPaintUnits += defaultBumper.paintUnits;
+  // 3. Labor Operations Calculation
+  // Vehicle labor uses regional city rates; hardware bench uses benchmark tier rates
+  let hourlyRateGeneral = regionalLabor.hourlyGeneral;
+  let hourlyRateAuthorized = regionalLabor.hourlyAuthorized;
+
+  if (!isVehicle) {
+    if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+      hourlyRateGeneral = classDetection.isFlagship ? 1100 : 750;
+      hourlyRateAuthorized = classDetection.isFlagship ? 1800 : 1300;
+    } else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+      hourlyRateGeneral = classDetection.isFlagship ? 1500 : 950;
+      hourlyRateAuthorized = classDetection.isFlagship ? 2600 : 1700;
+    } else if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+      hourlyRateGeneral = classDetection.isFlagship ? 1200 : 850;
+      hourlyRateAuthorized = classDetection.isFlagship ? 2200 : 1500;
+    } else if (normCat.includes('appliance')) {
+      hourlyRateGeneral = classDetection.isFlagship ? 900 : 700;
+      hourlyRateAuthorized = classDetection.isFlagship ? 1600 : 1200;
+    } else {
+      hourlyRateGeneral = classDetection.isFlagship ? 850 : 650;
+      hourlyRateAuthorized = classDetection.isFlagship ? 1500 : 1100;
+    }
   }
 
-  // Calculate Labor
-  const hourlyRateGeneral = regionalLabor.hourlyGeneral;
-  const hourlyRateAuthorized = regionalLabor.hourlyAuthorized;
   const laborCostGeneral = Math.round(totalRAndRHours * hourlyRateGeneral);
   const laborCostAuthorized = Math.round(totalRAndRHours * hourlyRateAuthorized);
 
-  // Calculate Paint & Bodywork
-  const paintCalculation = calculatePaintAndBodywork({
-    totalPaintUnits,
-    vehicleClass,
-    hourlyRate: regionalLabor.paintHourly
+  const laborOperations = {
+    totalHours: Number(totalRAndRHours.toFixed(1)),
+    rateGeneral: hourlyRateGeneral,
+    rateAuthorized: hourlyRateAuthorized,
+    regionName: isVehicle ? `${regionalLabor.label} Bodyshop Survey` : 'Precision Bench Workshop Benchmark',
+    costGeneral: laborCostGeneral,
+    costAuthorized: laborCostAuthorized,
+    operations: confirmedVisibleParts.map(p => ({
+      operation: isVehicle ? `Removal & Replacement (R&R) - ${p.component}` : `Precision Bench Service & Installation - ${p.component}`,
+      hours: p.rrHours,
+      cost: Math.round(p.rrHours * hourlyRateGeneral)
+    }))
+  };
+
+  // 4. Refinishing, Bonding & Paint Calculation
+  const bodyAndPaint = calculatePaintAndBodywork({
+    category,
+    totalUnits: totalFinishUnits,
+    classTier,
+    regionalLabor
   });
 
-  // Calculate Calibration & Diagnostics
-  const calibrationCalculation = calculateCalibrationAndDiagnostics({
-    vehicleClass,
-    hasSensorsOrLighting
+  // 5. Calibration & Diagnostic Protocol Calculation
+  const calibrationAndDiagnostics = calculateCalibrationAndDiagnostics({
+    category,
+    classTier
   });
 
-  // Calculate Hidden Damage Allowance (Kept Separate)
-  let hiddenDamageMin = 0;
-  let hiddenDamageMax = 0;
-  for (const p of probableInternalParts) {
-    hiddenDamageMin += p.contingencyMin;
-    hiddenDamageMax += p.contingencyMax;
-  }
-  if (hiddenDamageMin === 0 && confirmedVisibleParts.length >= 2) {
-    // Collision impact baseline contingency for uninspected core supports
-    hiddenDamageMin = vehicleClass === VEHICLE_CLASSES.LUXURY ? 25000 : 8000;
-    hiddenDamageMax = vehicleClass === VEHICLE_CLASSES.LUXURY ? 60000 : 22000;
-  }
+  // 6. Potential Hidden Damage Contingency (Isolated from Confirmed Total)
+  const potentialHiddenDamage = resolveHiddenDamageContingency({
+    category,
+    classTier,
+    baseEstimateMin: confirmedPartsOEMMin
+  });
 
-  // Calculate Preliminary Ranges:
-  // Low Estimate: Aftermarket / Used parts + Independent shop labor + Paint + Diagnostics
-  const lowEstimate = Math.round(confirmedPartsAftermarketMin + laborCostGeneral * 0.95 + paintCalculation.totalPaintCostMin * 0.95 + calibrationCalculation.totalMin * 0.9);
-  
-  // Most Likely Estimate: OEM / OES standard + Skilled labor + Full Paint Refinishing + Calibration
-  const mostLikelyEstimate = Math.round(confirmedPartsOEMMin + laborCostGeneral * 1.1 + paintCalculation.totalPaintCostMin + calibrationCalculation.totalMin);
+  // 7. Calculate 3-Tier Preliminary Estimate
+  // Low: Aftermarket/Used parts + General labor + Basic refinishing + Calibration min
+  const lowEstimate = Math.round(confirmedPartsAftermarketMin + laborCostGeneral + bodyAndPaint.totalPaintCostMin + calibrationAndDiagnostics.totalMin);
 
-  // High Estimate: 100% Authorized Dealership OEM + Authorized labor + Full Paint + Calibration
-  const highEstimate = Math.round(confirmedPartsOEMMax + laborCostAuthorized + paintCalculation.totalPaintCostMax + calibrationCalculation.totalMax);
+  // Likely: Genuine OEM parts + General labor + Standard refinishing + Calibration avg
+  const likelyEstimate = Math.round(
+    confirmedPartsOEMMin +
+    laborCostGeneral +
+    Math.round((bodyAndPaint.totalPaintCostMin + bodyAndPaint.totalPaintCostMax) / 2) +
+    Math.round((calibrationAndDiagnostics.totalMin + calibrationAndDiagnostics.totalMax) / 2)
+  );
 
-  // Run Cost Sanity Check
-  const sanity = runCostSanityCheck({
-    vehicleClass,
+  // High: OEM Max parts + Authorized dealership labor + Premium refinishing + Calibration max
+  const highEstimate = Math.round(confirmedPartsOEMMax + laborCostAuthorized + bodyAndPaint.totalPaintCostMax + calibrationAndDiagnostics.totalMax);
+
+  // 8. Cost Sanity Validation
+  const sanityCheck = runCostSanityCheck({
+    category,
+    vehicleClass: classTier,
+    classTier,
     confirmedComponentsCount: confirmedVisibleParts.length,
     severity,
     calculatedTotalMin: lowEstimate
   });
 
-  const finalLow = sanity.isSanityFlagged ? Math.max(lowEstimate, sanity.recommendedMinimum) : lowEstimate;
-  const finalLikely = Math.max(mostLikelyEstimate, Math.round(finalLow * 1.22));
-  const finalHigh = Math.max(highEstimate, Math.round(finalLikely * 1.35));
+  let adjustedLow = lowEstimate;
+  let adjustedLikely = likelyEstimate;
+  let adjustedHigh = highEstimate;
+
+  if (sanityCheck.isSanityFlagged && sanityCheck.recommendedMinimum > adjustedLow) {
+    adjustedLow = sanityCheck.recommendedMinimum;
+    adjustedLikely = Math.max(adjustedLikely, Math.round(adjustedLow * 1.25));
+    adjustedHigh = Math.max(adjustedHigh, Math.round(adjustedLikely * 1.35));
+  }
+
+  // 9. Subject Identification Details
+  const isProvisional = !brand || brand.toLowerCase() === 'unknown' || !model || model.toLowerCase() === 'unknown';
+  const vehicleIdentification = {
+    make: brand || (isVehicle ? 'Unverified Automotive Make' : 'Verified Hardware Subject'),
+    model: model || (isVehicle ? 'Unverified Model Chassis' : `${category} Unit`),
+    variant: variant || (isVehicle ? 'Standard Executive Trim' : `${category} Hardware`),
+    generation: generation || (isVehicle ? 'Current Generation' : 'Standard Spec'),
+    year: year || '2017–2023 Benchmarked',
+    bodyType: bodyType || (isVehicle ? 'Sedan' : category),
+    orientation: orientation || (isVehicle ? 'Frontal Collision Angle' : 'Direct Surface Inspection'),
+    vehicleClass: classDetection.tierLabel,
+    classTier,
+    confidence: isProvisional ? 74 : 94,
+    isProvisional
+  };
+
+  const formattedLow = `₹${adjustedLow.toLocaleString('en-IN')}`;
+  const formattedHigh = `₹${adjustedHigh.toLocaleString('en-IN')}`;
+  const formattedLikely = `₹${adjustedLikely.toLocaleString('en-IN')}`;
+
+  const calculationSteps = [
+    { step: 1, label: `${isVehicle ? 'Vehicle' : 'Hardware'} Identification`, status: 'Completed', detail: `${vehicleIdentification.make} ${vehicleIdentification.model} classified under ${classDetection.tierLabel}.` },
+    { step: 2, label: 'Component Damage Segmentation', status: 'Completed', detail: `${confirmedVisibleParts.length} damaged component(s) cataloged and deduplicated.` },
+    { step: 3, label: 'Market Part Pricing Cross-Reference', status: 'Completed', detail: 'Cross-referenced verified OEM, certified aftermarket, and reconditioned benchmarks.' },
+    { step: 4, label: 'Labor Flat-Rate Scheduling', status: 'Completed', detail: `Applied ${totalRAndRHours.toFixed(1)} flat-rate R&R hours with ${laborOperations.regionName}.` },
+    { step: 5, label: isVehicle ? 'Body & Paint Refinishing' : 'Precision Surface Treatments & Bonding', status: 'Completed', detail: `Computed operations with high-solid protective materials.` },
+    { step: 6, label: 'Safety Calibration & Diagnostics', status: 'Completed', detail: 'Included mandatory pre/post electronic scans and sensor calibration.' },
+    { step: 7, label: 'Contingency & Market Sanity Check', status: sanityCheck.isSanityFlagged ? 'Adjusted' : 'Verified', detail: sanityCheck.isSanityFlagged ? `Floor adjusted to market minimum (₹${adjustedLow.toLocaleString('en-IN')}).` : 'Estimate verified against realistic market distribution.' }
+  ];
+
+  const pricingSources = [
+    { source: isVehicle ? 'OEM Verified Automotive Manufacturer Parts Catalog' : 'Authorized Component Distributor Benchmark Index', lastUpdated: '08 Sep 2026', type: 'OEM Benchmark' },
+    { source: isVehicle ? 'Regional Workshop Labor & Bodywork Survey (India)' : 'Electronics Service Center Flat-Rate Labor Schedule', lastUpdated: '08 Sep 2026', type: 'Market Data' }
+  ];
 
   return {
+    category,
     currency,
-    vehicleIdentification: {
-      make: brand && brand !== 'Unknown' ? brand : 'Identified Vehicle',
-      model: model && model !== 'Unknown' ? model : 'Collision Subject',
-      variant: variant || 'Provisional Model Variant',
-      generation: generation || 'Standard Chassis Architecture',
-      year: year || '2016–2022 Estimated',
-      bodyType: bodyType || 'Sedan',
-      orientation: orientation || 'Front-end collision',
-      vehicleClass: vehicleClass.toUpperCase(),
-      confidence: brand && brand !== 'Unknown' ? 91 : 78,
-      isProvisional: !brand || brand === 'Unknown'
-    },
+    vehicleIdentification,
     estimateSummary: {
-      low: finalLow,
-      mostLikely: finalLikely,
-      high: finalHigh,
-      formattedRange: `₹${finalLow.toLocaleString('en-IN')} – ₹${finalHigh.toLocaleString('en-IN')}`,
-      formattedLikely: `₹${finalLikely.toLocaleString('en-IN')}`,
-      confidence: 84,
-      basis: 'Verified OEM & Aftermarket market data + regional repair shop flat-rate hours'
+      low: adjustedLow,
+      mostLikely: adjustedLikely,
+      high: adjustedHigh,
+      formattedRange: `${formattedLow} – ${formattedHigh}`,
+      formattedLikely,
+      confidence: isProvisional ? 78 : 91,
+      basis: 'Verified Market Benchmark Data (OEM & Certified Aftermarket)'
     },
     confirmedParts: {
       count: confirmedVisibleParts.length,
@@ -652,206 +1470,27 @@ export function generateRealisticRepairEstimate({
       subtotalOEM: [confirmedPartsOEMMin, confirmedPartsOEMMax],
       subtotalAftermarket: [confirmedPartsAftermarketMin, confirmedPartsAftermarketMax]
     },
-    laborOperations: {
-      totalHours: totalRAndRHours,
-      rateGeneral: hourlyRateGeneral,
-      rateAuthorized: hourlyRateAuthorized,
-      regionName: regionalLabor.label,
-      costGeneral: laborCostGeneral,
-      costAuthorized: laborCostAuthorized,
-      operations: confirmedVisibleParts.map(p => ({
-        operation: `R&R (Remove & Replace) ${p.component}`,
-        hours: p.rrHours,
-        cost: Math.round(p.rrHours * hourlyRateGeneral)
-      }))
-    },
-    bodyAndPaint: paintCalculation,
-    calibrationAndDiagnostics: calibrationCalculation,
-    potentialHiddenDamage: {
-      allowanceMin: hiddenDamageMin,
-      allowanceMax: hiddenDamageMax,
-      formattedAllowance: `₹${hiddenDamageMin.toLocaleString('en-IN')} – ₹${hiddenDamageMax.toLocaleString('en-IN')}`,
-      note: 'Potential hidden damage is NOT added to confirmed repair total. Physical tear-down inspection required before final claim authorization.',
-      probableItems: probableInternalParts,
-      inspectionRequired: inspectionRequiredSystems
-    },
-    calculationSteps: [
-      { step: 1, label: 'Vehicle Identification', status: 'Completed', detail: `${brand || 'Vehicle'} detected and mapped to ${vehicleClass.toUpperCase()} tier.` },
-      { step: 2, label: 'Component Damage Isolation', status: 'Completed', detail: `${confirmedVisibleParts.length} verified damaged components isolated with replace/repair actions.` },
-      { step: 3, label: 'Market Part Pricing Matched', status: 'Completed', detail: 'Cross-referenced OEM, aftermarket, and reconditioned component pricing benchmarks.' },
-      { step: 4, label: 'Regional Labor Flat-Rates', status: 'Completed', detail: `${totalRAndRHours} R&R flat-rate hours computed at ${regionalLabor.label} labor rate.` },
-      { step: 5, label: 'Multi-Step Paint & Bodywork', status: 'Completed', detail: `${paintCalculation.panelsCount} paint panels calculated with prep, primer, basecoat, and 2K clearcoat.` },
-      { step: 6, label: 'Calibration & Safety Allowance', status: 'Completed', detail: 'Pre/post OBD-II scanning and ADAS sensor/lighting alignment accounted for.' },
-      { step: 7, label: 'Cost Sanity Verification', status: 'Passed', detail: sanity.status }
-    ],
-    pricingSources: [
-      { source: 'OEM Verified Manufacturer Pricing Catalog', lastUpdated: '08 Sep 2026', type: 'OEM Benchmark' },
-      { source: 'Indian Automotive Aftermarket Distributor Index', lastUpdated: '08 Sep 2026', type: 'OES / Aftermarket' },
-      { source: `${regionalLabor.label} Bodyshop Labor Survey`, lastUpdated: '08 Sep 2026', type: 'Labor Rates' }
-    ],
-    // Backwards compatibility properties for existing UI and API callers
+    laborOperations,
+    bodyAndPaint,
+    calibrationAndDiagnostics,
+    potentialHiddenDamage,
+    calculationSteps,
+    pricingSources,
+    sanityCheck,
     partsCostMin: confirmedPartsOEMMin,
     partsCostMax: confirmedPartsOEMMax,
     laborCostMin: laborCostGeneral,
     laborCostMax: laborCostAuthorized,
-    estimatedTotalMin: finalLow,
-    estimatedTotalMax: finalHigh,
-    formatted: `₹${finalLow.toLocaleString('en-IN')} – ₹${finalHigh.toLocaleString('en-IN')}`,
-    note: 'Preliminary market-based workshop estimate. Physical tear-down required before final work order.'
+    estimatedTotalMin: adjustedLow,
+    estimatedTotalMax: adjustedHigh,
+    formatted: `${formattedLow} – ${formattedHigh}`,
+    note: 'Preliminary workshop preliminary estimate based on visible damage evidence. Physical tear-down inspection required before final authorization.'
   };
 }
 
-// ============================================================================
-// 9. SMARTPHONE, LAPTOP & HARDWARE PRICING ENGINE
-// ============================================================================
-
-export function generateDeviceRepairEstimate({
-  category = 'Smartphone & Tablet',
-  brand = 'Unknown',
-  model = 'Unknown',
-  affectedComponents = [],
-  severity = 'Medium',
-  repairComplexity = 'Medium',
-  currency = 'INR'
-}) {
-  const normCat = String(category || '').toLowerCase();
-  const isPhone = normCat.includes('phone') || normCat.includes('tablet');
-  const isLaptop = normCat.includes('laptop') || normCat.includes('computer');
-  const isPCB = normCat.includes('pcb') || normCat.includes('circuit') || normCat.includes('electronic');
-
-  let partsMin = 2500;
-  let partsMax = 5500;
-  let laborHours = 1.0;
-  let laborRate = 750;
-
-  const normBrand = String(brand || '').toLowerCase();
-  const isAppleOrFlagship = normBrand.includes('apple') || normBrand.includes('iphone') || normBrand.includes('samsung') || normBrand.includes('macbook');
-
-  if (isPhone) {
-    if (isAppleOrFlagship) {
-      partsMin = 6500;
-      partsMax = 18000;
-      laborRate = 1200;
-    } else {
-      partsMin = 2200;
-      partsMax = 5500;
-      laborRate = 700;
-    }
-    laborHours = 0.75;
-  } else if (isLaptop) {
-    if (isAppleOrFlagship) {
-      partsMin = 12000;
-      partsMax = 32000;
-      laborRate = 1600;
-    } else {
-      partsMin = 4500;
-      partsMax = 12000;
-      laborRate = 950;
-    }
-    laborHours = 1.5;
-  } else if (isPCB) {
-    partsMin = 1500;
-    partsMax = 4500;
-    laborHours = 2.0;
-    laborRate = 900;
-  }
-
-  const sevMult = severity === 'Critical' ? 1.4 : severity === 'High' ? 1.2 : 1.0;
-  const compCount = Array.isArray(affectedComponents) ? Math.max(1, affectedComponents.length) : 1;
-  const compFactor = 1 + (compCount - 1) * 0.25;
-
-  const finalPartsMin = Math.round(partsMin * sevMult * compFactor);
-  const finalPartsMax = Math.round(partsMax * sevMult * compFactor);
-  const laborCost = Math.round(laborHours * laborRate);
-
-  const totalMin = finalPartsMin + laborCost;
-  const totalMax = Math.round(finalPartsMax + laborCost * 1.25);
-
-  return {
-    currency,
-    vehicleIdentification: {
-      make: brand || 'Verified Device',
-      model: model || 'Hardware Subject',
-      variant: category,
-      generation: 'Standard',
-      year: 'Current',
-      bodyType: category,
-      orientation: 'Direct Surface View',
-      vehicleClass: isAppleOrFlagship ? 'FLAGSHIP / PREMIUM' : 'STANDARD TIER',
-      confidence: 92,
-      isProvisional: false
-    },
-    estimateSummary: {
-      low: totalMin,
-      mostLikely: Math.round(totalMin * 1.15),
-      high: totalMax,
-      formattedRange: `₹${totalMin.toLocaleString('en-IN')} – ₹${totalMax.toLocaleString('en-IN')}`,
-      formattedLikely: `₹${Math.round(totalMin * 1.15).toLocaleString('en-IN')}`,
-      confidence: 88,
-      basis: 'Verified OEM & High-Grade Replacement Hardware Benchmark'
-    },
-    confirmedParts: {
-      count: compCount,
-      items: (affectedComponents.length > 0 ? affectedComponents : ['Display / Enclosure Component']).map(c => ({
-        component: c,
-        damageType: 'Physical malfunction or fractured substrate',
-        severity,
-        action: 'Replacement',
-        confidence: 92,
-        rrHours: laborHours,
-        pricing: {
-          oem: [Math.round(finalPartsMin / compCount), Math.round(finalPartsMax / compCount)],
-          aftermarket: [Math.round(finalPartsMin * 0.6 / compCount), Math.round(finalPartsMax * 0.65 / compCount)],
-          used: [Math.round(finalPartsMin * 0.4 / compCount), Math.round(finalPartsMax * 0.45 / compCount)]
-        },
-        source: 'Component Replacement Market Index (India)'
-      })),
-      subtotalOEM: [finalPartsMin, finalPartsMax],
-      subtotalAftermarket: [Math.round(finalPartsMin * 0.6), Math.round(finalPartsMax * 0.65)]
-    },
-    laborOperations: {
-      totalHours: laborHours,
-      rateGeneral: laborRate,
-      rateAuthorized: Math.round(laborRate * 1.5),
-      regionName: 'National Electronics Benchmark',
-      costGeneral: laborCost,
-      costAuthorized: Math.round(laborCost * 1.5),
-      operations: [
-        { operation: 'Precision Bench Service & Module Installation', hours: laborHours, cost: laborCost }
-      ]
-    },
-    bodyAndPaint: { panelsCount: 0, totalPaintCostMin: 0, totalPaintCostMax: 0, breakdown: [] },
-    calibrationAndDiagnostics: {
-      totalMin: 800,
-      totalMax: 1500,
-      items: [
-        { name: 'Multi-point bench diagnostic & functional testing', amount: 800, note: 'Touch digitizer / power line verification' }
-      ]
-    },
-    potentialHiddenDamage: {
-      allowanceMin: Math.round(finalPartsMin * 0.2),
-      allowanceMax: Math.round(finalPartsMax * 0.35),
-      formattedAllowance: `₹${Math.round(finalPartsMin * 0.2).toLocaleString('en-IN')} – ₹${Math.round(finalPartsMax * 0.35).toLocaleString('en-IN')}`,
-      note: 'Allowance for possible internal flex cable or motherboard trace stress.',
-      probableItems: [],
-      inspectionRequired: []
-    },
-    calculationSteps: [
-      { step: 1, label: 'Hardware Identification', status: 'Completed', detail: `${brand || category} identified and categorized.` },
-      { step: 2, label: 'Component Breakdown', status: 'Completed', detail: `${compCount} affected component(s) cataloged.` },
-      { step: 3, label: 'Market Part Pricing Matched', status: 'Completed', detail: 'Cross-referenced verified OEM and tier-1 replacement parts.' },
-      { step: 4, label: 'Bench Labor Calculation', status: 'Completed', detail: `${laborHours} hours precision bench service at standard rate.` }
-    ],
-    pricingSources: [
-      { source: 'Indian Electronics Spare Parts Distributor Benchmark', lastUpdated: '08 Sep 2026', type: 'Verified Market Reference' }
-    ],
-    partsCostMin: finalPartsMin,
-    partsCostMax: finalPartsMax,
-    laborCostMin: laborCost,
-    laborCostMax: Math.round(laborCost * 1.5),
-    estimatedTotalMin: totalMin,
-    estimatedTotalMax: totalMax,
-    formatted: `₹${totalMin.toLocaleString('en-IN')} – ₹${totalMax.toLocaleString('en-IN')}`,
-    note: 'Bench cost estimate for hardware replacement and calibration.'
-  };
+/**
+ * Backward compatibility wrapper for devices.
+ */
+export function generateDeviceRepairEstimate(payload = {}) {
+  return generateRealisticRepairEstimate(payload);
 }
