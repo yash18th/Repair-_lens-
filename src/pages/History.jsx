@@ -24,10 +24,10 @@ const formatDateTime = (isoString) => {
 };
 
 const severityStyles = {
-  Critical: 'bg-[#A65D5D]/10 text-[#fca5a5] border-[#A65D5D]/30',
-  High: 'bg-[#A7834F]/10 text-[#fcd34d] border-[#A7834F]/30',
-  Medium: 'bg-[#8294AA]/10 text-[#cbd5e1] border-[#8294AA]/30',
-  Low: 'bg-[#4F8A68]/10 text-[#86efac] border-[#4F8A68]/30',
+  Critical: 'bg-[#B36262]/10 text-[#B36262] border-[#B36262]/30',
+  High: 'bg-[#B28A50]/10 text-[#B28A50] border-[#B28A50]/30',
+  Medium: 'bg-[#7D91AA]/10 text-[#7D91AA] border-[#7D91AA]/30',
+  Low: 'bg-[#55A477]/10 text-[#55A477] border-[#55A477]/30',
 };
 
 export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChange, onStartDiagnosis }) {
@@ -181,12 +181,12 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
     return (
       <div
         key={item.id || item.reportId}
-        className="group relative overflow-hidden rounded-[14px] border border-[#202731] bg-[#10141A] p-5 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#141922] hover:border-[#283240]"
+        className="group relative overflow-hidden rounded-xl border border-[#232B36] bg-[#121720] p-5 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#161C25] hover:border-[#7D91AA]/40"
       >
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-              <span className="rounded-md border border-[#202731] bg-[#0C1015] px-2 py-1 text-[#A7B0BD] font-mono tracking-[0.12em]">
+            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-[#A7B0BC]">
+              <span className="rounded-md border border-[#232B36] bg-[#0D1118] px-2 py-1 text-[#A7B0BC] font-mono tracking-[0.12em]">
                 {item.reportId || `#${item.id?.slice(0, 8)?.toUpperCase() || 'RL-HISTORY'}`}
               </span>
             </div>
@@ -196,34 +196,34 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
           </div>
 
           <div className="space-y-1.5">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">{formatDateTime(item.createdAt)}</div>
-            <div className="text-base font-semibold tracking-[-0.02em] text-[#F5F7FA]">{item.category || 'Smartphone & Tablet'}</div>
-            <div className="text-sm text-[var(--text-secondary)]">{item.deviceName || item.deviceType || 'Unspecified device'}</div>
-            <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)]">{imageCount} image{imageCount === 1 ? '' : 's'} analyzed</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382] font-mono">{formatDateTime(item.createdAt)}</div>
+            <div className="text-base font-semibold tracking-tight text-[#F4F6F8]">{item.category || 'Hardware'}</div>
+            <div className="text-sm text-[#A7B0BC]">{item.deviceName || item.deviceType || 'Unspecified device'}</div>
+            <div className="text-[10px] uppercase tracking-[0.16em] text-[#687382] font-mono">{imageCount} image{imageCount === 1 ? '' : 's'} analyzed</div>
           </div>
 
-          <div className="space-y-3 border-t border-[#202731] pt-3">
+          <div className="space-y-3 border-t border-[#232B36] pt-3">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">Issue</div>
-              <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382] mb-1">Issue</div>
+              <p className="text-sm leading-relaxed text-[#A7B0BC]">
                 {item.issueDescription || item.problemDescription || 'Issue recorded during diagnosis'}
               </p>
             </div>
 
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">AI Diagnosis</div>
-              <p className="text-sm leading-relaxed text-[#F5F7FA] font-medium">{item.diagnosis || 'Diagnosis completed'}</p>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382] mb-1">AI Diagnosis</div>
+              <p className="text-sm leading-relaxed text-[#F4F6F8] font-medium">{item.diagnosis || 'Diagnosis completed'}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 border-t border-[#202731] pt-3">
+          <div className="grid grid-cols-2 gap-3 border-t border-[#232B36] pt-3">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">Estimated Cost</div>
-              <div className="text-sm font-semibold text-[#F5F7FA]">{cost}</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382] mb-1">Estimated Cost</div>
+              <div className="text-sm font-semibold text-[#F4F6F8] font-mono">{cost}</div>
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">DIY Suitability</div>
-              <div className="text-sm font-semibold text-[#4F8A68]">{diyScore}</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382] mb-1">DIY Suitability</div>
+              <div className="text-sm font-semibold text-[#55A477] font-mono">{diyScore}</div>
             </div>
           </div>
 
@@ -231,10 +231,10 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
             <button
               type="button"
               onClick={() => setSelectedReport(item)}
-              className="premium-button flex-1 justify-center inline-flex items-center gap-2"
+              className="flex-1 justify-center inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] text-[#F4F6F8] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer"
             >
               <span>View Report</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#7D91AA]" />
             </button>
             <button
               type="button"
@@ -244,7 +244,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
               }}
               title="Delete this scan from history"
               aria-label="Delete scan from history"
-              className="inline-flex items-center justify-center p-2.5 rounded-lg border border-[#202731] bg-[#0C1015] text-[var(--text-secondary)] hover:bg-[#A65D5D]/10 hover:border-[#A65D5D]/30 hover:text-[#fca5a5] transition-colors"
+              className="inline-flex items-center justify-center p-2.5 rounded-lg border border-[#232B36] bg-[#0D1118] text-[#A7B0BC] hover:bg-[#B36262]/10 hover:border-[#B36262]/30 hover:text-[#B36262] transition-colors cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -256,31 +256,31 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
-      <div className="flex flex-col gap-4 border-b border-[#202731] pb-6">
+      <div className="flex flex-col gap-4 border-b border-[#232B36] pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-md border border-[#202731] bg-[#141922] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-              <History className="w-3.5 h-3.5 text-[#A7B0BD]" />
+            <div className="inline-flex items-center gap-2 rounded-md border border-[#232B36] bg-[#161C25] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A7B0BC]">
+              <History className="w-3.5 h-3.5 text-[#7D91AA]" />
               <span>Scan History</span>
             </div>
-            <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-[#F5F7FA]">Diagnostic History</h1>
+            <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-[#F4F6F8]">Diagnostic History</h1>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#687382]" />
               <input
                 type="text"
                 value={searchQuery || ''}
                 onChange={(e) => onSearchChange?.(e.target.value)}
-                className="w-full sm:w-56 rounded-lg border border-[#202731] bg-[#0C1015] py-2 pl-9 pr-8 text-xs text-[#F5F7FA] placeholder:text-[#667180] focus:outline-none focus:border-[#8294AA]"
+                className="w-full sm:w-56 rounded-lg border border-[#232B36] bg-[#0D1118] py-2 pl-9 pr-8 text-xs text-[#F4F6F8] placeholder:text-[#687382] focus:outline-none focus:border-[#7D91AA]"
                 placeholder="Search history"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => onSearchChange?.('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white p-0.5 rounded transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#687382] hover:text-[#F4F6F8] p-0.5 rounded transition-colors"
                   title="Clear search query"
                   aria-label="Clear search query"
                 >
@@ -289,12 +289,12 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
               )}
             </div>
 
-            <div className="flex items-center gap-2 rounded-lg border border-[#202731] bg-[#0C1015] px-3 py-2 text-xs text-[var(--text-secondary)]">
-              <Filter className="w-3.5 h-3.5 text-[#A7B0BD]" />
+            <div className="flex items-center gap-2 rounded-lg border border-[#232B36] bg-[#0D1118] px-3 py-2 text-xs text-[#A7B0BC]">
+              <Filter className="w-3.5 h-3.5 text-[#7D91AA]" />
               <select
                 value={severityFilter}
                 onChange={(e) => setSeverityFilter(e.target.value)}
-                className="bg-transparent text-[#F5F7FA] outline-none"
+                className="bg-transparent text-[#F4F6F8] outline-none cursor-pointer"
               >
                 <option value="all">All severities</option>
                 <option value="critical">Critical</option>
@@ -304,11 +304,11 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
               </select>
             </div>
 
-            <div className="flex items-center gap-2 rounded-lg border border-[#202731] bg-[#0C1015] px-3 py-2 text-xs text-[var(--text-secondary)]">
+            <div className="flex items-center gap-2 rounded-lg border border-[#232B36] bg-[#0D1118] px-3 py-2 text-xs text-[#A7B0BC]">
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className="bg-transparent text-[#F5F7FA] outline-none"
+                className="bg-transparent text-[#F4F6F8] outline-none cursor-pointer"
               >
                 <option value="desc">Newest → Oldest</option>
                 <option value="asc">Oldest → Newest</option>
@@ -319,7 +319,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
               <button
                 type="button"
                 onClick={() => setShowClearAllModal(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#A65D5D]/30 bg-[#A65D5D]/10 px-3 py-2 text-xs font-medium text-[#fca5a5] hover:bg-[#A65D5D]/20 hover:border-[#A65D5D]/50 transition-all"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#B36262]/30 bg-[#B36262]/10 px-3 py-2 text-xs font-medium text-[#B36262] hover:bg-[#B36262]/20 transition-all cursor-pointer"
                 title="Clear all scan history"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -334,108 +334,77 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
         <div
           className={`rounded-xl border p-3.5 text-xs flex items-center justify-between gap-3 animate-fadeIn ${
             feedbackMessage.type === 'error'
-              ? 'border-red-500/30 bg-red-500/10 text-red-300'
-              : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              ? 'border-[#B36262]/30 bg-[#B36262]/10 text-[#B36262]'
+              : 'border-[#55A477]/30 bg-[#55A477]/10 text-[#55A477]'
           }`}
         >
-          <div className="flex items-center gap-2">
-            {feedbackMessage.type === 'error' ? (
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-            ) : (
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-            )}
-            <span>{feedbackMessage.text}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setFeedbackMessage(null)}
-            className="text-current opacity-70 hover:opacity-100 p-1"
-          >
+          <span>{feedbackMessage.text}</span>
+          <button type="button" onClick={() => setFeedbackMessage(null)} className="p-1 text-inherit hover:opacity-75 cursor-pointer">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {loading && (
-        <div className="premium-panel flex min-h-[260px] items-center justify-center gap-3 p-8 text-[var(--text-secondary)]">
-          <Loader2 className="h-5 w-5 animate-spin text-[var(--accent)]" />
-          <span>Loading your diagnostic history...</span>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
+          <Loader2 className="w-6 h-6 animate-spin text-[#7D91AA]" />
+          <p className="text-xs text-[#A7B0BC]">Loading diagnostic archive...</p>
         </div>
-      )}
-
-      {!loading && error && (
-        <div className="premium-panel flex flex-col items-center justify-center gap-4 p-8 text-center">
-          <div className="rounded-full border border-[rgba(239,68,68,0.35)] bg-[rgba(239,68,68,0.08)] p-3 text-red-300">
-            <AlertTriangle className="h-6 w-6" />
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-white">Unable to load your diagnostic history.</h3>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">{error}</p>
-          </div>
-          <button type="button" onClick={loadHistory} className="premium-button">
-            Retry
+      ) : error ? (
+        <div className="rounded-xl border border-[#B36262]/30 bg-[#B36262]/10 p-6 text-center space-y-3">
+          <AlertTriangle className="w-6 h-6 text-[#B36262] mx-auto" />
+          <p className="text-sm font-medium text-[#F4F6F8]">{error}</p>
+          <button
+            onClick={loadHistory}
+            className="px-4 py-2 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] text-xs text-[#F4F6F8] font-medium transition-colors cursor-pointer"
+          >
+            Retry Load
           </button>
         </div>
-      )}
-
-      {!loading && !error && filteredItems.length === 0 && (
-        <div className="premium-panel flex flex-col items-center justify-center gap-4 p-10 text-center">
-          <div className="rounded-full border border-[rgba(99,102,241,0.35)] bg-[rgba(99,102,241,0.08)] p-3 text-[var(--accent)]">
-            <History className="h-6 w-6" />
+      ) : filteredItems.length === 0 ? (
+        <div className="rounded-xl border border-[#232B36] bg-[#121720] p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-lg bg-[#161C25] border border-[#232B36] flex items-center justify-center mx-auto text-[#7D91AA]">
+            <History className="w-6 h-6" />
           </div>
-          <div>
-            <h3 className="text-2xl font-bold tracking-[-0.05em] text-white">
-              {searchQuery ? 'No matching scans found' : 'No diagnostics yet'}
-            </h3>
-            <p className="mt-2 max-w-md text-sm text-[var(--text-secondary)]">
-              {searchQuery
-                ? `No scans match "${searchQuery}". Try a different keyword or clear the search filter.`
-                : 'Your completed diagnoses will appear here.'}
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-[#F4F6F8]">No Diagnostic Records Found</h3>
+            <p className="text-xs text-[#A7B0BC] max-w-sm mx-auto">
+              {searchQuery || severityFilter !== 'all'
+                ? 'No recorded scans match your current filter parameters.'
+                : 'Your completed AI hardware inspections and repair estimates will appear here.'}
             </p>
           </div>
-          {searchQuery ? (
+          {onStartDiagnosis && (
             <button
               type="button"
-              onClick={() => onSearchChange?.('')}
-              className="premium-button inline-flex items-center gap-2"
+              onClick={onStartDiagnosis}
+              className="px-4 py-2 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] text-xs font-semibold uppercase tracking-wider text-[#F4F6F8] inline-flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
             >
-              <X className="h-4 w-4" />
-              <span>Clear Search Filter</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => (onStartDiagnosis ? onStartDiagnosis('phone') : window.location.reload())}
-              className="premium-button inline-flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Start a Diagnosis</span>
+              <Plus className="w-3.5 h-3.5 text-[#7D91AA]" />
+              <span>Start New Diagnosis</span>
             </button>
           )}
         </div>
-      )}
-
-      {!loading && !error && filteredItems.length > 0 && (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map(renderCard)}
         </div>
       )}
 
       {/* View Report Modal */}
-      {/* View Report Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07090C]/80 p-4 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-2xl rounded-2xl border border-[#202731] bg-[#10141A] p-6 shadow-2xl">
-            <div className="flex items-center justify-between gap-4 border-b border-[#202731] pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#080B10]/80 p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-2xl rounded-xl border border-[#232B36] bg-[#121720] p-6 shadow-2xl">
+            <div className="flex items-center justify-between gap-4 border-b border-[#232B36] pb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">Diagnostic Report</div>
-                <h3 className="mt-1 text-xl font-bold tracking-tight text-[#F5F7FA]">{selectedReport.diagnosis || 'Diagnosis completed'}</h3>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[#7D91AA] font-mono">Diagnostic Report</div>
+                <h3 className="mt-1 text-xl font-bold tracking-tight text-[#F4F6F8]">{selectedReport.diagnosis || 'Diagnosis completed'}</h3>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setItemToDelete(selectedReport)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65D5D]/30 bg-[#A65D5D]/10 px-3 py-1.5 text-xs font-medium text-[#fca5a5] hover:bg-[#A65D5D]/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#B36262]/30 bg-[#B36262]/10 px-3 py-1.5 text-xs font-medium text-[#B36262] hover:bg-[#B36262]/20 transition-colors cursor-pointer"
                   title="Delete this report"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -444,47 +413,47 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
                 <button
                   type="button"
                   onClick={() => setSelectedReport(null)}
-                  className="rounded-lg border border-[#202731] bg-[#141922] px-3 py-1.5 text-xs text-[#A7B0BD] hover:text-[#F5F7FA] hover:border-[#283240] transition-colors"
+                  className="rounded-lg border border-[#232B36] bg-[#161C25] px-3 py-1.5 text-xs text-[#A7B0BC] hover:text-[#F4F6F8] transition-colors cursor-pointer"
                 >
                   Close
                 </button>
               </div>
             </div>
 
-            <div className="mt-5 space-y-4 text-sm text-[var(--text-secondary)]">
+            <div className="mt-5 space-y-4 text-sm text-[#A7B0BC]">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">Category</div>
-                  <div className="mt-1 text-sm font-medium text-[#F5F7FA]">{selectedReport.category || 'Unspecified'}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">Category</div>
+                  <div className="mt-1 text-sm font-medium text-[#F4F6F8]">{selectedReport.category || 'Unspecified'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">Device</div>
-                  <div className="mt-1 text-sm font-medium text-[#F5F7FA]">{selectedReport.deviceName || selectedReport.deviceType || 'Unknown device'}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">Device</div>
+                  <div className="mt-1 text-sm font-medium text-[#F4F6F8]">{selectedReport.deviceName || selectedReport.deviceType || 'Unknown device'}</div>
                 </div>
               </div>
 
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">Issue</div>
-                <p className="mt-1 leading-relaxed text-[#F5F7FA]">{selectedReport.issueDescription || selectedReport.problemDescription || 'Issue recorded during diagnosis'}</p>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">Issue</div>
+                <p className="mt-1 leading-relaxed text-[#F4F6F8]">{selectedReport.issueDescription || selectedReport.problemDescription || 'Issue recorded during diagnosis'}</p>
               </div>
 
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">AI Diagnosis</div>
-                <p className="mt-1 leading-relaxed text-[#F5F7FA]">{selectedReport.diagnosis || 'Diagnosis completed'}</p>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">AI Diagnosis</div>
+                <p className="mt-1 leading-relaxed text-[#F4F6F8]">{selectedReport.diagnosis || 'Diagnosis completed'}</p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-3 border-t border-[#202731] pt-4">
+              <div className="grid gap-4 sm:grid-cols-3 border-t border-[#232B36] pt-4 font-mono">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">Severity</div>
-                  <div className="mt-1 text-sm font-semibold text-[#F5F7FA]">{selectedReport.severity || 'Medium'}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">Severity</div>
+                  <div className="mt-1 text-sm font-semibold text-[#F4F6F8]">{selectedReport.severity || 'Medium'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">Estimated Cost</div>
-                  <div className="mt-1 text-sm font-semibold text-[#F5F7FA]">{selectedReport.estimatedRepairCost || selectedReport.estimatedCost || '—'}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">Estimated Cost</div>
+                  <div className="mt-1 text-sm font-semibold text-[#F4F6F8]">{selectedReport.estimatedRepairCost || selectedReport.estimatedCost || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">DIY Suitability</div>
-                  <div className="mt-1 text-sm font-semibold text-[#4F8A68]">{typeof selectedReport.diySuitability === 'number' ? `${selectedReport.diySuitability}%` : '—'}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-[#687382]">DIY Suitability</div>
+                  <div className="mt-1 text-sm font-semibold text-[#55A477]">{typeof selectedReport.diySuitability === 'number' ? `${selectedReport.diySuitability}%` : '—'}</div>
                 </div>
               </div>
             </div>
@@ -494,23 +463,23 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
 
       {/* Delete Single Scan Confirmation Modal */}
       {itemToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07090C]/80 p-4 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md rounded-2xl border border-[#202731] bg-[#10141A] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#080B10]/80 p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md rounded-xl border border-[#232B36] bg-[#121720] p-6 shadow-2xl">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl border border-[#A65D5D]/30 bg-[#A65D5D]/10 p-2 text-[#fca5a5]">
+              <div className="rounded-lg border border-[#B36262]/30 bg-[#B36262]/10 p-2 text-[#B36262]">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#F5F7FA]">Delete Diagnostic Record?</h3>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-[var(--text-muted)]">
+                <h3 className="text-base font-bold text-[#F4F6F8]">Delete Diagnostic Record?</h3>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-[#687382]">
                   {itemToDelete.reportId || `#${itemToDelete.id?.slice(0, 8)?.toUpperCase() || 'RL-REPORT'}`}
                 </span>
               </div>
             </div>
 
-            <p className="mt-3.5 text-xs leading-relaxed text-[#A7B0BD]">
+            <p className="mt-3.5 text-xs leading-relaxed text-[#A7B0BC]">
               Are you sure you want to delete the diagnostic report for{' '}
-              <strong className="text-[#F5F7FA]">{itemToDelete.deviceName || itemToDelete.category || 'this item'}</strong>? This record will be permanently removed.
+              <strong className="text-[#F4F6F8]">{itemToDelete.deviceName || itemToDelete.category || 'this item'}</strong>? This record will be permanently removed.
             </p>
 
             <div className="mt-6 flex items-center justify-end gap-3">
@@ -518,7 +487,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
                 type="button"
                 disabled={deletingId === (itemToDelete.id || itemToDelete.reportId)}
                 onClick={() => setItemToDelete(null)}
-                className="rounded-lg border border-[#202731] bg-[#141922] px-3.5 py-2 text-xs font-medium text-[#A7B0BD] hover:text-[#F5F7FA] hover:border-[#283240] transition-colors"
+                className="rounded-lg border border-[#232B36] bg-[#161C25] px-3.5 py-2 text-xs font-medium text-[#A7B0BC] hover:text-[#F4F6F8] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -526,7 +495,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
                 type="button"
                 disabled={deletingId === (itemToDelete.id || itemToDelete.reportId)}
                 onClick={() => handleDeleteItem(itemToDelete)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#A65D5D]/40 bg-[#A65D5D] px-4 py-2 text-xs font-medium text-white hover:bg-[#8e4f4f] transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#B36262]/40 bg-[#B36262] px-4 py-2 text-xs font-medium text-white hover:bg-[#a15555] transition-all disabled:opacity-50 cursor-pointer"
               >
                 {deletingId === (itemToDelete.id || itemToDelete.reportId) ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -542,19 +511,19 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
 
       {/* Clear All History Confirmation Modal */}
       {showClearAllModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#07090C]/80 p-4 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md rounded-2xl border border-[#202731] bg-[#10141A] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#080B10]/80 p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md rounded-xl border border-[#232B36] bg-[#121720] p-6 shadow-2xl">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl border border-[#A65D5D]/30 bg-[#A65D5D]/10 p-2 text-[#fca5a5]">
+              <div className="rounded-lg border border-[#B36262]/30 bg-[#B36262]/10 p-2 text-[#B36262]">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#F5F7FA]">Clear All Diagnostic History?</h3>
-                <p className="text-xs text-[#A7B0BD]">Permanent removal of all scan records</p>
+                <h3 className="text-base font-bold text-[#F4F6F8]">Clear All Diagnostic History?</h3>
+                <p className="text-xs text-[#A7B0BC]">Permanent removal of all scan records</p>
               </div>
             </div>
 
-            <p className="mt-3.5 text-xs leading-relaxed text-[#A7B0BD]">
+            <p className="mt-3.5 text-xs leading-relaxed text-[#A7B0BC]">
               This will permanently delete all {historyItems.length} diagnostic scan reports from your account. This action cannot be undone.
             </p>
 
@@ -563,7 +532,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
                 type="button"
                 disabled={clearingAll}
                 onClick={() => setShowClearAllModal(false)}
-                className="rounded-lg border border-[#202731] bg-[#141922] px-3.5 py-2 text-xs font-medium text-[#A7B0BD] hover:text-[#F5F7FA] hover:border-[#283240] transition-colors"
+                className="rounded-lg border border-[#232B36] bg-[#161C25] px-3.5 py-2 text-xs font-medium text-[#A7B0BC] hover:text-[#F4F6F8] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -571,7 +540,7 @@ export default function HistoryPage({ onSelectPreset, searchQuery, onSearchChang
                 type="button"
                 disabled={clearingAll}
                 onClick={handleClearAllHistory}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#A65D5D]/40 bg-[#A65D5D] px-4 py-2 text-xs font-medium text-white hover:bg-[#8e4f4f] transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#B36262]/40 bg-[#B36262] px-4 py-2 text-xs font-medium text-white hover:bg-[#a15555] transition-all disabled:opacity-50 cursor-pointer"
               >
                 {clearingAll ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
