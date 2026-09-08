@@ -503,7 +503,7 @@ function RepairLensDashboard() {
         onCloseMobile={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="lg:pl-72 flex flex-col min-h-screen transition-all duration-300">
+      <div className="lg:pl-64 flex flex-col min-h-screen transition-all duration-300">
         <Navbar
           activeTab={activeTab}
           isAuthenticated={isAuthenticated}
