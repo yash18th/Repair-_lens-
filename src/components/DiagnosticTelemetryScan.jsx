@@ -167,40 +167,39 @@ export default function DiagnosticTelemetryScan({
 
   return (
     <div
-      className={`rounded-xl border border-[#202832] bg-[#10151B] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03),0_12px_28px_rgba(0,0,0,0.45)] space-y-4 font-mono text-[#F3F5F7] transition-all duration-300 ${className}`}
-      style={{ backgroundColor: '#10151B', borderColor: '#202832' }}
+      className={`rounded-xl border border-[#232B36] bg-[#121720] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.035),0_10px_28px_rgba(0,0,0,0.45)] space-y-4 font-mono text-[#F4F6F8] transition-all duration-300 ${className}`}
     >
       {/* Header bar */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#202832] text-[10px] uppercase tracking-wider text-[#9AA5B3]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#19202A] text-[10px] uppercase tracking-wider text-[#A7B0BC]">
         <div className="flex items-center gap-2">
-          <Activity className="w-3.5 h-3.5 text-[#8195AA]" />
-          <span className="font-bold text-[#F3F5F7] tracking-widest">DEVICE SCAN</span>
+          <Activity className="w-3.5 h-3.5 text-[#7D91AA]" />
+          <span className="font-bold text-[#F4F6F8] tracking-widest font-sans">DEVICE SCAN</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[#657180] text-[9px] hidden sm:inline">OPTICAL TELEMETRY</span>
-          <span className="px-1.5 py-0.5 rounded bg-[#080B0F] border border-[#202832] text-[9px] text-[#8195AA]">
+          <span className="text-[#687382] text-[9px] hidden sm:inline">OPTICAL TELEMETRY</span>
+          <span className="px-1.5 py-0.5 rounded bg-[#080B10] border border-[#232B36] text-[9px] text-[#7D91AA]">
             {selectedCategory.toUpperCase()}
           </span>
         </div>
       </div>
 
       {/* Center Technical Scan Target Visualization */}
-      <div className="relative h-36 sm:h-40 rounded-lg bg-[#080B0F] border border-[#202832] flex items-center justify-center overflow-hidden select-none">
+      <div className="relative h-36 sm:h-40 rounded-lg bg-[#080B10] border border-[#232B36] flex items-center justify-center overflow-hidden select-none">
         {/* Subtle grid backdrop */}
         <div className="absolute inset-0 tech-grid opacity-20 pointer-events-none" />
 
         {/* Ambient Corner Coordinate Labels */}
-        <div className="absolute top-2 left-2.5 text-[8px] text-[#657180] font-mono tracking-wider flex items-center gap-1.5">
-          <span className="w-1 h-1 rounded-full bg-[#8195AA]/60" />
+        <div className="absolute top-2 left-2.5 text-[8px] text-[#687382] font-mono tracking-wider flex items-center gap-1.5">
+          <span className="w-1 h-1 rounded-full bg-[#7D91AA]/60" />
           <span>OPTICAL INPUT // {hasPhotos ? `CH-${photoCount}` : 'READY'}</span>
         </div>
-        <div className="absolute top-2 right-2.5 text-[8px] text-[#657180] font-mono tracking-wider">
+        <div className="absolute top-2 right-2.5 text-[8px] text-[#687382] font-mono tracking-wider">
           FRAME {isComplete ? 'LOCK' : (isActivelyScanning ? '03/05' : '01')}
         </div>
-        <div className="absolute bottom-2 left-2.5 text-[8px] text-[#657180] font-mono tracking-wider">
+        <div className="absolute bottom-2 left-2.5 text-[8px] text-[#687382] font-mono tracking-wider">
           FOV: 78.4° / N: {isComplete ? 'RES' : 'CAL'}
         </div>
-        <div className="absolute bottom-2 right-2.5 text-[8px] text-[#657180] font-mono tracking-wider">
+        <div className="absolute bottom-2 right-2.5 text-[8px] text-[#687382] font-mono tracking-wider">
           {isComplete ? 'SIGNAL VERIFIED' : (isActivelyScanning ? 'SIGNAL ACQUIRED' : 'STANDBY')}
         </div>
 
@@ -215,7 +214,7 @@ export default function DiagnosticTelemetryScan({
             cy="50%"
             r="60"
             fill="none"
-            stroke="#8195AA"
+            stroke="#7D91AA"
             strokeWidth="0.75"
             strokeDasharray="4 6"
             className={isActivelyScanning ? 'animate-radar-pulse' : ''}
@@ -226,15 +225,15 @@ export default function DiagnosticTelemetryScan({
             cy="50%"
             r="38"
             fill="none"
-            stroke="#8195AA"
+            stroke="#7D91AA"
             strokeWidth="0.75"
             strokeDasharray="2 4"
           />
           {/* Reticle Axes */}
-          <line x1="50%" y1="12" x2="50%" y2="28" stroke="#8195AA" strokeWidth="0.75" />
-          <line x1="50%" y1="100%" x2="50%" y2="calc(100% - 16px)" stroke="#8195AA" strokeWidth="0.75" />
-          <line x1="16" y1="50%" x2="32" y2="50%" stroke="#8195AA" strokeWidth="0.75" />
-          <line x1="100%" y1="50%" x2="calc(100% - 16px)" y2="50%" stroke="#8195AA" strokeWidth="0.75" />
+          <line x1="50%" y1="12" x2="50%" y2="28" stroke="#7D91AA" strokeWidth="0.75" />
+          <line x1="50%" y1="100%" x2="50%" y2="calc(100% - 16px)" stroke="#7D91AA" strokeWidth="0.75" />
+          <line x1="16" y1="50%" x2="32" y2="50%" stroke="#7D91AA" strokeWidth="0.75" />
+          <line x1="100%" y1="50%" x2="calc(100% - 16px)" y2="50%" stroke="#7D91AA" strokeWidth="0.75" />
         </svg>
 
         {/* Central Scan Target Box */}
@@ -242,67 +241,67 @@ export default function DiagnosticTelemetryScan({
           <div
             className={`w-28 sm:w-32 h-20 sm:h-22 rounded border transition-all duration-300 relative flex items-center justify-center ${
               isComplete
-                ? 'border-[#5C9B76]/70 shadow-[inset_0_0_12px_rgba(92,155,118,0.15)]'
+                ? 'border-[#55A477]/70 shadow-[inset_0_0_12px_rgba(85,164,119,0.15)]'
                 : isError
-                ? 'border-[#A86464]/70 shadow-[inset_0_0_12px_rgba(168,100,100,0.15)]'
+                ? 'border-[#B36262]/70 shadow-[inset_0_0_12px_rgba(179,98,98,0.15)]'
                 : isActivelyScanning
-                ? 'border-[#8195AA]/80 shadow-[inset_0_0_12px_rgba(129,149,170,0.18)]'
-                : 'border-[#8195AA]/30 shadow-[inset_0_0_8px_rgba(129,149,170,0.06)]'
+                ? 'border-[#7D91AA]/80 shadow-[inset_0_0_12px_rgba(125,145,170,0.18)]'
+                : 'border-[#7D91AA]/30 shadow-[inset_0_0_8px_rgba(125,145,170,0.06)]'
             }`}
           >
             {/* Precision Corner Brackets: ┌ ┐ └ ┘ */}
-            <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-[#8195AA]" />
-            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-[#8195AA]" />
-            <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-[#8195AA]" />
-            <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-[#8195AA]" />
+            <div className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-[#7D91AA]" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-[#7D91AA]" />
+            <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-[#7D91AA]" />
+            <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-[#7D91AA]" />
 
             {/* Micro Crosshair Center */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-2.5 h-[1px] bg-[#8195AA]/40" />
-              <div className="h-2.5 w-[1px] bg-[#8195AA]/40 absolute" />
+              <div className="w-2.5 h-[1px] bg-[#7D91AA]/40" />
+              <div className="h-2.5 w-[1px] bg-[#7D91AA]/40 absolute" />
             </div>
 
             {/* Diagnostic Node Dots */}
             <div
               className={`absolute top-2 left-2 w-1 h-1 rounded-full transition-opacity duration-300 ${
-                isActivelyScanning ? 'bg-[#8195AA] opacity-90' : 'bg-[#657180] opacity-40'
+                isActivelyScanning ? 'bg-[#7D91AA] opacity-90' : 'bg-[#687382] opacity-40'
               }`}
             />
             <div
               className={`absolute top-2 right-2 w-1 h-1 rounded-full transition-opacity duration-300 ${
-                isActivelyScanning ? 'bg-[#8195AA] opacity-90' : 'bg-[#657180] opacity-40'
+                isActivelyScanning ? 'bg-[#7D91AA] opacity-90' : 'bg-[#687382] opacity-40'
               }`}
             />
             <div
               className={`absolute bottom-2 left-2 w-1 h-1 rounded-full transition-opacity duration-300 ${
-                isActivelyScanning ? 'bg-[#8195AA] opacity-90' : 'bg-[#657180] opacity-40'
+                isActivelyScanning ? 'bg-[#7D91AA] opacity-90' : 'bg-[#687382] opacity-40'
               }`}
             />
             <div
               className={`absolute bottom-2 right-2 w-1 h-1 rounded-full transition-opacity duration-300 ${
-                isActivelyScanning ? 'bg-[#8195AA] opacity-90' : 'bg-[#657180] opacity-40'
+                isActivelyScanning ? 'bg-[#7D91AA] opacity-90' : 'bg-[#687382] opacity-40'
               }`}
             />
 
             {/* Center Status Icon / Target Indicator */}
             {isComplete ? (
-              <div className="flex flex-col items-center justify-center text-[#5C9B76] animate-fadeIn">
+              <div className="flex flex-col items-center justify-center text-[#55A477] animate-fadeIn">
                 <Check className="w-5 h-5 mb-0.5" />
-                <span className="text-[7.5px] font-mono tracking-widest uppercase text-[#5C9B76]">LOCKED</span>
+                <span className="text-[7.5px] font-mono tracking-widest uppercase text-[#55A477]">LOCKED</span>
               </div>
             ) : isError ? (
-              <div className="flex flex-col items-center justify-center text-[#A86464] animate-fadeIn">
+              <div className="flex flex-col items-center justify-center text-[#B36262] animate-fadeIn">
                 <AlertCircle className="w-5 h-5 mb-0.5" />
-                <span className="text-[7.5px] font-mono tracking-widest uppercase text-[#A86464]">FAULT</span>
+                <span className="text-[7.5px] font-mono tracking-widest uppercase text-[#B36262]">FAULT</span>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center space-y-1">
                 <div
                   className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                    isActivelyScanning ? 'bg-[#8195AA] animate-ping' : 'bg-[#5C9B76]/80'
+                    isActivelyScanning ? 'bg-[#7D91AA] animate-ping' : 'bg-[#55A477]/80'
                   }`}
                 />
-                <span className="text-[8px] text-[#9AA5B3] tracking-widest uppercase font-mono">
+                <span className="text-[8px] text-[#A7B0BC] tracking-widest uppercase font-mono">
                   {isActivelyScanning ? 'SCANNING' : 'CALIBRATED'}
                 </span>
               </div>
@@ -310,10 +309,10 @@ export default function DiagnosticTelemetryScan({
 
             {/* Moving Horizontal Scan Beam (TOP -> BOTTOM -> RESET) */}
             {isActivelyScanning && (
-              <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#8195AA] to-transparent animate-scan-beam pointer-events-none shadow-[0_0_8px_rgba(129,149,170,0.6)]" />
+              <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#7D91AA] to-transparent animate-scan-beam pointer-events-none shadow-[0_0_8px_rgba(125,145,170,0.6)]" />
             )}
           </div>
-          <span className="text-[8px] text-[#657180] tracking-widest uppercase font-mono mt-1.5">
+          <span className="text-[8px] text-[#687382] tracking-widest uppercase font-mono mt-1.5">
             OPTICAL SENSING MATRIX
           </span>
         </div>
