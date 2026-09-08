@@ -130,6 +130,27 @@ export default function CostBreakdown({ costIntelligence }) {
     { source: 'Regional Bodyshop Labor & Parts Survey', lastUpdated: '08 Sep 2026', type: 'Market Data' }
   ];
 
+  const categoryStr = String(costIntelligence.category || costIntelligence.vehicleIdentification?.bodyType || '').toLowerCase();
+  const isVehicle = categoryStr.includes('vehicle') || categoryStr.includes('auto') || categoryStr.includes('car');
+  const isPhone = categoryStr.includes('phone') || categoryStr.includes('tablet') || categoryStr.includes('mobile');
+  const isLaptop = categoryStr.includes('laptop') || categoryStr.includes('computer') || categoryStr.includes('pc');
+  const isPCB = categoryStr.includes('electronic') || categoryStr.includes('pcb') || categoryStr.includes('circuit');
+  const isAppliance = categoryStr.includes('appliance');
+
+  const CategoryIcon = isVehicle ? Car : isPhone ? Smartphone : isLaptop ? Laptop : isPCB ? Cpu : isAppliance ? Plug : Package;
+
+  let section2Title = `2. Multi-Step Paint & Bodywork Refinishing (${paint.panelsCount} Panels)`;
+  if (isPhone) section2Title = '2. Clean-Bench Bonding, Seals & Oleophobic Refinishing';
+  else if (isLaptop) section2Title = '2. Thermal Compound, Heatsink & Chassis Servicing';
+  else if (isPCB) section2Title = '2. Ultrasonic Clean, UV Mask & Conformal Coating';
+  else if (isAppliance) section2Title = '2. High-Temp Sealing, Flange Descaling & Anti-Vibration Treatment';
+  else if (!isVehicle) section2Title = '2. Ultrasonic Solvent Degreasing & Synthetic EP Lubrication';
+
+  const subjectTitle = isVehicle ? 'Vehicle Identification' : 'Device & Hardware Identification';
+  const field1Label = isVehicle ? 'Make & Model' : 'Brand & Model';
+  const field2Label = isVehicle ? 'Chassis / Gen' : (isPhone || isLaptop) ? 'Form Factor / Gen' : 'Sub-System / Architecture';
+  const field3Label = isVehicle ? 'Body & Orientation' : 'Enclosure & View';
+
   return (
     <div className="rounded-xl border border-[#202731] bg-[#10141A] shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
       
@@ -140,15 +161,15 @@ export default function CostBreakdown({ costIntelligence }) {
       >
         <div className="flex items-center space-x-3.5 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-[#141922] border border-[#283240] flex items-center justify-center flex-shrink-0 text-[#8294AA]">
-            <Car className="w-5 h-5" />
+            <CategoryIcon className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-sm sm:text-base font-bold text-[#F5F7FA] tracking-tight">
-                Preliminary Repair Cost Intelligence
+                {isVehicle ? 'Preliminary Vehicle Repair Intelligence' : 'Preliminary Hardware Repair Intelligence'}
               </h3>
               <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#141922] text-[#8294AA] border border-[#283240]">
-                {vehicle.vehicleClass} TIER
+                {vehicle.vehicleClass}
               </span>
               {vehicle.isProvisional && (
                 <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#A7834F]/10 text-[#A7834F] border border-[#A7834F]/30">
@@ -179,12 +200,12 @@ export default function CostBreakdown({ costIntelligence }) {
       {expanded && (
         <div className="p-5 sm:p-7 space-y-6">
 
-          {/* 🚗 VEHICLE & SUBJECT IDENTIFICATION SUMMARY BANNER */}
+          {/* 🚗 VEHICLE / HARDWARE SUBJECT IDENTIFICATION SUMMARY BANNER */}
           <div className="rounded-lg border border-[#202731] bg-[#0C1015] p-4 font-mono text-xs space-y-3">
             <div className="flex items-center justify-between border-b border-[#181E26] pb-2.5">
               <div className="flex items-center gap-2">
-                <Car className="w-4 h-4 text-[#8294AA]" />
-                <span className="font-bold text-[#F5F7FA] uppercase">Subject Identification</span>
+                <CategoryIcon className="w-4 h-4 text-[#8294AA]" />
+                <span className="font-bold text-[#F5F7FA] uppercase">{subjectTitle}</span>
               </div>
               <span className="text-[#8294AA] text-[11px]">
                 ID Confidence: <strong className="text-[#F5F7FA]">{vehicle.confidence}%</strong>
@@ -193,15 +214,15 @@ export default function CostBreakdown({ costIntelligence }) {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">Make & Model</span>
+                <span className="text-[#667180] uppercase block text-[9px]">{field1Label}</span>
                 <span className="text-[#F5F7FA] font-semibold">{vehicle.make} {vehicle.model}</span>
               </div>
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">Chassis / Gen</span>
+                <span className="text-[#667180] uppercase block text-[9px]">{field2Label}</span>
                 <span className="text-[#A7B0BD]">{vehicle.generation} ({vehicle.year})</span>
               </div>
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">Body & Orientation</span>
+                <span className="text-[#667180] uppercase block text-[9px]">{field3Label}</span>
                 <span className="text-[#A7B0BD]">{vehicle.bodyType} • {vehicle.orientation}</span>
               </div>
               <div>
