@@ -196,13 +196,13 @@ export function matchComponentKey(compName = '') {
     if (norm.includes('right')) return 'headlamp right';
     return 'headlamp left';
   }
+  if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam') || norm.includes('impact bar')) return 'crash absorber';
   if (norm.includes('bumper') || norm.includes('fascia')) return 'front bumper';
   if (norm.includes('hood') || norm.includes('bonnet')) return 'hood';
   if (norm.includes('grille') || norm.includes('intake') || norm.includes('kidney')) return 'front grille';
   if (norm.includes('radiator support') || norm.includes('core support')) return 'radiator support';
   if (norm.includes('condenser') || norm.includes('ac')) return 'condenser';
   if (norm.includes('radiator') || norm.includes('cooling')) return 'radiator';
-  if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam')) return 'crash absorber';
   if (norm.includes('fender') || norm.includes('quarter panel')) return 'fender';
   if (norm.includes('sensor') || norm.includes('radar') || norm.includes('adas') || norm.includes('parking')) return 'parking sensors';
   return null;

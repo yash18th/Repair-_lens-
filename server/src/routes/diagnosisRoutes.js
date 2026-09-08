@@ -159,29 +159,34 @@ router.post('/analyze', requireAuth, async (req, res) => {
       });
     }
 
-    // STAGE 5 & 11: Valid damage diagnosis
+    // STAGE 5 & 11: Valid damage diagnosis (Unified Multi-Component & Multi-Angle Estimation)
+    const combinedAffectedComponents = Array.from(new Set([
+      ...(diagnosis.affectedComponents || []),
+      ...(diagnosis.affected_components || []),
+      ...(diagnosis.issues || []).flatMap(i => i.affectedComponents || i.affected_components || [])
+    ]));
+
+    const price = estimateRepairCost({
+      category: diagnosis.category,
+      deviceType: diagnosis.deviceType,
+      brand: diagnosis.brand,
+      model: diagnosis.model,
+      variant: diagnosis.variant,
+      generation: diagnosis.generation,
+      year: diagnosis.year,
+      bodyType: diagnosis.bodyType,
+      orientation: diagnosis.orientation,
+      issue: (diagnosis.issues || []).map(i => i.issue).join('; ') || diagnosis.summary,
+      affectedComponents: combinedAffectedComponents,
+      damageDetails: diagnosis.component_damages || diagnosis.issues,
+      severity: diagnosis.severity || 'Medium',
+      repairComplexity: diagnosis.repairComplexity || 'Medium'
+    });
+
     const issueEstimates = (diagnosis.issues || []).map(item => ({
       ...item,
-      estimate: estimateRepairCost({
-        category: diagnosis.category,
-        deviceType: diagnosis.deviceType,
-        brand: diagnosis.brand,
-        model: diagnosis.model,
-        issue: item.issue,
-        affectedComponents: item.affectedComponents,
-        severity: item.severity,
-        repairComplexity: item.repairComplexity
-      })
+      estimate: price
     }));
-
-    const price = issueEstimates.reduce((total, item) => ({
-      partsCostMin: total.partsCostMin + item.estimate.partsCostMin,
-      partsCostMax: total.partsCostMax + item.estimate.partsCostMax,
-      laborCostMin: total.laborCostMin + item.estimate.laborCostMin,
-      laborCostMax: total.laborCostMax + item.estimate.laborCostMax,
-      estimatedTotalMin: total.estimatedTotalMin + item.estimate.estimatedTotalMin,
-      estimatedTotalMax: total.estimatedTotalMax + item.estimate.estimatedTotalMax
-    }), { partsCostMin: 0, partsCostMax: 0, laborCostMin: 0, laborCostMax: 0, estimatedTotalMin: 0, estimatedTotalMax: 0, currency: 'INR' });
 
     console.log('[Diagnosis] saving valid damage scan', { userId: req.user.id, reportId });
     const scan = await prisma.scan.create({

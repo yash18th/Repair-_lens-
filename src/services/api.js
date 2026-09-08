@@ -1,3 +1,6 @@
+import { getApiBaseUrl } from './config';
+import { generateRealisticRepairEstimate } from './priceEngine';
+
 export const ITEM_CATEGORIES = [
   { id: 'phone', label: 'Smartphone & Tablet', icon: '📱', desc: 'Displays, glass, cameras, charging ports, frames and visible battery swelling' },
   { id: 'computer', label: 'Computers & Laptops', icon: '💻', desc: 'Screens, keyboards, hinges, casing, ports and visible board damage' },
@@ -288,44 +291,47 @@ function generateSmartClientDiagnosis(selectedCategory = 'phone', uploaded = [],
     },
     vehicles: {
       category: 'Vehicles',
-      brand: 'Automotive',
-      modelName: 'Polyurethane Bumper & Panel Fascia',
-      deviceType: 'Vehicle Body Panel',
-      problemTitle: 'Panel Dent Deformation & Clearcoat Abrasion',
-      plainEnglishSummary: 'Automotive front bumper fascia panel denting with deep paint scrapes and exposed primer layer.',
-      detailedIssueExplanation: 'Low-speed collision impact force has plastically deformed the polyurethane bumper panel beyond its elastic recovery limit and abraded the polyurethane clearcoat, stripping paint down to primer.',
-      rootCause: 'Low-speed kinetic collision or obstacle scraping exceeding panel elastic rebound.',
-      urgency: 'Moderate - Paint Corrosion Prevention',
-      severity: 'Medium',
-      affectedComponents: ['Polyurethane Bumper Fascia', 'Color Basecoat & Clearcoat Finish', 'Bumper Retainer Clip Set', 'Internal Energy Absorber Pad'],
+      brand: 'BMW',
+      modelName: '3 Series Sedan (F30)',
+      deviceType: 'Executive Sports Sedan',
+      problemTitle: 'Front-End Collision: Bumper, Headlamp & Hood Deformation',
+      plainEnglishSummary: 'Severe front-end collision resulting in crushed bumper fascia, cracked adaptive LED headlamp housing, hood leading-edge buckling, and radiator support strain.',
+      detailedIssueExplanation: 'Frontal collision impact force has crushed the front bumper cover beyond recovery, fractured the left adaptive LED headlamp mounting brackets and lens, creased the aluminum hood leading edge, and deformed the radiator core support beam.',
+      rootCause: 'Frontal kinetic impact collision exceeding panel plastic limits and crumple zone threshold.',
+      urgency: 'Immediate - Critical Structural & Lighting Defect',
+      severity: 'High',
+      affectedComponents: ['Front Bumper Cover / Fascia', 'Left Headlamp Assembly (LED/Matrix)', 'Hood / Engine Bonnet', 'Front Radiator Grille & Kidney Trim', 'Front Bumper Reinforcement / Crash Beam'],
       risksIfUnfixed: [
-        'Exposed substrate edges will peel under high-pressure car washes.',
-        'Damaged retainer clips can cause panel vibration and detachment at highway speeds.',
-        'UV solar radiation will degrade and yellow surrounding clearcoat finish.'
+        'Exposed cooling pack and bent radiator support risk catastrophic engine coolant loss.',
+        'Shattered headlamp assembly allows water ingress into high-voltage LED ballast circuitry.',
+        'Buckled hood latch mechanism can unhook at highway velocities causing total visual blackout.',
+        'Compromised front crash beam leaves occupants unprotected in secondary impacts.'
       ],
       evidence: [
-        '14cm dent deformation across bumper curvature',
-        'Deep abrasion grooves exposing black primer substrate',
-        'Loose mounting retainer clip along fender seam'
+        'High-energy crush deformation across front bumper fascia',
+        'Shattered polycarbonate lens and broken brackets on left headlamp',
+        'Leading edge crease buckle on hood panel',
+        'Displaced radiator core support alignment'
       ],
-      solutionTitle: 'Hot-Air Dent Extraction & Spot Paint Refinish',
-      recommendation: 'Extract plastic dent using thermal heat, apply flexible body filler, and re-spray matched clearcoat.',
-      complexity: 'Medium',
-      timeEstimate: '120 - 180 minutes',
-      toolsRequired: ['Heat Gun & Dent Puller', 'Dual-Action Rotary Sander', 'Automotive Body Filler & Primer', 'Color-Matched Spray Basecoat'],
+      solutionTitle: 'Component Replacement, Structural Alignment & Multi-Stage Refinishing',
+      recommendation: 'Replace front bumper fascia, left LED headlamp, and hood assembly. Re-align radiator support, apply 2K multi-stage paint, and calibrate ADAS sensors.',
+      complexity: 'High',
+      timeEstimate: '3 - 5 Business Days',
+      toolsRequired: ['Hydraulic Pull Post & Tram Gauge', 'Down-Draft Heated Paint Spray Booth', 'Spot Welder & Inverter Set', 'OBD-II ADAS Optical Calibration Target Board'],
       steps: [
-        { title: 'Heat Extraction of Plastic Dent', description: 'Heat bumper reverse side with heat gun to 120°C and push dented contour back into factory shape.' },
-        { title: 'Surface Feathering & Sanding', description: 'Sand damaged paint boundary with P320 dry sandpaper to feather edge transition smoothly.' },
-        { title: 'Filler & Primer Application', description: 'Apply flexible plastic body filler, block sand with P600 wet sandpaper, and apply 2 coats of gray primer.' },
-        { title: 'Color Match & Clearcoat Blend', description: 'Spray 3 coats of color-matched basecoat followed by 2 coats of high-gloss 2K urethane clearcoat.' }
+        { title: 'Tear-Down & Damage Mapping', description: 'Remove damaged bumper cover, extract shattered headlamp, and inspect radiator core support and frame rails with laser tram gauge.' },
+        { title: 'Core Support & Structural Alignment', description: 'Square radiator core support structure and re-anchor bumper reinforcement crash beam to factory datum points.' },
+        { title: 'New OEM Panel Pre-Fitting & Gapping', description: 'Dry-fit replacement OEM bumper, hood, and LED headlamp assembly to verify uniform 3.5mm panel margins.' },
+        { title: 'Multi-Stage Paint Refinishing & Blending', description: 'Apply 2K epoxy primer, computer color-matched metallic basecoat, and high-solid scratch-resistant clearcoat with blending into adjoining fenders.' },
+        { title: 'ADAS Radar & Headlamp Optical Calibration', description: 'Perform full computer diagnostic DTC scan and recalibrate front distance radar and LED beam leveling.' }
       ],
       price: {
-        partsCostMin: 2200,
-        partsCostMax: 3500,
-        laborCostMin: 2800,
-        laborCostMax: 4000,
-        estimatedTotalMin: 5000,
-        estimatedTotalMax: 7500
+        partsCostMin: 115000,
+        partsCostMax: 155000,
+        laborCostMin: 18000,
+        laborCostMax: 28000,
+        estimatedTotalMin: 142000,
+        estimatedTotalMax: 205000
       }
     },
     appliance: {
@@ -409,44 +415,15 @@ function generateSmartClientDiagnosis(selectedCategory = 'phone', uploaded = [],
   const firstPhotoUrl = Object.values(anglePhotos || {}).find(p => p?.previewUrl)?.previewUrl || (uploaded[0]?.dataUrl || '');
 
   const reportId = `RL-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const itemizedParts = buildItemizedParts(spec.category, spec.affectedComponents, spec.price.partsCostMin, spec.price.partsCostMax);
-
-  const breakdown = [
-    ...itemizedParts.map(part => ({
-      label: part.name,
-      sublabel: part.description,
-      grade: part.grade,
-      amount: part.amount,
-      isPart: true
-    })),
-    { label: 'Subtotal: Parts & Materials', amount: spec.price.partsCostMin, isSubtotal: true },
-    { label: 'Labour & Precision Bench Service (India)', sublabel: 'Certified technician installation & calibration', amount: spec.price.laborCostMin, isLabour: true },
-    { label: 'Estimated Total', amount: spec.price.estimatedTotalMin, isTotal: true }
-  ];
-
-  const localPrices = [
-    {
-      type: 'authorized',
-      label: 'Authorized Service Centre',
-      min: Math.round(spec.price.estimatedTotalMin * 1.35),
-      max: Math.round(spec.price.estimatedTotalMax * 1.45),
-      note: '100% Genuine OEM parts, preservation of factory warranty, water-resistance recertified.'
-    },
-    {
-      type: 'garage',
-      label: 'Independent Verified Shop (Best Value)',
-      min: spec.price.estimatedTotalMin,
-      max: Math.round(spec.price.estimatedTotalMin * 1.25),
-      note: 'OEM-grade parts, same-day bench service, 30-day warranty on parts and labour.'
-    },
-    {
-      type: 'diy',
-      label: 'DIY Self-Repair Kit',
-      min: Math.round(spec.price.partsCostMin * 0.95),
-      max: Math.round(spec.price.partsCostMin * 1.15),
-      note: 'Includes replacement parts, precision opening tools, and adhesive tape. Zero labour cost.'
-    }
-  ];
+  const realisticEstimate = generateRealisticRepairEstimate({
+    category: spec.category,
+    brand: spec.brand,
+    model: spec.modelName,
+    affectedComponents: spec.affectedComponents,
+    severity: spec.severity,
+    repairComplexity: spec.complexity,
+    locationCity: 'Bengaluru'
+  });
 
   return {
     success: true,
@@ -482,20 +459,14 @@ function generateSmartClientDiagnosis(selectedCategory = 'phone', uploaded = [],
     toolsRequired: spec.toolsRequired,
     steps: spec.steps,
     estimatedCost: {
-      min: spec.price.estimatedTotalMin,
-      max: spec.price.estimatedTotalMax,
+      min: realisticEstimate.estimateSummary.low,
+      max: realisticEstimate.estimateSummary.high,
+      likely: realisticEstimate.estimateSummary.mostLikely,
       currency: 'INR',
-      formatted: `₹${spec.price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${spec.price.estimatedTotalMax.toLocaleString('en-IN')}`
+      formatted: realisticEstimate.estimateSummary.formattedRange,
+      formattedLikely: realisticEstimate.estimateSummary.formattedLikely
     },
-    costIntelligence: {
-      totalEstimate: { min: spec.price.estimatedTotalMin, max: spec.price.estimatedTotalMax },
-      breakdown,
-      itemizedParts,
-      partsTotal: spec.price.partsCostMin,
-      laborTotal: spec.price.laborCostMin,
-      localPrices,
-      note: 'Estimated repair cost based on standard Indian repair market benchmark. Final price varies by shop.'
-    },
+    costIntelligence: realisticEstimate,
     confidenceEngine: {
       diagnosisConfidence: 94,
       confidenceLevel: 'HIGH',
@@ -590,19 +561,21 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
             : (Array.isArray(primary.risksIfUnfixed) && primary.risksIfUnfixed.length > 0)
             ? primary.risksIfUnfixed
             : [];
-          const itemizedParts = buildItemizedParts(selectedCategory, affectedComponents, price.partsCostMin, price.partsCostMax);
-          const breakdown = [
-            ...itemizedParts.map(part => ({
-              label: part.name,
-              sublabel: part.description,
-              grade: part.grade,
-              amount: part.amount,
-              isPart: true
-            })),
-            { label: 'Subtotal: Parts & Materials', amount: price.partsCostMin, isSubtotal: true },
-            { label: 'Labour & Precision Bench Service', sublabel: 'Certified technician installation & calibration', amount: price.laborCostMin, isLabour: true },
-            { label: 'Estimated Total', amount: price.estimatedTotalMin, isTotal: true }
-          ];
+          const realisticEstimate = generateRealisticRepairEstimate({
+            category: diagnosis.category || selectedCategory,
+            brand: diagnosis.brand || diagnosis.extractedModel?.brand,
+            model: diagnosis.model || diagnosis.extractedModel?.modelName,
+            variant: diagnosis.variant,
+            generation: diagnosis.generation,
+            year: diagnosis.year,
+            bodyType: diagnosis.bodyType,
+            orientation: diagnosis.orientation,
+            affectedComponents,
+            severity: diagnosis.severity || 'High',
+            repairComplexity: diagnosis.repairComplexity || 'Medium',
+            locationCity: location?.city || 'Bengaluru',
+            damageDetails: diagnosis.damageDetails || diagnosis.issues
+          });
 
           return {
             success: true,
@@ -633,20 +606,15 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
             timeEstimate: diagnosis.estimatedDuration || '45 - 60 minutes',
             toolsRequired: ['Precision Screwdriver Set', 'Anti-Static Spudger & Suction Cup', 'Thermal Heating Pad / Gun', 'Perimeter Adhesive Seal Gasket'],
             steps: diagnosis.repairBlueprint || [],
-            estimatedCost: { min: price.estimatedTotalMin, max: price.estimatedTotalMax, currency: 'INR', formatted: `₹${price.estimatedTotalMin.toLocaleString('en-IN')} – ₹${price.estimatedTotalMax.toLocaleString('en-IN')}` },
-            costIntelligence: {
-              totalEstimate: { min: price.estimatedTotalMin, max: price.estimatedTotalMax },
-              breakdown,
-              itemizedParts,
-              partsTotal: price.partsCostMin,
-              laborTotal: price.laborCostMin,
-              localPrices: [
-                { type: 'authorized', label: 'Authorized Service Centre', min: Math.round(price.estimatedTotalMin * 1.3), max: Math.round(price.estimatedTotalMax * 1.45), note: '100% Genuine OEM parts, preservation of factory warranty.' },
-                { type: 'garage', label: 'Independent Verified Shop', min: price.estimatedTotalMin, max: Math.round(price.estimatedTotalMin * 1.22), note: 'OEM-grade parts, same-day bench service, 30-day warranty.' },
-                { type: 'diy', label: 'DIY Self-Repair Kit', min: Math.round(price.partsCostMin * 0.95), max: Math.round(price.partsCostMin * 1.15), note: 'Includes replacement parts & tools. Zero labour cost.' }
-              ],
-              note: 'Estimated repair cost based on standard Indian market benchmarks.'
+            estimatedCost: {
+              min: realisticEstimate.estimateSummary.low,
+              max: realisticEstimate.estimateSummary.high,
+              likely: realisticEstimate.estimateSummary.mostLikely,
+              currency: 'INR',
+              formatted: realisticEstimate.estimateSummary.formattedRange,
+              formattedLikely: realisticEstimate.estimateSummary.formattedLikely
             },
+            costIntelligence: realisticEstimate,
             confidenceEngine: { diagnosisConfidence: confidence, confidenceLevel: diagnosis.status, evidenceQuality: 'GOOD', unknowns: diagnosis.uncertainty, isLowConfidence: false },
             damageMap: diagnosis.damageRegions && diagnosis.damageRegions.length ? {
               imageUrl: Object.values(anglePhotos).find(p => p?.previewUrl)?.previewUrl,
@@ -672,5 +640,3 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
 
   return generateSmartClientDiagnosis(selectedCategory, uploaded, anglePhotos);
 }
-import { getApiBaseUrl } from './config';
-
