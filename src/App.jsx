@@ -263,19 +263,22 @@ function RepairLensDashboard() {
 
     setAngles(updatedAngles);
     setIsAnalyzing(true);
+    setDiagnosticStage('validating');
 
     try {
       const location = await Promise.race([
         getCurrentPositionPromise(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Location timeout')), 1000))
       ]).catch(() => null);
-      const result = await analyzeImage(updatedAngles, null, selectedCategory, location);
+      const result = await analyzeImage(updatedAngles, null, selectedCategory, location, (stage) => setDiagnosticStage(stage));
       setAnalysisResult(result);
       setIsAnalyzing(false);
+      setDiagnosticStage('complete');
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to re-analyze guided photo:', error);
       setIsAnalyzing(false);
+      setDiagnosticStage('error');
     }
   };
 
@@ -287,15 +290,18 @@ function RepairLensDashboard() {
 
     setIsAnalyzing(true);
     setAnalysisError('');
+    setDiagnosticStage('validating');
     try {
-      const result = await analyzeImage(presetAngles, presetId, category);
+      const result = await analyzeImage(presetAngles, presetId, category, null, (stage) => setDiagnosticStage(stage));
       setAnalysisResult(result);
       setIsAnalyzing(false);
+      setDiagnosticStage('complete');
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to analyze images:', error);
       setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
       setIsAnalyzing(false);
+      setDiagnosticStage('error');
     }
   };
 
