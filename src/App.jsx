@@ -540,6 +540,7 @@ function RepairLensDashboard() {
             <HistoryPage
               onSelectPreset={handleSelectSamplePreset}
               searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
               onStartDiagnosis={handleStartDiagnosisRequest}
             />
           )}
