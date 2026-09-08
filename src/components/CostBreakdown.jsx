@@ -152,32 +152,32 @@ export default function CostBreakdown({ costIntelligence }) {
   const field3Label = isVehicle ? 'Body & Orientation' : 'Enclosure & View';
 
   return (
-    <div className="rounded-xl border border-[#202731] bg-[#10141A] shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
+    <div className="rounded-xl border border-[#232B36] bg-[#121720] shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden">
       
       {/* 🏷️ TOP HEADER ACCORDION */}
       <div
-        className="flex items-center justify-between px-5 sm:px-7 py-4.5 cursor-pointer hover:bg-[#141922]/60 transition-colors border-b border-[#202731]"
+        className="flex items-center justify-between px-5 sm:px-7 py-4.5 cursor-pointer hover:bg-[#161C25]/60 transition-colors border-b border-[#232B36]"
         onClick={() => setExpanded(v => !v)}
       >
         <div className="flex items-center space-x-3.5 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-[#141922] border border-[#283240] flex items-center justify-center flex-shrink-0 text-[#8294AA]">
+          <div className="w-9 h-9 rounded-lg bg-[#161C25] border border-[#232B36] flex items-center justify-center flex-shrink-0 text-[#7D91AA]">
             <CategoryIcon className="w-5 h-5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm sm:text-base font-bold text-[#F5F7FA] tracking-tight">
+              <h3 className="text-sm sm:text-base font-bold text-[#F4F6F8] tracking-tight">
                 {isVehicle ? 'Preliminary Vehicle Repair Intelligence' : 'Preliminary Hardware Repair Intelligence'}
               </h3>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#141922] text-[#8294AA] border border-[#283240]">
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#161C25] text-[#7D91AA] border border-[#232B36]">
                 {vehicle.vehicleClass}
               </span>
               {vehicle.isProvisional && (
-                <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#A7834F]/10 text-[#A7834F] border border-[#A7834F]/30">
+                <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#B28A50]/10 text-[#B28A50] border border-[#B28A50]/30">
                   Provisional Identification
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#A7B0BD] truncate mt-0.5">
+            <p className="text-xs text-[#A7B0BC] truncate mt-0.5">
               {vehicle.make} {vehicle.model} • {vehicle.orientation} • {labor.regionName}
             </p>
           </div>
@@ -185,14 +185,14 @@ export default function CostBreakdown({ costIntelligence }) {
 
         <div className="flex items-center space-x-3 flex-shrink-0">
           <div className="hidden md:flex flex-col items-end">
-            <span className="text-xs text-[#667180] font-mono uppercase">Most Likely Total</span>
-            <span className="text-base font-bold text-[#F5F7FA] font-mono">
+            <span className="text-xs text-[#687382] font-mono uppercase">Most Likely Total</span>
+            <span className="text-base font-bold text-[#F4F6F8] font-mono">
               {summary.formattedLikely}
             </span>
           </div>
           {expanded
-            ? <ChevronUp className="w-4 h-4 text-[#8294AA]" />
-            : <ChevronDown className="w-4 h-4 text-[#8294AA]" />
+            ? <ChevronUp className="w-4 h-4 text-[#7D91AA]" />
+            : <ChevronDown className="w-4 h-4 text-[#7D91AA]" />
           }
         </div>
       </div>
@@ -201,33 +201,33 @@ export default function CostBreakdown({ costIntelligence }) {
         <div className="p-5 sm:p-7 space-y-6">
 
           {/* 🚗 VEHICLE / HARDWARE SUBJECT IDENTIFICATION SUMMARY BANNER */}
-          <div className="rounded-lg border border-[#202731] bg-[#0C1015] p-4 font-mono text-xs space-y-3">
-            <div className="flex items-center justify-between border-b border-[#181E26] pb-2.5">
+          <div className="rounded-lg border border-[#232B36] bg-[#0D1118] p-4 font-mono text-xs space-y-3">
+            <div className="flex items-center justify-between border-b border-[#1A222C] pb-2.5">
               <div className="flex items-center gap-2">
-                <CategoryIcon className="w-4 h-4 text-[#8294AA]" />
-                <span className="font-bold text-[#F5F7FA] uppercase">{subjectTitle}</span>
+                <CategoryIcon className="w-4 h-4 text-[#7D91AA]" />
+                <span className="font-bold text-[#F4F6F8] uppercase">{subjectTitle}</span>
               </div>
-              <span className="text-[#8294AA] text-[11px]">
-                ID Confidence: <strong className="text-[#F5F7FA]">{vehicle.confidence}%</strong>
+              <span className="text-[#7D91AA] text-[11px]">
+                ID Confidence: <strong className="text-[#F4F6F8]">{vehicle.confidence}%</strong>
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">{field1Label}</span>
-                <span className="text-[#F5F7FA] font-semibold">{vehicle.make} {vehicle.model}</span>
+                <span className="text-[#687382] uppercase block text-[9px]">{field1Label}</span>
+                <span className="text-[#F4F6F8] font-semibold">{vehicle.make} {vehicle.model}</span>
               </div>
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">{field2Label}</span>
-                <span className="text-[#A7B0BD]">{vehicle.generation} ({vehicle.year})</span>
+                <span className="text-[#687382] uppercase block text-[9px]">{field2Label}</span>
+                <span className="text-[#A7B0BC]">{vehicle.generation} ({vehicle.year})</span>
               </div>
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">{field3Label}</span>
-                <span className="text-[#A7B0BD]">{vehicle.bodyType} • {vehicle.orientation}</span>
+                <span className="text-[#687382] uppercase block text-[9px]">{field3Label}</span>
+                <span className="text-[#A7B0BC]">{vehicle.bodyType} • {vehicle.orientation}</span>
               </div>
               <div>
-                <span className="text-[#667180] uppercase block text-[9px]">Market Tier</span>
-                <span className="text-[#8294AA] font-bold">{vehicle.vehicleClass}</span>
+                <span className="text-[#687382] uppercase block text-[9px]">Market Tier</span>
+                <span className="text-[#7D91AA] font-bold">{vehicle.vehicleClass}</span>
               </div>
             </div>
           </div>
@@ -235,54 +235,54 @@ export default function CostBreakdown({ costIntelligence }) {
           {/* 📊 THREE-TIER ESTIMATE SUMMARY CARDS (LOW, LIKELY, HIGH) */}
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[#8294AA]" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-[#7D91AA]" />
                 <span>Market-Based Estimate Range (Not a Single Arbitrary Number)</span>
               </span>
-              <span className="text-[11px] font-mono text-[#667180]">
-                Confidence: <strong className="text-[#4F8A68]">{summary.confidence}%</strong>
+              <span className="text-[11px] font-mono text-[#687382]">
+                Confidence: <strong className="text-[#55A477]">{summary.confidence}%</strong>
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* LOW ESTIMATE */}
-              <div className="rounded-lg border border-[#202731] bg-[#0C1015] p-4 space-y-1.5">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#667180]">
+              <div className="rounded-lg border border-[#232B36] bg-[#0D1118] p-4 space-y-1.5">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#687382]">
                   Low Estimate (Aftermarket/Used)
                 </div>
-                <div className="text-xl font-bold font-mono text-[#F5F7FA]">
+                <div className="text-xl font-bold font-mono text-[#F4F6F8]">
                   {formatINR(summary.low)}
                 </div>
-                <p className="text-[10px] text-[#667180] leading-relaxed">
+                <p className="text-[10px] text-[#687382] leading-relaxed">
                   Certified aftermarket / reconditioned parts + verified independent workshop rates.
                 </p>
               </div>
 
               {/* MOST LIKELY ESTIMATE */}
-              <div className="rounded-lg border border-[#384556] bg-[#141922] p-4 space-y-1.5 relative shadow-[0_0_20px_rgba(0,0,0,0.4)]">
-                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#202731] text-[9px] font-mono text-[#8294AA] uppercase tracking-wider">
+              <div className="rounded-lg border border-[#7D91AA]/40 bg-[#161C25] p-4 space-y-1.5 relative shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#232B36] text-[9px] font-mono text-[#7D91AA] uppercase tracking-wider">
                   Recommended
                 </div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#8294AA] font-semibold">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#7D91AA] font-semibold">
                   Most Likely Estimate (OEM/OES)
                 </div>
-                <div className="text-2xl font-extrabold font-mono text-[#F5F7FA]">
+                <div className="text-2xl font-extrabold font-mono text-[#F4F6F8]">
                   {formatINR(summary.mostLikely)}
                 </div>
-                <p className="text-[10px] text-[#A7B0BD] leading-relaxed">
+                <p className="text-[10px] text-[#A7B0BC] leading-relaxed">
                   Genuine OEM replacement components, full 2K clearcoat refinishing, and system calibration.
                 </p>
               </div>
 
               {/* HIGH ESTIMATE */}
-              <div className="rounded-lg border border-[#202731] bg-[#0C1015] p-4 space-y-1.5">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#667180]">
+              <div className="rounded-lg border border-[#232B36] bg-[#0D1118] p-4 space-y-1.5">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#687382]">
                   High Estimate (Authorized Dealer)
                 </div>
-                <div className="text-xl font-bold font-mono text-[#F5F7FA]">
+                <div className="text-xl font-bold font-mono text-[#F4F6F8]">
                   {formatINR(summary.high)}
                 </div>
-                <p className="text-[10px] text-[#667180] leading-relaxed">
+                <p className="text-[10px] text-[#687382] leading-relaxed">
                   100% Brand-new dealer parts, dealership master technician labor rates, and factory warranty retention.
                 </p>
               </div>
@@ -292,64 +292,64 @@ export default function CostBreakdown({ costIntelligence }) {
           {/* 📦 SECTION 1: CONFIRMED REPLACEMENT PARTS WITH OEM / AFTERMARKET / USED TIERS */}
           <div className="space-y-3 pt-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5 text-[#8294AA]" />
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5 text-[#7D91AA]" />
                 <span>1. Confirmed Replacement Components ({confirmedParts.items.length})</span>
               </div>
 
               {/* Tier Selector Buttons */}
-              <div className="inline-flex rounded-md border border-[#202731] bg-[#0C1015] p-0.5 text-[10px] font-mono">
+              <div className="inline-flex rounded-md border border-[#232B36] bg-[#0D1118] p-0.5 text-[10px] font-mono">
                 <button
                   type="button"
                   onClick={() => setActiveTierTab('oem')}
-                  className={`px-2.5 py-1 rounded transition-colors ${activeTierTab === 'oem' ? 'bg-[#141922] text-[#F5F7FA] font-bold border border-[#283240]' : 'text-[#667180] hover:text-[#A7B0BD]'}`}
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${activeTierTab === 'oem' ? 'bg-[#161C25] text-[#F4F6F8] font-bold border border-[#232B36]' : 'text-[#687382] hover:text-[#A7B0BC]'}`}
                 >
                   OEM Genuine
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTierTab('aftermarket')}
-                  className={`px-2.5 py-1 rounded transition-colors ${activeTierTab === 'aftermarket' ? 'bg-[#141922] text-[#F5F7FA] font-bold border border-[#283240]' : 'text-[#667180] hover:text-[#A7B0BD]'}`}
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${activeTierTab === 'aftermarket' ? 'bg-[#161C25] text-[#F4F6F8] font-bold border border-[#232B36]' : 'text-[#687382] hover:text-[#A7B0BC]'}`}
                 >
                   Aftermarket / OES
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTierTab('used')}
-                  className={`px-2.5 py-1 rounded transition-colors ${activeTierTab === 'used' ? 'bg-[#141922] text-[#F5F7FA] font-bold border border-[#283240]' : 'text-[#667180] hover:text-[#A7B0BD]'}`}
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${activeTierTab === 'used' ? 'bg-[#161C25] text-[#F4F6F8] font-bold border border-[#232B36]' : 'text-[#687382] hover:text-[#A7B0BC]'}`}
                 >
                   Used / Salvage
                 </button>
               </div>
             </div>
 
-            <div className="rounded-lg border border-[#202731] bg-[#0C1015] divide-y divide-[#181E26] overflow-hidden">
+            <div className="rounded-lg border border-[#232B36] bg-[#0D1118] divide-y divide-[#1A222C] overflow-hidden">
               {confirmedParts.items.map((part, idx) => {
                 const priceTier = part.pricing[activeTierTab] || part.pricing.oem;
                 return (
-                  <div key={idx} className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#10141A] transition-colors">
+                  <div key={idx} className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#121720] transition-colors">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs sm:text-sm font-semibold text-[#F5F7FA]">
+                        <span className="text-xs sm:text-sm font-semibold text-[#F4F6F8]">
                           {part.component}
                         </span>
-                        <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#141922] text-[#8294AA] border border-[#202731]">
+                        <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#161C25] text-[#7D91AA] border border-[#232B36]">
                           {part.action}
                         </span>
-                        <span className="text-[9px] font-mono text-[#667180]">
+                        <span className="text-[9px] font-mono text-[#687382]">
                           R&R: {part.rrHours} hrs
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#A7B0BD] leading-tight">
-                        Damage: {part.damageType} • Severity: <span className="text-[#F5F7FA] font-medium">{part.severity}</span>
+                      <p className="text-[11px] text-[#A7B0BC] leading-tight">
+                        Damage: {part.damageType} • Severity: <span className="text-[#F4F6F8] font-medium">{part.severity}</span>
                       </p>
                     </div>
 
                     <div className="text-right sm:flex-shrink-0">
-                      <div className="font-mono text-sm font-bold text-[#F5F7FA]">
+                      <div className="font-mono text-sm font-bold text-[#F4F6F8]">
                         {formatINR(priceTier[0])} – {formatINR(priceTier[1])}
                       </div>
-                      <div className="text-[9px] font-mono text-[#667180] uppercase">
+                      <div className="text-[9px] font-mono text-[#687382] uppercase">
                         {activeTierTab.toUpperCase()} Tier Range
                       </div>
                     </div>
@@ -363,23 +363,23 @@ export default function CostBreakdown({ costIntelligence }) {
           {paint.breakdown && paint.breakdown.length > 0 && (
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-[#8294AA]" />
+                <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-[#7D91AA]" />
                   <span>{section2Title}</span>
                 </div>
-                <span className="font-mono text-xs font-semibold text-[#F5F7FA]">
+                <span className="font-mono text-xs font-semibold text-[#F4F6F8]">
                   {formatINR(paint.totalPaintCostMin)} – {formatINR(paint.totalPaintCostMax)}
                 </span>
               </div>
 
-              <div className="rounded-lg border border-[#202731] bg-[#0C1015] divide-y divide-[#181E26] overflow-hidden text-xs">
+              <div className="rounded-lg border border-[#232B36] bg-[#0D1118] divide-y divide-[#1A222C] overflow-hidden text-xs">
                 {paint.breakdown.map((step, idx) => (
                   <div key={idx} className="px-4 py-2.5 flex items-center justify-between gap-2">
                     <div className="space-y-0.5">
-                      <span className="text-[#F5F7FA] font-medium block">{step.operation}</span>
-                      <span className="text-[10px] text-[#667180]">{step.note}</span>
+                      <span className="text-[#F4F6F8] font-medium block">{step.operation}</span>
+                      <span className="text-[10px] text-[#687382]">{step.note}</span>
                     </div>
-                    <span className="font-mono text-[#A7B0BD] flex-shrink-0">
+                    <span className="font-mono text-[#A7B0BC] flex-shrink-0">
                       {formatINR(step.amount)}
                     </span>
                   </div>
@@ -391,23 +391,23 @@ export default function CostBreakdown({ costIntelligence }) {
           {/* 🔧 SECTION 3: ITEMIZED LABOR OPERATIONS */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-                <Wrench className="w-3.5 h-3.5 text-[#8294AA]" />
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+                <Wrench className="w-3.5 h-3.5 text-[#7D91AA]" />
                 <span>3. Labor Operations ({labor.totalHours} R&R Hours @ {labor.regionName})</span>
               </div>
-              <span className="font-mono text-xs font-semibold text-[#F5F7FA]">
+              <span className="font-mono text-xs font-semibold text-[#F4F6F8]">
                 {formatINR(labor.costGeneral)} – {formatINR(labor.costAuthorized)}
               </span>
             </div>
 
-            <div className="rounded-lg border border-[#202731] bg-[#0C1015] divide-y divide-[#181E26] overflow-hidden text-xs">
+            <div className="rounded-lg border border-[#232B36] bg-[#0D1118] divide-y divide-[#1A222C] overflow-hidden text-xs">
               {labor.operations.map((op, idx) => (
                 <div key={idx} className="px-4 py-2.5 flex items-center justify-between gap-2">
-                  <span className="text-[#F5F7FA] font-medium">{op.operation}</span>
+                  <span className="text-[#F4F6F8] font-medium">{op.operation}</span>
                   <div className="text-right flex-shrink-0 font-mono">
-                    <span className="text-[#A7B0BD]">{op.hours} hrs</span>
-                    <span className="text-[#667180] mx-1">•</span>
-                    <span className="text-[#F5F7FA] font-semibold">{formatINR(op.cost)}</span>
+                    <span className="text-[#A7B0BC]">{op.hours} hrs</span>
+                    <span className="text-[#687382] mx-1">•</span>
+                    <span className="text-[#F4F6F8] font-semibold">{formatINR(op.cost)}</span>
                   </div>
                 </div>
               ))}
@@ -417,23 +417,23 @@ export default function CostBreakdown({ costIntelligence }) {
           {/* 📡 SECTION 4: CALIBRATION & DIAGNOSTIC SCANS */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-[#8294AA]" />
+              <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-[#7D91AA]" />
                 <span>4. Calibration & Diagnostic Safety Protocols</span>
               </div>
-              <span className="font-mono text-xs font-semibold text-[#F5F7FA]">
+              <span className="font-mono text-xs font-semibold text-[#F4F6F8]">
                 {formatINR(calibration.totalMin)} – {formatINR(calibration.totalMax)}
               </span>
             </div>
 
-            <div className="rounded-lg border border-[#202731] bg-[#0C1015] divide-y divide-[#181E26] overflow-hidden text-xs">
+            <div className="rounded-lg border border-[#232B36] bg-[#0D1118] divide-y divide-[#1A222C] overflow-hidden text-xs">
               {calibration.items.map((item, idx) => (
                 <div key={idx} className="px-4 py-2.5 flex items-center justify-between gap-2">
                   <div className="space-y-0.5">
-                    <span className="text-[#F5F7FA] font-medium block">{item.name}</span>
-                    <span className="text-[10px] text-[#667180]">{item.note}</span>
+                    <span className="text-[#F4F6F8] font-medium block">{item.name}</span>
+                    <span className="text-[10px] text-[#687382]">{item.note}</span>
                   </div>
-                  <span className="font-mono text-[#A7B0BD] flex-shrink-0">
+                  <span className="font-mono text-[#A7B0BC] flex-shrink-0">
                     {formatINR(item.amount)}
                   </span>
                 </div>
@@ -442,29 +442,29 @@ export default function CostBreakdown({ costIntelligence }) {
           </div>
 
           {/* ⚠️ SECTION 5: POTENTIAL HIDDEN DAMAGE CONTINGENCY (SEPARATE FROM CONFIRMED TOTAL) */}
-          <div className="rounded-lg border border-[#A7834F]/30 bg-[#A7834F]/5 p-4 sm:p-5 space-y-2.5">
+          <div className="rounded-lg border border-[#B28A50]/30 bg-[#B28A50]/5 p-4 sm:p-5 space-y-2.5">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-[#A7834F]">
+              <div className="flex items-center gap-2 text-[#B28A50]">
                 <ShieldAlert className="w-4 h-4 flex-shrink-0" />
                 <span className="text-xs font-bold uppercase tracking-wider">
                   Potential Hidden Damage Allowance (Not Charged In Visible Total)
                 </span>
               </div>
-              <span className="font-mono text-sm font-bold text-[#A7834F]">
+              <span className="font-mono text-sm font-bold text-[#B28A50]">
                 {hiddenDamage.formattedAllowance}
               </span>
             </div>
 
-            <p className="text-xs text-[#A7B0BD] leading-relaxed">
+            <p className="text-xs text-[#A7B0BC] leading-relaxed">
               {hiddenDamage.note}
             </p>
 
             {hiddenDamage.probableItems && hiddenDamage.probableItems.length > 0 && (
-              <div className="pt-2 border-t border-[#A7834F]/20 space-y-1.5 text-xs">
+              <div className="pt-2 border-t border-[#B28A50]/20 space-y-1.5 text-xs">
                 {hiddenDamage.probableItems.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between text-[#A7B0BD]">
+                  <div key={i} className="flex items-center justify-between text-[#A7B0BC]">
                     <span>• {p.name}: {p.probability}</span>
-                    <span className="font-mono text-[11px] text-[#F5F7FA]">Contingency: {formatINR(p.contingencyMin)} – {formatINR(p.contingencyMax)}</span>
+                    <span className="font-mono text-[11px] text-[#F4F6F8]">Contingency: {formatINR(p.contingencyMin)} – {formatINR(p.contingencyMax)}</span>
                   </div>
                 ))}
               </div>
@@ -473,18 +473,18 @@ export default function CostBreakdown({ costIntelligence }) {
 
           {/* 🔍 SECTION 6: HOW THIS ESTIMATE WAS CALCULATED */}
           <div className="space-y-2.5 pt-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BD] flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-[#8294AA]" />
+            <div className="text-xs font-semibold uppercase tracking-wider text-[#A7B0BC] flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-[#7D91AA]" />
               <span>How This Estimate Was Calculated (Transparent Audit Trail)</span>
             </div>
 
-            <div className="rounded-lg border border-[#202731] bg-[#0C1015] p-4 space-y-2.5 text-xs font-mono">
+            <div className="rounded-lg border border-[#232B36] bg-[#0D1118] p-4 space-y-2.5 text-xs font-mono">
               {calculationSteps.map((s, idx) => (
                 <div key={idx} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#4F8A68] flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#55A477] flex-shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <span className="text-[#F5F7FA] font-bold mr-1.5">{s.label}:</span>
-                    <span className="text-[#A7B0BD]">{s.detail}</span>
+                    <span className="text-[#F4F6F8] font-bold mr-1.5">{s.label}:</span>
+                    <span className="text-[#A7B0BC]">{s.detail}</span>
                   </div>
                 </div>
               ))}
@@ -492,16 +492,16 @@ export default function CostBreakdown({ costIntelligence }) {
           </div>
 
           {/* 🏛️ SECTION 7: PRICE SOURCES & TIMESTAMPS */}
-          <div className="pt-2 border-t border-[#202731] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-[#667180] font-mono">
+          <div className="pt-2 border-t border-[#232B36] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-[#687382] font-mono">
             <div className="flex items-center gap-2 flex-wrap">
               <span>SOURCES:</span>
               {pricingSources.map((src, i) => (
-                <span key={i} className="px-2 py-0.5 rounded bg-[#0C1015] border border-[#202731] text-[#A7B0BD]">
+                <span key={i} className="px-2 py-0.5 rounded bg-[#0D1118] border border-[#232B36] text-[#A7B0BC]">
                   {src.source} ({src.lastUpdated})
                 </span>
               ))}
             </div>
-            <span className="text-[#8294AA]">
+            <span className="text-[#7D91AA]">
               *Preliminary estimate only. Final quote requires physical workshop disassembly.
             </span>
           </div>
