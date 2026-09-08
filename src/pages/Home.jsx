@@ -24,13 +24,19 @@ const CATEGORY_INFO = {
     badge: 'Circuit board diagnostics',
     description: 'Assess burned components, capacitor faults, VRM failure, and board-level issues through focused imaging.',
     whatToCapture: [
-      'Close-up of burnt IC    ii.  or charred component',
+      'Close-up of burnt IC or charred component',
       'Top-down PCB layout photo',
       'Silkscreen part number or board revision tag',
       'Clear focus on damaged traces',
     ],
   },
-  computer: { title: 'Computers & Laptops', icon: '💻', badge: 'Computer diagnostics', description: 'Assess visible screen, keyboard, hinge, casing, port and board damage.', whatToCapture: ['Close-up of damaged area', 'Full device view', 'Model label', 'Side angle'] },
+  computer: { 
+    title: 'Computers & Laptops', 
+    icon: '💻', 
+    badge: 'Computer diagnostics', 
+    description: 'Assess visible screen, keyboard, hinge, casing, port and board damage.', 
+    whatToCapture: ['Close-up of damaged area', 'Full device view', 'Model label', 'Side angle'] 
+  },
   vehicles: {
     title: 'Vehicles',
     icon: '🚗',
@@ -43,7 +49,13 @@ const CATEGORY_INFO = {
       'Side angle for depth evaluation',
     ],
   },
-  other: { title: 'Other', icon: '📦', badge: 'Visual repair assessment', description: 'Assess visibly damaged repairable items.', whatToCapture: ['Close-up', 'Full object', 'Model label if available', 'Another angle'] },
+  other: { 
+    title: 'Other', 
+    icon: '📦', 
+    badge: 'Visual repair assessment', 
+    description: 'Assess visibly damaged repairable items.', 
+    whatToCapture: ['Close-up', 'Full object', 'Model label if available', 'Another angle'] 
+  },
   appliance: {
     title: 'Home Appliance',
     icon: '🔌',
@@ -78,24 +90,25 @@ export default function Home({
   if (currentView === 'home') {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 animate-fadeIn">
-        <section className="hero-panel premium-panel tech-grid relative overflow-hidden rounded-[22px] p-6 sm:p-8 lg:p-10">
-          <div className="relative z-10 space-y-6">
+        {/* Technical Minimal Hero Section */}
+        <section className="hero-panel tech-grid relative overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] p-6 sm:p-8 lg:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+          <div className="relative z-10 space-y-5">
             <div className="eyebrow">
               <span className="gold-dot"></span>
               <span>Diagnostic Workspace</span>
             </div>
 
             <div className="max-w-4xl space-y-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] text-[var(--text-primary)] tracking-[-0.07em] font-black">
-                Diagnose with
-                <span className="block bg-[linear-gradient(135deg,#f8fafc_0%,#c7d2fe_28%,#8b5cf6_62%,#22d3ee_100%)] bg-clip-text text-transparent">
-                  precision engineered. ⚡.
+              <h1 className="text-3xl sm:text-5xl md:text-6xl leading-[1.08] text-[var(--text-primary)] tracking-[-0.035em] font-bold">
+                Diagnose with{' '}
+                <span className="text-[#6B7C93]">
+                  precision engineered.
                 </span>
               </h1>
-              <p className="max-w-xl text-base text-[var(--text-secondary)] leading-7">
-                Professional device diagnostics, repair intelligence, and actionable insights for the real-world issues your team needs to solve.
+              <p className="max-w-2xl text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
+                Professional device diagnostics, repair intelligence, and actionable insights built for technicians and enterprise service desks.
               </p>
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   type="button"
                   className="premium-button"
@@ -103,7 +116,11 @@ export default function Home({
                 >
                   Start a diagnosis
                 </button>
-                <button type="button" className="premium-button-secondary" onClick={() => onSelectCategoryAndNavigate('electronics')}>
+                <button
+                  type="button"
+                  className="premium-button-secondary"
+                  onClick={() => onSelectCategoryAndNavigate('electronics')}
+                >
                   View categories
                 </button>
               </div>
@@ -111,39 +128,40 @@ export default function Home({
           </div>
         </section>
 
-        <section className="space-y-6 pt-2">
+        {/* Primary Modules Section */}
+        <section className="space-y-4 pt-1">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
-              Primary modules
+            <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--text-muted)]">
+              Primary Diagnostic Modules
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {ITEM_CATEGORIES.map((category, index) => (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => onSelectCategoryAndNavigate(category.id)}
-                className="category-card group w-full px-4 sm:px-5 py-4 sm:py-5 text-left transition-all duration-180"
+                className="category-card group w-full px-4 sm:px-5 py-4 sm:py-5 text-left transition-all duration-180 border border-[var(--border-soft)] hover:border-[var(--border-strong)] bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)]"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-4 min-w-0">
-                    <div className="text-[13px] font-semibold bg-[linear-gradient(135deg,#22d3ee,#8b5cf6)] bg-clip-text text-transparent tracking-[0.14em] uppercase pt-1">
+                    <div className="text-xs font-mono font-medium text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] tracking-[0.12em] uppercase pt-0.5">
                       {String(index + 1).padStart(2, '0')}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xl sm:text-2xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+                      <div className="text-base sm:text-lg font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
                         {category.label}
                       </div>
-                      <div className="mt-1 text-sm text-[var(--text-secondary)] leading-6 max-w-2xl">
+                      <div className="mt-1 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed max-w-2xl">
                         {category.desc}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 text-[var(--text-primary)]">
-                    <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)]">View category</span>
-                    <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-transform duration-180 group-hover:translate-x-0.5" />
+                  <div className="flex items-center gap-2 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+                    <span className="text-[10px] uppercase tracking-[0.14em]">Select module</span>
+                    <ChevronRight className="w-4 h-4 transition-transform duration-180 group-hover:translate-x-0.5 text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
                   </div>
                 </div>
               </button>
@@ -151,23 +169,26 @@ export default function Home({
           </div>
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-6 border-t border-[var(--border-soft)]">
+        {/* Status Metrics Bar */}
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-[var(--border-soft)]">
           <div className="small-stat p-4">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Recent activity</div>
-            <div className="text-sm text-[var(--text-primary)]">No recent scans</div>
+            <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] mb-2">Recent activity</div>
+            <div className="text-sm font-medium text-[var(--text-primary)]">No recent scans</div>
           </div>
 
           <div className="small-stat p-4">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Quick actions</div>
-            <div className="space-y-2 text-sm text-[var(--text-primary)]">
-              <div>Start new diagnosis</div>
-              <div>Review saved reports</div>
+            <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] mb-2">System protocol</div>
+            <div className="space-y-1 text-sm text-[var(--text-secondary)]">
+              <div>High-resolution image extraction</div>
             </div>
           </div>
 
           <div className="small-stat p-4">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] mb-3">Status</div>
-            <div className="text-sm text-[var(--text-primary)]">Ready for inspection</div>
+            <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--text-muted)] mb-2">Workspace status</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--success)]" />
+              <span>Engine online & ready</span>
+            </div>
           </div>
         </section>
       </div>
@@ -175,11 +196,11 @@ export default function Home({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 animate-fadeIn">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-soft)]">
         <button
           onClick={onBackToCategories}
-          className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border-soft)] bg-[var(--bg-surface)] px-3 py-2"
+          className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border-soft)] bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] px-3 py-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to categories</span>
@@ -187,7 +208,7 @@ export default function Home({
 
         <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
           <span>Active context:</span>
-          <span className="px-2.5 py-1 border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] flex items-center gap-2">
+          <span className="px-2.5 py-1 border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] rounded-md flex items-center gap-2">
             <span>{activeCategoryInfo.icon}</span>
             <span>{activeCategoryInfo.badge}</span>
           </span>
@@ -196,11 +217,11 @@ export default function Home({
 
       <div className="premium-panel p-6 sm:p-8 space-y-4">
         <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 rounded-md bg-[var(--bg-secondary)] border border-[var(--border-soft)] flex items-center justify-center text-3xl flex-shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-soft)] flex items-center justify-center text-2xl flex-shrink-0">
             {activeCategoryInfo.icon}
           </div>
           <div>
-            <h1 className="text-3xl sm:text-4xl text-[var(--text-primary)] display-serif">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
               {activeCategoryInfo.title}
             </h1>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mt-1 max-w-3xl">
@@ -212,9 +233,9 @@ export default function Home({
 
       <section className="space-y-6">
         <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">
-            <span className="w-5 h-5 rounded-full border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] flex items-center justify-center">2</span>
-            <span>Upload damage photo</span>
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+            <span className="w-5 h-5 rounded-full border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-primary)] flex items-center justify-center text-[10px] font-mono">2</span>
+            <span>Upload Inspection Photos</span>
           </div>
         </div>
 
@@ -234,7 +255,7 @@ export default function Home({
             {hasAnyPhoto && (
               <>
                 {analysisError && (
-                  <div role="alert" className="rounded-xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-200">
+                  <div role="alert" className="rounded-xl border border-[var(--danger)] bg-[var(--danger-subtle)] px-4 py-3 text-sm text-[#F2F4F7]">
                     {analysisError}
                   </div>
                 )}
