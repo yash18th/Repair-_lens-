@@ -133,12 +133,47 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 });
 
+router.delete('/clear-all', requireAuth, async (req, res) => {
+  try {
+    const result = await prisma.scan.deleteMany({
+      where: { userId: req.user.id },
+    });
+
+    return successResponse(res, {
+      message: 'All diagnostic scans cleared successfully',
+      count: result.count,
+    });
+  } catch (error) {
+    console.error('Clear all scans failed:', error);
+    return errorResponse(res, 'Something went wrong while clearing diagnostic history', 500);
+  }
+});
+
+router.delete('/', requireAuth, async (req, res) => {
+  try {
+    const result = await prisma.scan.deleteMany({
+      where: { userId: req.user.id },
+    });
+
+    return successResponse(res, {
+      message: 'All diagnostic scans cleared successfully',
+      count: result.count,
+    });
+  } catch (error) {
+    console.error('Clear all scans failed:', error);
+    return errorResponse(res, 'Something went wrong while clearing diagnostic history', 500);
+  }
+});
+
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const scan = await prisma.scan.findFirst({
       where: {
-        id: req.params.id,
         userId: req.user.id,
+        OR: [
+          { id: req.params.id },
+          { reportId: req.params.id },
+        ],
       },
     });
 
@@ -146,8 +181,8 @@ router.delete('/:id', requireAuth, async (req, res) => {
       return errorResponse(res, 'Scan not found', 404);
     }
 
-    await prisma.scan.delete({ where: { id: req.params.id } });
-    return successResponse(res, { message: 'Scan deleted successfully' });
+    await prisma.scan.delete({ where: { id: scan.id } });
+    return successResponse(res, { message: 'Scan deleted successfully', id: scan.id });
   } catch (error) {
     return errorResponse(res, 'Something went wrong while deleting the scan', 500);
   }
