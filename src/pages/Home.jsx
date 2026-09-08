@@ -155,52 +155,14 @@ export default function Home({
 
             {/* Right: Real-time Diagnostic Telemetry Visual */}
             <div className="lg:col-span-5">
-              <div className="rounded-xl border border-[#202731] bg-[#10141A] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04),0_8px_24px_rgba(0,0,0,0.4)] space-y-4 font-mono">
-                <div className="flex items-center justify-between pb-3 border-b border-[#181E26] text-[10px] uppercase tracking-wider text-[#A7B0BD]">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-3.5 h-3.5 text-[#8294AA]" />
-                    <span className="font-bold text-[#F5F7FA]">DEVICE SCAN</span>
-                  </div>
-                  <span className="text-[#667180] text-[9px]">REAL-TIME TELEMETRY</span>
-                </div>
-
-                {/* Minimal Technical Device Outline & Scan Line */}
-                <div className="relative h-28 rounded-lg bg-[#0C1015] border border-[#181E26] flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 tech-grid opacity-25"></div>
-                  
-                  <div className="relative z-10 flex flex-col items-center justify-center space-y-1">
-                    <div className="w-14 h-18 rounded border border-[#8294AA]/40 flex items-center justify-center relative shadow-[inset_0_0_8px_rgba(130,148,170,0.1)]">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#4F8A68]/80"></div>
-                      <div className="absolute -top-1 -left-1 w-1.5 h-1.5 border-t border-l border-[#8294AA]"></div>
-                      <div className="absolute -top-1 -right-1 w-1.5 h-1.5 border-t border-r border-[#8294AA]"></div>
-                      <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 border-b border-l border-[#8294AA]"></div>
-                      <div className="absolute -bottom-1 -right-1 w-1.5 h-1.5 border-b border-r border-[#8294AA]"></div>
-                      <div className="absolute inset-x-0 h-[1px] bg-[#8294AA]/60 animate-laser-scan"></div>
-                    </div>
-                    <span className="text-[8px] text-[#667180] tracking-widest uppercase font-mono">OPTICAL SENSING</span>
-                  </div>
-                </div>
-
-                {/* Telemetry Matrix Grid */}
-                <div className="space-y-1.5 text-[10px] text-[#A7B0BD] pt-1">
-                  <div className="flex items-center justify-between py-1 border-b border-[#181E26]">
-                    <span className="text-[#667180] uppercase tracking-wider">SCAN STATUS</span>
-                    <span className="text-[#4F8A68] font-semibold">READY</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#181E26]">
-                    <span className="text-[#667180] uppercase tracking-wider">IMAGE ANALYSIS</span>
-                    <span className="text-[#8294AA] font-semibold">ACTIVE</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1 border-b border-[#181E26]">
-                    <span className="text-[#667180] uppercase tracking-wider">DAMAGE DETECTION</span>
-                    <span className="text-[#4F8A68] font-semibold">READY</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-[#667180] uppercase tracking-wider">CONFIDENCE</span>
-                    <span className="text-[#F5F7FA] font-bold">98.4%</span>
-                  </div>
-                </div>
-              </div>
+              <DiagnosticTelemetryScan
+                stage={diagnosticStage}
+                isAnalyzing={isAnalyzing}
+                analysisResult={analysisResult}
+                analysisError={analysisError}
+                angles={angles}
+                selectedCategory={selectedCategory}
+              />
             </div>
           </div>
         </section>
