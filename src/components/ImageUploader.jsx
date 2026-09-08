@@ -176,14 +176,14 @@ export default function ImageUploader({
 
       {/* Error Alert Message */}
       {errorMessage && (
-        <div className="p-3.5 rounded-lg bg-[#A65D5D]/10 border border-[#A65D5D]/30 text-[#F5F7FA] text-xs flex items-center justify-between space-x-2 animate-fadeIn">
+        <div className="p-3.5 rounded-lg bg-[#B36262]/10 border border-[#B36262]/30 text-[#F4F6F8] text-xs flex items-center justify-between space-x-2 animate-fadeIn">
           <div className="flex items-center space-x-2">
-            <AlertCircle className="w-4 h-4 text-[#A65D5D] flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 text-[#B36262] flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
           <button 
             onClick={() => setErrorMessage(null)}
-            className="text-[#A7B0BD] hover:text-[#F5F7FA] p-1"
+            className="text-[#A7B0BC] hover:text-[#F4F6F8] p-1 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -195,9 +195,9 @@ export default function ImageUploader({
         <div className="space-y-4">
           
           {/* Header toolbar */}
-          <div className="flex items-center justify-between pb-3 border-b border-[#202731]">
-            <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-[#A7B0BD]">
-              <Layers className="w-3.5 h-3.5 text-[#8294AA]" />
+          <div className="flex items-center justify-between pb-3 border-b border-[#232B36]">
+            <div className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-[#A7B0BC]">
+              <Layers className="w-3.5 h-3.5 text-[#7D91AA]" />
               <span>Inspection Photos ({uploadedEntries.length} / {SLOTS.length})</span>
             </div>
 
@@ -206,9 +206,9 @@ export default function ImageUploader({
                 <button
                   type="button"
                   onClick={handleBrowseClick}
-                  className="px-2.5 py-1.5 rounded-md bg-[#141922] hover:bg-[#141922] text-[#F5F7FA] border border-[#202731] text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-md bg-[#161C25] hover:bg-[#1D2430] text-[#F4F6F8] border border-[#232B36] text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5 text-[#A7B0BD]" />
+                  <Plus className="w-3.5 h-3.5 text-[#7D91AA]" />
                   <span>Add Photo</span>
                 </button>
               )}
@@ -217,7 +217,7 @@ export default function ImageUploader({
                 <button
                   type="button"
                   onClick={onClearAllAngles}
-                  className="text-xs text-[#667180] hover:text-[#A65D5D] px-2 py-1 transition-colors cursor-pointer"
+                  className="text-xs text-[#687382] hover:text-[#B36262] px-2 py-1 transition-colors cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -230,29 +230,29 @@ export default function ImageUploader({
             {uploadedEntries.map((item) => (
               <div 
                 key={item.slot}
-                className="relative rounded-lg border border-[#202731] bg-[#10141A] p-3.5 flex items-center space-x-3.5 hover:border-[#283240] transition-colors group"
+                className="relative rounded-lg border border-[#232B36] bg-[#121720] p-3.5 flex items-center space-x-3.5 hover:border-[#7D91AA]/40 transition-colors group"
               >
                 {/* Thumbnail */}
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden bg-[#0C1015] border border-[#202731] flex-shrink-0">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden bg-[#0D1118] border border-[#232B36] flex-shrink-0">
                   <img
                     src={item.previewUrl}
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-1 left-1 px-1 py-0.5 rounded bg-[#07090C]/90 text-[9px] font-medium text-[#4F8A68] border border-[#4F8A68]/30 flex items-center space-x-0.5">
+                  <div className="absolute top-1 left-1 px-1 py-0.5 rounded bg-[#080B10]/90 text-[9px] font-medium text-[#55A477] border border-[#55A477]/30 flex items-center space-x-0.5 font-mono">
                     <CheckCircle2 className="w-2.5 h-2.5" />
                   </div>
                 </div>
 
                 {/* Metadata & Controls */}
                 <div className="flex-1 min-w-0 space-y-1">
-                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-[#8294AA] block truncate">
+                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-[#7D91AA] block truncate">
                     {SLOT_LABELS[item.slot] || 'Inspection Photo'}
                   </span>
-                  <h4 className="text-xs sm:text-sm font-medium text-[#F5F7FA] truncate" title={item.name}>
+                  <h4 className="text-xs sm:text-sm font-medium text-[#F4F6F8] truncate" title={item.name}>
                     {item.name}
                   </h4>
-                  <p className="text-[10px] text-[#667180] font-mono">
+                  <p className="text-[10px] text-[#687382] font-mono">
                     {item.size} • {item.type}
                   </p>
 
@@ -260,7 +260,7 @@ export default function ImageUploader({
                     <button
                       type="button"
                       onClick={() => onRemoveAngle && onRemoveAngle(item.slot)}
-                      className="text-[11px] text-[#667180] hover:text-[#A65D5D] flex items-center space-x-1 py-0.5 transition-colors cursor-pointer"
+                      className="text-[11px] text-[#687382] hover:text-[#B36262] flex items-center space-x-1 py-0.5 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Remove</span>
@@ -281,25 +281,25 @@ export default function ImageUploader({
                 onClick={handleBrowseClick}
                 className={`rounded-lg border border-dashed p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 min-h-[100px] ${
                   isDragOver
-                    ? 'border-[#8294AA] bg-[#141922]'
+                    ? 'border-[#7D91AA] bg-[#161C25]'
                     : isGlowActive
-                      ? 'button-light-pulse border-[#DDE7F5] bg-[#1A222E]'
-                      : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
+                      ? 'button-light-pulse border-[#7D91AA] bg-[#1D2430]'
+                      : 'border-[#232B36] hover:border-[#7D91AA]/40 bg-[#0D1118] hover:bg-[#121720]'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-full border flex items-center justify-center mb-1.5 transition-all duration-200 pointer-events-none ${
                   isGlowActive
-                    ? 'bg-[#222C3A] border-[#DDE7F5] text-white shadow-[0_0_14px_rgba(184,215,255,0.7)]'
-                    : 'bg-[#141922] border-[#202731] text-[#A7B0BD]'
+                    ? 'bg-[#1D2430] border-[#7D91AA] text-white shadow-[0_0_14px_rgba(125,145,170,0.5)]'
+                    : 'bg-[#161C25] border-[#232B36] text-[#A7B0BC]'
                 }`}>
                   <Plus className="w-4 h-4" />
                 </div>
                 <span className={`text-xs font-medium pointer-events-none transition-all duration-200 ${
-                  isGlowActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#F5F7FA]'
+                  isGlowActive ? 'text-white' : 'text-[#F4F6F8]'
                 }`}>
                   Add Additional Angle / Photo
                 </span>
-                <span className="text-[10px] text-[#667180] mt-0.5 pointer-events-none">
+                <span className="text-[10px] text-[#687382] mt-0.5 pointer-events-none">
                   Drag & drop or click to browse
                 </span>
               </div>
@@ -317,55 +317,55 @@ export default function ImageUploader({
           onClick={handleBrowseClick}
           className={`relative group cursor-pointer overflow-hidden rounded-xl border border-dashed transition-all duration-200 p-8 sm:p-12 text-center flex flex-col items-center justify-center select-none ${
             isDragOver
-              ? 'border-[#8294AA] bg-[#141922]'
+              ? 'border-[#7D91AA] bg-[#161C25]'
               : isGlowActive
-                ? 'border-[#DDE7F5] bg-[#141922] shadow-[0_0_40px_rgba(184,215,255,0.25)]'
-                : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
+                ? 'border-[#7D91AA] bg-[#161C25] shadow-[0_0_30px_rgba(125,145,170,0.2)]'
+                : 'border-[#232B36] hover:border-[#7D91AA]/40 bg-[#0D1118] hover:bg-[#121720]'
           }`}
         >
-          {/* Luminous Glow Backdrop Wave when triggered */}
+          {/* Subtle Glow Backdrop Wave when triggered */}
           {isGlowActive && (
-            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent pointer-events-none animate-fadeIn" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-transparent pointer-events-none animate-fadeIn" />
           )}
 
-          {/* Monochrome Icon */}
+          {/* Monochrome Technical Icon */}
           <div className={`relative z-10 w-14 h-14 mb-3.5 rounded-xl border flex items-center justify-center transition-all duration-200 pointer-events-none ${
             isGlowActive
-              ? 'bg-[#202937] border-[#DDE7F5] text-white shadow-[0_0_20px_rgba(184,215,255,0.6)]'
-              : 'bg-[#141922] border-[#202731] text-[#A7B0BD]'
+              ? 'bg-[#1D2430] border-[#7D91AA] text-white shadow-[0_0_16px_rgba(125,145,170,0.4)]'
+              : 'bg-[#161C25] border-[#232B36] text-[#A7B0BC]'
           }`}>
             <UploadCloud className={`w-7 h-7 transition-all duration-200 ${
-              isGlowActive ? 'text-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#A7B0BD]'
+              isGlowActive ? 'text-white' : 'text-[#7D91AA]'
             }`} />
           </div>
 
           {/* Titles */}
-          <h3 className="relative z-10 text-base sm:text-lg font-semibold text-[#F5F7FA] mb-1.5 pointer-events-none">
+          <h3 className="relative z-10 text-base sm:text-lg font-semibold text-[#F4F6F8] mb-1.5 pointer-events-none">
             {isDragOver ? 'Release to upload inspection photos' : 'Upload Inspection Photos'}
           </h3>
-          <p className="relative z-10 text-xs sm:text-sm text-[#A7B0BD] max-w-md mb-5 leading-relaxed pointer-events-none">
+          <p className="relative z-10 text-xs sm:text-sm text-[#A7B0BC] max-w-md mb-5 leading-relaxed pointer-events-none">
             Drag & drop single or multi-angle hardware photos, or click to browse. Supports close-ups, full overview, and component serial labels.
           </p>
 
-          {/* Classy Professional CTA Button with Luminous Light Glow */}
+          {/* Restrained Technical CTA Button */}
           <div
             data-glow="true"
-            className={`relative z-10 inline-flex items-center px-4 py-2.5 rounded-lg border text-[#F5F7FA] font-medium text-xs tracking-wide space-x-2 shadow-sm transition-all duration-200 pointer-events-none ${
+            className={`relative z-10 inline-flex items-center px-4 py-2.5 rounded-lg border text-[#F4F6F8] font-medium text-xs tracking-wide space-x-2 shadow-sm transition-all duration-200 pointer-events-none ${
               isGlowActive
                 ? 'button-light-pulse'
-                : 'border-[#283240] bg-[#141922] group-hover:bg-[#1A222E] group-hover:border-[#384556]'
+                : 'border-[#232B36] bg-[#161C25] group-hover:bg-[#1D2430] group-hover:border-[#7D91AA]/40'
             }`}
           >
             <ImageIcon className={`w-4 h-4 transition-all duration-200 ${
-              isGlowActive ? 'text-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#A7B0BD]'
+              isGlowActive ? 'text-white' : 'text-[#7D91AA]'
             }`} />
-            <span className={isGlowActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.85)]' : ''}>
+            <span className={isGlowActive ? 'text-white' : ''}>
               Select Photo(s) to Upload
             </span>
           </div>
 
           {/* Supported formats */}
-          <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-[#667180] pointer-events-none">
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 mt-4 text-[11px] text-[#687382] font-mono pointer-events-none">
             <span>Single or multi-angle capture</span>
             <span>•</span>
             <span>JPG, PNG, WEBP</span>
