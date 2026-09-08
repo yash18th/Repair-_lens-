@@ -163,15 +163,15 @@
 }
 
 .premium-button {
-  background: #141922;
-  color: #F5F7FA;
-  border: 1px solid #283240;
+  background: #161C25;
+  color: #F4F6F8;
+  border: 1px solid #232B36;
   padding: 0.7rem 1.25rem;
 }
 
 .premium-button:hover {
-  background: #1A222E;
-  border-color: #384556;
+  background: #1D2430;
+  border-color: rgba(125, 145, 170, 0.4);
   color: #FFFFFF;
   transform: translateY(-1px);
   box-shadow: var(--inner-highlight), 0 4px 14px rgba(0, 0, 0, 0.45);
@@ -315,9 +315,9 @@ button:not(:disabled):active svg,
 /* Enterprise Sidebar Navigation Item */
 .nav-item-active {
   position: relative;
-  background: #141922;
+  background: #161C25;
   border: 1px solid var(--border-primary);
-  color: #F5F7FA;
+  color: #F4F6F8;
   box-shadow: var(--inner-highlight);
 }
 
