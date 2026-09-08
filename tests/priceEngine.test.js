@@ -111,3 +111,101 @@ test('Price Engine: Flags provisional vehicle identification when make is unveri
   assert.equal(provisional.vehicleIdentification.isProvisional, true);
   assert.ok(provisional.vehicleIdentification.confidence < 85);
 });
+
+test('Price Engine [Smartphone]: Generates realistic market-based estimate for flagship iPhone', () => {
+  const result = generateRealisticRepairEstimate({
+    category: 'Smartphone & Tablet',
+    brand: 'Apple',
+    model: 'iPhone 15 Pro Max',
+    affectedComponents: [
+      'OLED Display & Touch Digitizer',
+      'Rear Enclosure Glass'
+    ],
+    severity: 'High',
+    locationCity: 'Bengaluru'
+  });
+
+  // Flagship OLED display + rear glass must be realistic (typically > ₹15,000 for iPhone 15 Pro Max)
+  assert.ok(result.estimateSummary.low >= 12000, `Expected low >= 12000, got ${result.estimateSummary.low}`);
+  assert.ok(result.estimateSummary.mostLikely > result.estimateSummary.low);
+  assert.ok(result.estimateSummary.high > result.estimateSummary.mostLikely);
+  assert.equal(result.confirmedParts.items.length, 2);
+  assert.ok(result.laborOperations.totalHours > 1.0);
+  assert.ok(result.calibrationAndDiagnostics.totalMin > 0);
+  assert.ok(result.potentialHiddenDamage.allowanceMin > 0);
+  assert.match(result.vehicleIdentification.vehicleClass, /FLAGSHIP/i);
+});
+
+test('Price Engine [Computer]: Generates realistic estimate for workstation MacBook Pro', () => {
+  const result = generateRealisticRepairEstimate({
+    category: 'Computers & Laptops',
+    brand: 'Apple',
+    model: 'MacBook Pro 14"',
+    affectedComponents: [
+      'Retina Display Panel Assembly',
+      'Top Case, Trackpad & Backlit Keyboard'
+    ],
+    severity: 'High'
+  });
+
+  // MacBook Retina display + topcase assembly is typically > ₹25,000
+  assert.ok(result.estimateSummary.low >= 20000, `Expected low >= 20000, got ${result.estimateSummary.low}`);
+  assert.ok(result.estimateSummary.mostLikely > result.estimateSummary.low);
+  assert.equal(result.confirmedParts.items.length, 2);
+  assert.ok(result.calibrationAndDiagnostics.totalMin > 0);
+  assert.match(result.vehicleIdentification.vehicleClass, /WORKSTATION/i);
+});
+
+test('Price Engine [Electronics]: Generates realistic estimate for industrial PCB micro-soldering', () => {
+  const result = generateRealisticRepairEstimate({
+    category: 'Electronics & PCB',
+    brand: 'Siemens',
+    model: 'Industrial Motor Controller Board',
+    affectedComponents: [
+      'Power Switching MOSFET',
+      'Copper Power Plane Trace'
+    ],
+    severity: 'Critical'
+  });
+
+  assert.ok(result.estimateSummary.low >= 3000, `Expected low >= 3000, got ${result.estimateSummary.low}`);
+  assert.ok(result.laborOperations.totalHours > 1.5);
+  assert.ok(result.calibrationAndDiagnostics.totalMin > 0);
+  assert.equal(result.confirmedParts.items.length, 2);
+});
+
+test('Price Engine [Home Appliance]: Generates realistic estimate for inverter appliance repair', () => {
+  const result = generateRealisticRepairEstimate({
+    category: 'Home Appliance',
+    brand: 'LG',
+    model: 'Inverter Front-Load Washing Machine',
+    affectedComponents: [
+      'BLDC Inverter Compressor Pump / Motor',
+      'Perimeter Door Seal Gasket'
+    ],
+    severity: 'High'
+  });
+
+  assert.ok(result.estimateSummary.low >= 5000, `Expected low >= 5000, got ${result.estimateSummary.low}`);
+  assert.ok(result.confirmedParts.items.length, 2);
+  assert.ok(result.calibrationAndDiagnostics.totalMin > 0);
+  assert.ok(result.potentialHiddenDamage.allowanceMin > 0);
+});
+
+test('Price Engine [Other]: Generates realistic estimate for industrial power tool overhaul', () => {
+  const result = generateRealisticRepairEstimate({
+    category: 'Other',
+    brand: 'Bosch Professional',
+    model: 'GBH 2-28 Rotary Hammer',
+    affectedComponents: [
+      'Motor Armature & Stator Rotor',
+      'Reduction Planetary Gearbox'
+    ],
+    severity: 'Medium'
+  });
+
+  assert.ok(result.estimateSummary.low >= 3000, `Expected low >= 3000, got ${result.estimateSummary.low}`);
+  assert.equal(result.confirmedParts.items.length, 2);
+  assert.ok(result.laborOperations.totalHours > 1.5);
+});
+

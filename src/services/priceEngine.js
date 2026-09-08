@@ -121,8 +121,19 @@ export function detectDeviceClass(category = '', brand = '', model = '') {
     return { tierKey: 'budget', tierLabel: 'BUDGET TIER', isFlagship: false };
   }
 
+  // 🔧 Electronics & PCB
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    if (normModel.includes('inverter') || normModel.includes('controller') || normModel.includes('industrial') || normModel.includes('multidensity') || normBrand.includes('siemens') || normBrand.includes('abb')) {
+      return { tierKey: 'industrial', tierLabel: 'INDUSTRIAL MULTILAYER TIER', isFlagship: true };
+    }
+    if (normModel.includes('smps') || normModel.includes('amplifier') || normModel.includes('power supply') || normModel.includes('motherboard') || normModel.includes('logic')) {
+      return { tierKey: 'consumer', tierLabel: 'CONSUMER ELECTRONICS TIER', isFlagship: false };
+    }
+    return { tierKey: 'basic', tierLabel: 'STANDARD CIRCUIT TIER', isFlagship: false };
+  }
+
   // 💻 Computers & Laptops
-  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('notebook') || normCat.includes('macbook') || /\bpc\b/.test(normCat)) {
     const isMacBook = normBrand.includes('apple') || normBrand.includes('macbook') || normModel.includes('macbook') || normModel.includes('mac');
     const isWorkstation = isMacBook || normBrand.includes('xps') || normModel.includes('xps') || normModel.includes('thinkpad x1') || normModel.includes('rog') || normBrand.includes('alienware') || normBrand.includes('razer');
     if (isWorkstation) {
@@ -133,17 +144,6 @@ export function detectDeviceClass(category = '', brand = '', model = '') {
       return { tierKey: 'mainstream', tierLabel: 'MAINSTREAM BUSINESS TIER', isFlagship: false };
     }
     return { tierKey: 'entry', tierLabel: 'ENTRY TIER', isFlagship: false };
-  }
-
-  // 🔧 Electronics & PCB
-  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
-    if (normModel.includes('inverter') || normModel.includes('controller') || normModel.includes('industrial') || normModel.includes('multidensity') || normBrand.includes('siemens') || normBrand.includes('abb')) {
-      return { tierKey: 'industrial', tierLabel: 'INDUSTRIAL MULTILAYER TIER', isFlagship: true };
-    }
-    if (normModel.includes('smps') || normModel.includes('amplifier') || normModel.includes('power supply') || normModel.includes('motherboard') || normModel.includes('logic')) {
-      return { tierKey: 'consumer', tierLabel: 'CONSUMER ELECTRONICS TIER', isFlagship: false };
-    }
-    return { tierKey: 'basic', tierLabel: 'STANDARD CIRCUIT TIER', isFlagship: false };
   }
 
   // 🔌 Home Appliances
