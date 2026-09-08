@@ -124,18 +124,18 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
   ];
 
   return (
-    <div className="p-6 sm:p-8 rounded-xl border border-[#202731] bg-[#10141A] space-y-5 shadow-[0_4px_20px_rgba(0,0,0,0.3)] relative overflow-hidden">
+    <div className="p-6 sm:p-8 rounded-xl border border-[#232B36] bg-[#121720] space-y-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03),0_8px_24px_rgba(0,0,0,0.4)] relative overflow-hidden">
       
       {/* Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#202731]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#232B36]">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-4 h-4 text-[#4F8A68]" />
-            <h3 className="text-base sm:text-lg font-bold text-[#F5F7FA] tracking-tight">
+            <ShieldCheck className="w-4 h-4 text-[#55A477]" />
+            <h3 className="text-base sm:text-lg font-bold text-[#F4F6F8] tracking-tight">
               Nearby Service Centers & Bench Pricing
             </h3>
           </div>
-          <p className="text-xs text-[#A7B0BD] leading-relaxed max-w-xl">
+          <p className="text-xs text-[#A7B0BC] leading-relaxed max-w-xl">
             Location-based service center locator with verified local repair benchmarks.
           </p>
         </div>
@@ -143,13 +143,13 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
         {/* Live GPS Bar & Google Maps Button */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Live Location Pill */}
-          <div className="px-3 py-1.5 rounded-lg bg-[#0C1015] border border-[#202731] text-xs text-[#A7B0BD] flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4F8A68]"></span>
-            <span>Location: <strong className="text-[#F5F7FA] font-mono">{userLocation.name}</strong></span>
+          <div className="px-3 py-1.5 rounded-lg bg-[#0D1118] border border-[#232B36] text-xs text-[#A7B0BC] flex items-center space-x-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#55A477]"></span>
+            <span>Location: <strong className="text-[#F4F6F8] font-mono">{userLocation.name}</strong></span>
             <button
               onClick={detectLiveLocation}
               disabled={isLocating}
-              className="text-[#667180] hover:text-[#F5F7FA] transition-colors ml-1 p-0.5 cursor-pointer"
+              className="text-[#687382] hover:text-[#F4F6F8] transition-colors ml-1 p-0.5 cursor-pointer"
               title="Refresh GPS Location"
             >
               <RefreshCw className={`w-3 h-3 ${isLocating ? 'animate-spin' : ''}`} />
@@ -159,19 +159,19 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
           {/* Open Google Maps Live Button */}
           <button
             onClick={openGoogleMapsLiveSearch}
-            className="px-3 py-1.5 rounded-lg border border-[#283240] bg-[#141922] hover:bg-[#1A222E] text-[#F5F7FA] font-medium text-xs transition-colors flex items-center space-x-1.5 cursor-pointer shadow-sm"
+            className="px-3 py-1.5 rounded-lg border border-[#232B36] bg-[#161C25] hover:bg-[#1D2430] text-[#F4F6F8] font-medium text-xs transition-colors flex items-center space-x-1.5 cursor-pointer shadow-sm"
           >
-            <Map className="w-3.5 h-3.5 text-[#A7B0BD]" />
+            <Map className="w-3.5 h-3.5 text-[#7D91AA]" />
             <span>Open in Maps</span>
-            <ExternalLink className="w-3 h-3 text-[#667180]" />
+            <ExternalLink className="w-3 h-3 text-[#687382]" />
           </button>
         </div>
       </div>
 
       {/* Booking Toast Notification */}
       {bookingToast && (
-        <div className="p-3 rounded-lg bg-[#4F8A68]/15 border border-[#4F8A68]/30 text-[#F5F7FA] text-xs font-medium flex items-center space-x-2 animate-fadeIn">
-          <CheckCircle2 className="w-4 h-4 text-[#4F8A68] flex-shrink-0" />
+        <div className="p-3 rounded-lg bg-[#55A477]/15 border border-[#55A477]/30 text-[#F4F6F8] text-xs font-medium flex items-center space-x-2 animate-fadeIn">
+          <CheckCircle2 className="w-4 h-4 text-[#55A477] flex-shrink-0" />
           <span>{bookingToast}</span>
         </div>
       )}
@@ -184,8 +184,8 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
             onClick={() => setActiveFilter(opt.id)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors border cursor-pointer ${
               activeFilter === opt.id
-                ? 'bg-[#141922] text-[#F5F7FA] border-[#283240]'
-                : 'bg-[#0C1015] text-[#A7B0BD] border-[#202731] hover:text-[#F5F7FA] hover:bg-[#141922]'
+                ? 'bg-[#161C25] text-[#F4F6F8] border-[#232B36] font-semibold'
+                : 'bg-[#0D1118] text-[#A7B0BC] border-[#232B36] hover:text-[#F4F6F8] hover:bg-[#161C25]'
             }`}
           >
             {opt.label}
@@ -195,7 +195,7 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
 
       {/* Service Centre Cards Grid */}
       {isLoadingShops && (
-        <div className="rounded-lg border border-[#202731] bg-[#0C1015] px-4 py-3 text-xs text-[#A7B0BD]">
+        <div className="rounded-lg border border-[#232B36] bg-[#0D1118] px-4 py-3 text-xs text-[#A7B0BC]">
           Finding the nearest repair centers around your location...
         </div>
       )}
@@ -204,68 +204,68 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
         {shops.map((shop) => (
           <div
             key={shop.id}
-            className="p-4 rounded-lg border border-[#202731] bg-[#0C1015] hover:border-[#283240] transition-colors space-y-3 group flex flex-col justify-between"
+            className="p-4 rounded-lg border border-[#232B36] bg-[#0D1118] hover:border-[#7D91AA]/40 transition-colors space-y-3 group flex flex-col justify-between"
           >
             <div className="space-y-2.5">
               {/* Header: Shop Name & Rating Badge */}
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-semibold text-[#F5F7FA] text-sm">
+                  <h4 className="font-semibold text-[#F4F6F8] text-sm">
                     {shop.name}
                   </h4>
-                  <p className="text-[11px] text-[#667180] flex items-center space-x-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-[#A7B0BD] flex-shrink-0" />
+                  <p className="text-[11px] text-[#687382] flex items-center space-x-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-[#7D91AA] flex-shrink-0" />
                     <span>{shop.locality} • {shop.displayDistanceKm ?? shop.distanceKm} km</span>
                   </p>
                 </div>
 
-                <div className="px-2 py-0.5 rounded bg-[#141922] border border-[#202731] text-[#A7B0BD] font-medium text-[11px] flex items-center space-x-1 flex-shrink-0">
-                  <Star className="w-3 h-3 fill-[#A7834F] text-[#A7834F]" />
-                  <span className="font-semibold text-[#F5F7FA]">{shop.rating}</span>
-                  <span className="text-[10px] text-[#667180]">({shop.reviewsCount})</span>
+                <div className="px-2 py-0.5 rounded bg-[#161C25] border border-[#232B36] text-[#A7B0BC] font-medium text-[11px] flex items-center space-x-1 flex-shrink-0">
+                  <Star className="w-3 h-3 fill-[#B28A50] text-[#B28A50]" />
+                  <span className="font-semibold text-[#F4F6F8]">{shop.rating}</span>
+                  <span className="text-[10px] text-[#687382]">({shop.reviewsCount})</span>
                 </div>
               </div>
 
               {/* Price & Turnaround Info */}
-              <div className="p-2.5 rounded-md bg-[#141922] border border-[#202731] flex items-center justify-between gap-2 text-xs">
+              <div className="p-2.5 rounded-md bg-[#161C25] border border-[#232B36] flex items-center justify-between gap-2 text-xs">
                 <div>
-                  <span className="text-[10px] text-[#667180] block">Est. Repair Cost</span>
-                  <span className="text-sm font-bold text-[#F5F7FA] font-mono">
+                  <span className="text-[10px] text-[#687382] block">Est. Repair Cost</span>
+                  <span className="text-sm font-bold text-[#F4F6F8] font-mono">
                     ₹{shop.priceEstimate.toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 <div className="text-right space-y-0.5">
-                  <span className="px-1.5 py-0.5 rounded bg-[#0C1015] text-[#A7B0BD] text-[9px] font-medium border border-[#202731] inline-block">
+                  <span className="px-1.5 py-0.5 rounded bg-[#0D1118] text-[#A7B0BC] text-[9px] font-medium border border-[#232B36] inline-block font-mono">
                     {shop.badge}
                   </span>
-                  <span className="text-[10px] text-[#667180] block">
+                  <span className="text-[10px] text-[#687382] block">
                     Turnaround: {shop.turnaround}
                   </span>
                 </div>
               </div>
 
               {/* Address */}
-              <p className="text-[11px] text-[#667180] leading-relaxed truncate">
+              <p className="text-[11px] text-[#687382] leading-relaxed truncate">
                 {shop.address}
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#202731] text-xs">
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#232B36] text-xs">
               <a
                 href={`tel:${shop.phone}`}
-                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#141922] text-[#A7B0BD] hover:text-[#F5F7FA] border border-[#202731] transition-colors flex items-center justify-center space-x-1 text-center"
+                className="py-1.5 px-2 rounded-md bg-[#161C25] hover:bg-[#1D2430] text-[#A7B0BC] hover:text-[#F4F6F8] border border-[#232B36] transition-colors flex items-center justify-center space-x-1 text-center"
               >
-                <Phone className="w-3 h-3 text-[#A7B0BD]" />
+                <Phone className="w-3 h-3 text-[#7D91AA]" />
                 <span>Call</span>
               </a>
 
               <button
                 onClick={() => handleBookPickup(shop.name)}
-                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#1A222E] text-[#F5F7FA] font-medium border border-[#283240] transition-colors flex items-center justify-center space-x-1 text-center cursor-pointer"
+                className="py-1.5 px-2 rounded-md bg-[#161C25] hover:bg-[#1D2430] text-[#F4F6F8] font-medium border border-[#232B36] transition-colors flex items-center justify-center space-x-1 text-center cursor-pointer"
               >
-                <Truck className="w-3 h-3 text-[#A7B0BD]" />
+                <Truck className="w-3 h-3 text-[#7D91AA]" />
                 <span>Book</span>
               </button>
 
@@ -273,9 +273,9 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
                 href={`https://www.google.com/maps/search/${encodeURIComponent(`${currentCategoryQuery} near ${shop.locality} ${shop.city}`)}/@${userLocation.lat},${userLocation.lng},12z`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="py-1.5 px-2 rounded-md bg-[#141922] hover:bg-[#141922] text-[#A7B0BD] hover:text-[#F5F7FA] border border-[#202731] transition-colors flex items-center justify-center space-x-1 text-center"
+                className="py-1.5 px-2 rounded-md bg-[#161C25] hover:bg-[#1D2430] text-[#A7B0BC] hover:text-[#F4F6F8] border border-[#232B36] transition-colors flex items-center justify-center space-x-1 text-center"
               >
-                <ExternalLink className="w-3 h-3 text-[#A7B0BD]" />
+                <ExternalLink className="w-3 h-3 text-[#7D91AA]" />
                 <span>Directions</span>
               </a>
             </div>
@@ -287,5 +287,3 @@ export default function NearbyRepairLocator({ category = 'phone' }) {
     </div>
   );
 }
-
-
