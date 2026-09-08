@@ -46,6 +46,36 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+router.delete('/clear-all', requireAuth, async (req, res) => {
+  try {
+    const result = await prisma.searchHistory.deleteMany({
+      where: { userId: req.user.id },
+    });
+
+    return successResponse(res, {
+      message: 'All search history cleared successfully',
+      count: result.count,
+    });
+  } catch (error) {
+    return errorResponse(res, 'Something went wrong while clearing search history', 500);
+  }
+});
+
+router.delete('/', requireAuth, async (req, res) => {
+  try {
+    const result = await prisma.searchHistory.deleteMany({
+      where: { userId: req.user.id },
+    });
+
+    return successResponse(res, {
+      message: 'All search history cleared successfully',
+      count: result.count,
+    });
+  } catch (error) {
+    return errorResponse(res, 'Something went wrong while clearing search history', 500);
+  }
+});
+
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const search = await prisma.searchHistory.findFirst({
