@@ -86,8 +86,19 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
               aria-label="Search diagnostics and navigation options"
               aria-expanded={Boolean(normalizedSearch)}
               aria-controls="diagnostic-search-options"
-              className="w-full pl-9 pr-4 py-2.5 bg-[rgba(15,23,42,0.8)] border border-[var(--border-soft)] text-[10px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] uppercase tracking-[0.16em] focus:outline-none focus:border-[rgba(99,102,241,0.5)] transition-all rounded-lg"
+              className="w-full pl-9 pr-8 py-2.5 bg-[rgba(15,23,42,0.8)] border border-[var(--border-soft)] text-[10px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] uppercase tracking-[0.16em] focus:outline-none focus:border-[rgba(99,102,241,0.5)] transition-all rounded-lg"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => onSearchChange('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-white transition-colors p-0.5 rounded"
+                title="Clear search"
+                aria-label="Clear search query"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
             {normalizedSearch && (
               <div
                 id="diagnostic-search-options"
