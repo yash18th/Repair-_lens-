@@ -45,7 +45,9 @@ export default function ImageUploader({
 }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isGlowActive, setIsGlowActive] = useState(false);
   const fileInputRef = useRef(null);
+  const glowTimerRef = useRef(null);
 
   // Active uploaded photos list
   const uploadedEntries = Object.entries(angles || {})
@@ -55,7 +57,16 @@ export default function ImageUploader({
   const hasPhotos = uploadedEntries.length > 0;
   const canAddMore = uploadedEntries.length < SLOTS.length;
 
+  const triggerGlow = () => {
+    if (glowTimerRef.current) clearTimeout(glowTimerRef.current);
+    setIsGlowActive(true);
+    glowTimerRef.current = setTimeout(() => {
+      setIsGlowActive(false);
+    }, 600);
+  };
+
   const handleBrowseClick = () => {
+    triggerGlow();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
       fileInputRef.current.click();
