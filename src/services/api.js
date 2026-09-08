@@ -501,7 +501,8 @@ function generateSmartClientDiagnosis(selectedCategory = 'phone', uploaded = [],
   };
 }
 
-export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location) {
+export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'phone', location, onStageChange) {
+  onStageChange?.('validating');
   const uploaded = [];
   for (const [slot, photo] of Object.entries(anglePhotos || {})) {
     if (!photo) continue;
@@ -522,6 +523,8 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
       uploaded.push({ slot, name: photo.name || `${slot}.jpg`, dataUrl });
     }
   }
+
+  onStageChange?.('analyzing');
 
   try {
     const controller = new AbortController();
@@ -545,6 +548,7 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
       if (payload.success && payload.diagnosis && payload.diagnosis.status !== 'provider_error') {
         const diagnosis = payload.diagnosis;
         if (diagnosis.status === 'valid' || diagnosis.status === 'no_visible_damage' || diagnosis.status === 'invalid_image' || diagnosis.status === 'insufficient_evidence') {
+          onStageChange?.('detecting_damage');
           const price = diagnosis.price || { partsCostMin: 0, partsCostMax: 0, laborCostMin: 0, laborCostMax: 0, estimatedTotalMin: 0, estimatedTotalMax: 0 };
           const primary = diagnosis.issues?.[0] || {};
           const confidence = Math.round((diagnosis.confidence || 0.88) * 100);
@@ -561,6 +565,10 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
             : (Array.isArray(primary.risksIfUnfixed) && primary.risksIfUnfixed.length > 0)
             ? primary.risksIfUnfixed
             : [];
+
+          onStageChange?.('identifying_components');
+          onStageChange?.('calculating_cost');
+
           const realisticEstimate = generateRealisticRepairEstimate({
             category: diagnosis.category || selectedCategory,
             brand: diagnosis.brand || diagnosis.extractedModel?.brand,
@@ -576,6 +584,8 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
             locationCity: location?.city || 'Bengaluru',
             damageDetails: diagnosis.damageDetails || diagnosis.issues
           });
+
+          onStageChange?.('complete');
 
           return {
             success: true,
@@ -638,5 +648,13 @@ export async function analyzeImage(anglePhotos, _presetId, selectedCategory = 'p
     console.warn('[analyzeImage] API call fallback engaged:', error.message);
   }
 
-  return generateSmartClientDiagnosis(selectedCategory, uploaded, anglePhotos);
+  onStageChange?.('detecting_damage');
+  await new Promise(r => setTimeout(r, 260));
+  onStageChange?.('identifying_components');
+  await new Promise(r => setTimeout(r, 260));
+  onStageChange?.('calculating_cost');
+  await new Promise(r => setTimeout(r, 240));
+  const clientFallback = generateSmartClientDiagnosis(selectedCategory, uploaded, anglePhotos);
+  onStageChange?.('complete');
+  return clientFallback;
 }
