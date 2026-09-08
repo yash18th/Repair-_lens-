@@ -100,6 +100,7 @@ function RepairLensDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('phone');
   const [angles, setAngles] = useState(INITIAL_ANGLES);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [diagnosticStage, setDiagnosticStage] = useState('idle');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analysisError, setAnalysisError] = useState('');
   const [presetUsed, setPresetUsed] = useState(null);
