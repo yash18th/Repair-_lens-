@@ -5,46 +5,47 @@
 @tailwind utilities;
 
 :root {
-  /* High-End, Award-Worthy Dark Engineering System */
-  --bg-primary: #07090C;
-  --bg-body: #07090C;
-  --bg-sidebar: #090C10;
-  --bg-secondary: #090C10;
-  --bg-main: #0B0E13;
-  --bg-surface: #10141A;
-  --bg-surface-strong: #141922;
-  --bg-panel: #10141A;
-  --bg-elevated: #141922;
-  --bg-card: #10141A;
-  --bg-card-elevated: #141922;
-  --bg-input: #0C1015;
-  --bg-subtle: #090C10;
+  /* High-End Professional AI Diagnostic Dashboard System */
+  --bg-primary: #080B10;
+  --bg-body: #080B10;
+  --bg-sidebar: #0B0F15;
+  --bg-secondary: #0B0F15;
+  --bg-main: #0D1118;
+  --bg-surface: #121720;
+  --bg-surface-strong: #161C25;
+  --bg-panel: #121720;
+  --bg-elevated: #161C25;
+  --bg-card: #121720;
+  --bg-card-elevated: #161C25;
+  --bg-input: #080B10;
+  --bg-subtle: #0B0F15;
 
-  --border-soft: #202731;
-  --border-primary: #202731;
-  --border-secondary: #181E26;
-  --border-strong: #283240;
+  --border-soft: #232B36;
+  --border-primary: #232B36;
+  --border-secondary: #19202A;
+  --border-strong: #2E3845;
 
-  --text-primary: #F5F7FA;
-  --text-secondary: #A7B0BD;
-  --text-muted: #667180;
+  --text-primary: #F4F6F8;
+  --text-secondary: #A7B0BC;
+  --text-muted: #687382;
 
-  /* Refined Steel / Titanium Blue Accent */
-  --accent: #8294AA;
-  --accent-hover: #98A7B9;
-  --accent-subtle: rgba(130, 148, 170, 0.12);
+  /* Restrained Steel Blue / Titanium Accent */
+  --accent: #7D91AA;
+  --accent-hover: #95A6BC;
+  --accent-subtle: rgba(125, 145, 170, 0.14);
+  --analysis: #7189B4;
 
-  /* Functional Status Colors */
-  --success: #4F8A68;
-  --success-subtle: rgba(79, 138, 104, 0.14);
-  --warning: #A7834F;
-  --warning-subtle: rgba(167, 131, 79, 0.14);
-  --danger: #A65D5D;
-  --danger-subtle: rgba(166, 93, 93, 0.14);
+  /* Professional Status Colors */
+  --success: #55A477;
+  --success-subtle: rgba(85, 164, 119, 0.14);
+  --warning: #B28A50;
+  --warning-subtle: rgba(178, 138, 80, 0.14);
+  --danger: #B36262;
+  --danger-subtle: rgba(179, 98, 98, 0.14);
 
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.55);
-  --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 10px 28px -4px rgba(0, 0, 0, 0.55);
+  --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.035);
 }
 
 @layer base {
