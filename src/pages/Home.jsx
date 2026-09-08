@@ -284,7 +284,7 @@ export default function Home({
         </div>
 
         {isAnalyzing ? (
-          <LoadingState angles={angles} />
+          <LoadingState angles={angles} stage={diagnosticStage} category={selectedCategory} />
         ) : (
           <div className="space-y-6">
             <div className="premium-panel p-6 sm:p-8">
