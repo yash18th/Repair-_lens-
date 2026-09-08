@@ -575,6 +575,26 @@ function RepairLensDashboard() {
 export default function App() {
   const { isAuthenticated } = useAuth();
 
+  useEffect(() => {
+    const handleButtonClick = (e) => {
+      const target = e.target.closest(
+        'button, .premium-button, .premium-button-secondary, .category-card, [data-glow], [role="button"]'
+      );
+      if (!target || target.disabled) return;
+
+      target.classList.remove('button-light-pulse');
+      void target.offsetWidth; // trigger reflow for instant optical animation
+      target.classList.add('button-light-pulse');
+
+      setTimeout(() => {
+        target.classList.remove('button-light-pulse');
+      }, 600);
+    };
+
+    document.addEventListener('click', handleButtonClick, true);
+    return () => document.removeEventListener('click', handleButtonClick, true);
+  }, []);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
