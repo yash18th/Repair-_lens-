@@ -661,23 +661,12 @@ export function matchComponentKey(compName = '', category = 'Vehicles') {
 
   // 📱 Smartphones & Tablets
   if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    if (norm.includes('rear') || norm.includes('back') || norm.includes('housing') || norm.includes('chassis') || norm.includes('casing') || norm.includes('enclosure')) return 'rear glass';
     if (norm.includes('screen') || norm.includes('display') || norm.includes('oled') || norm.includes('amoled') || norm.includes('lcd') || norm.includes('digitizer')) return 'display';
-    if (norm.includes('back glass') || norm.includes('rear glass') || norm.includes('rear panel') || norm.includes('back cover') || norm.includes('housing') || norm.includes('casing')) return 'rear glass';
     if (norm.includes('battery') || norm.includes('cell') || norm.includes('power pack')) return 'battery';
     if (norm.includes('camera') || norm.includes('lens') || norm.includes('sensor') || norm.includes('ois')) return 'camera';
     if (norm.includes('charging') || norm.includes('port') || norm.includes('usb') || norm.includes('lightning') || norm.includes('dock')) return 'charging port';
     if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('board') || norm.includes('pmic') || norm.includes('ic')) return 'motherboard';
-    return 'display';
-  }
-
-  // 💻 Computers & Laptops
-  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
-    if (norm.includes('screen') || norm.includes('display') || norm.includes('panel') || norm.includes('retina') || norm.includes('ips')) return 'display';
-    if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('cpu') || norm.includes('gpu') || norm.includes('mainboard')) return 'motherboard';
-    if (norm.includes('keyboard') || norm.includes('top case') || norm.includes('trackpad') || norm.includes('keypad')) return 'keyboard';
-    if (norm.includes('battery') || norm.includes('pack')) return 'battery';
-    if (norm.includes('hinge') || norm.includes('clutch') || norm.includes('bracket')) return 'hinge';
-    if (norm.includes('fan') || norm.includes('cooling') || norm.includes('heatsink') || norm.includes('thermal')) return 'cooling fan';
     return 'display';
   }
 
@@ -689,6 +678,17 @@ export function matchComponentKey(compName = '', category = 'Vehicles') {
     if (norm.includes('microcontroller') || norm.includes('mcu') || norm.includes('ic') || norm.includes('chip') || norm.includes('processor')) return 'microcontroller';
     if (norm.includes('transformer') || norm.includes('choke') || norm.includes('inductor') || norm.includes('coil')) return 'transformer';
     return 'mosfet';
+  }
+
+  // 💻 Computers & Laptops
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('notebook') || normCat.includes('macbook') || /\bpc\b/.test(normCat)) {
+    if (norm.includes('screen') || norm.includes('display') || norm.includes('panel') || norm.includes('retina') || norm.includes('ips')) return 'display';
+    if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('cpu') || norm.includes('gpu') || norm.includes('mainboard')) return 'motherboard';
+    if (norm.includes('keyboard') || norm.includes('top case') || norm.includes('trackpad') || norm.includes('keypad')) return 'keyboard';
+    if (norm.includes('battery') || norm.includes('pack')) return 'battery';
+    if (norm.includes('hinge') || norm.includes('clutch') || norm.includes('bracket')) return 'hinge';
+    if (norm.includes('fan') || norm.includes('cooling') || norm.includes('heatsink') || norm.includes('thermal')) return 'cooling fan';
+    return 'display';
   }
 
   // 🔌 Home Appliances
@@ -725,10 +725,10 @@ export class PartPricingProvider {
 
     if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
       catalog = PHONE_COMPONENT_BENCHMARKS;
-    } else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
-      catalog = COMPUTER_COMPONENT_BENCHMARKS;
     } else if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
       catalog = ELECTRONICS_COMPONENT_BENCHMARKS;
+    } else if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('notebook') || normCat.includes('macbook') || /\bpc\b/.test(normCat)) {
+      catalog = COMPUTER_COMPONENT_BENCHMARKS;
     } else if (normCat.includes('appliance')) {
       catalog = APPLIANCE_COMPONENT_BENCHMARKS;
     } else if (!normCat.includes('vehicle') && !normCat.includes('auto') && !normCat.includes('car')) {
