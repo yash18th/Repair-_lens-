@@ -319,18 +319,18 @@ export default function DiagnosticTelemetryScan({
       </div>
 
       {/* Live Status Row */}
-      <div className="flex items-center justify-between py-2 px-1 border-b border-[#202832]">
+      <div className="flex items-center justify-between py-2 px-1 border-b border-[#19202A]">
         <div className="flex flex-col">
-          <span className="text-[9px] text-[#657180] uppercase tracking-wider font-mono">SCAN STATUS</span>
+          <span className="text-[9px] text-[#687382] uppercase tracking-wider font-mono">SCAN STATUS</span>
           <div className="flex items-center gap-1.5 mt-0.5">
             {isComplete ? (
-              <Check className="w-3 h-3 text-[#5C9B76]" />
+              <Check className="w-3 h-3 text-[#55A477]" />
             ) : isError ? (
-              <AlertCircle className="w-3 h-3 text-[#A86464]" />
+              <AlertCircle className="w-3 h-3 text-[#B36262]" />
             ) : isActivelyScanning ? (
-              <span className="w-2 h-2 rounded-full bg-[#8195AA] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#7D91AA] animate-pulse" />
             ) : (
-              <span className="w-2 h-2 rounded-full bg-[#5C9B76]/80" />
+              <span className="w-2 h-2 rounded-full bg-[#55A477]/80" />
             )}
             <span
               className="text-xs font-semibold tracking-wide"
@@ -342,8 +342,8 @@ export default function DiagnosticTelemetryScan({
         </div>
 
         <div className="text-right">
-          <span className="text-[9px] text-[#657180] uppercase tracking-wider font-mono">SYSTEM STATE</span>
-          <div className="text-[11px] text-[#9AA5B3] font-mono mt-0.5">
+          <span className="text-[9px] text-[#687382] uppercase tracking-wider font-mono">SYSTEM STATE</span>
+          <div className="text-[11px] text-[#A7B0BC] font-mono mt-0.5">
             {activeConf.statusSub}
           </div>
         </div>
@@ -351,13 +351,13 @@ export default function DiagnosticTelemetryScan({
 
       {/* Live Progress Bar */}
       <div className="space-y-1.5 px-1">
-        <div className="flex items-center justify-between text-[10px] text-[#9AA5B3] font-mono">
-          <span className="text-[#657180] uppercase tracking-wider">ANALYSIS PROGRESS</span>
-          <span className="font-bold text-[#F3F5F7]">
+        <div className="flex items-center justify-between text-[10px] text-[#A7B0BC] font-mono">
+          <span className="text-[#687382] uppercase tracking-wider">ANALYSIS PROGRESS</span>
+          <span className="font-bold text-[#F4F6F8]">
             {activeConf.progressPercent}%
           </span>
         </div>
-        <div className="w-full h-1.5 bg-[#080B0F] rounded-full overflow-hidden border border-[#202832]">
+        <div className="w-full h-1.5 bg-[#080B10] rounded-full overflow-hidden border border-[#232B36]">
           <div
             className="h-full transition-all duration-300 rounded-full"
             style={{
@@ -370,7 +370,7 @@ export default function DiagnosticTelemetryScan({
 
       {/* Diagnostic Pipeline Steps */}
       <div className="pt-2 px-1">
-        <div className="text-[9px] uppercase tracking-wider text-[#657180] font-mono mb-2">
+        <div className="text-[9px] uppercase tracking-wider text-[#687382] font-mono mb-2">
           DIAGNOSTIC PIPELINE
         </div>
         <div className="grid grid-cols-5 gap-1.5 text-center">
@@ -384,33 +384,33 @@ export default function DiagnosticTelemetryScan({
                 key={step.id}
                 className={`flex flex-col items-center p-1.5 rounded border transition-colors duration-200 ${
                   isCurrent
-                    ? 'border-[#8195AA] bg-[#080B0F]'
+                    ? 'border-[#7D91AA] bg-[#161C25]'
                     : isFinished
-                    ? 'border-[#202832] bg-[#080B0F]/40'
-                    : 'border-transparent bg-transparent opacity-60'
+                    ? 'border-[#232B36] bg-[#080B10]/60'
+                    : 'border-transparent bg-transparent opacity-50'
                 }`}
               >
                 <div className="flex items-center justify-center w-4 h-4 mb-1">
                   {isFinished ? (
-                    <span className="text-[#5C9B76] text-xs font-bold">✓</span>
+                    <span className="text-[#55A477] text-xs font-bold">✓</span>
                   ) : isCurrent ? (
-                    <span className="w-2 h-2 rounded-full bg-[#8195AA] animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[#7D91AA] animate-pulse" />
                   ) : (
-                    <span className="text-[#657180] text-xs">○</span>
+                    <span className="text-[#687382] text-xs">○</span>
                   )}
                 </div>
                 <span
                   className={`text-[9px] font-mono font-bold tracking-tight ${
                     isCurrent
-                      ? 'text-[#F3F5F7]'
+                      ? 'text-[#F4F6F8]'
                       : isFinished
-                      ? 'text-[#9AA5B3]'
-                      : 'text-[#657180]'
+                      ? 'text-[#A7B0BC]'
+                      : 'text-[#687382]'
                   }`}
                 >
                   {step.label}
                 </span>
-                <span className="text-[7.5px] font-mono text-[#657180] hidden sm:inline">
+                <span className="text-[7.5px] font-mono text-[#687382] hidden sm:inline">
                   {isCurrent ? '● RUNNING' : isFinished ? 'DONE' : 'PENDING'}
                 </span>
               </div>
@@ -421,66 +421,66 @@ export default function DiagnosticTelemetryScan({
 
       {/* Completed State Summary Badges */}
       {isComplete && (
-        <div className="p-2.5 rounded-lg border border-[#5C9B76]/30 bg-[#5C9B76]/5 space-y-1.5 animate-fadeIn">
-          <div className="text-[9px] uppercase tracking-widest text-[#5C9B76] font-mono font-bold flex items-center gap-1.5">
+        <div className="p-2.5 rounded-lg border border-[#55A477]/30 bg-[#55A477]/5 space-y-1.5 animate-fadeIn">
+          <div className="text-[9px] uppercase tracking-widest text-[#55A477] font-mono font-bold flex items-center gap-1.5">
             <Check className="w-3 h-3" />
             <span>DIAGNOSIS TELEMETRY SUMMARY</span>
           </div>
           <div className="grid grid-cols-3 gap-2 pt-1 text-center font-mono">
-            <div className="p-1.5 rounded bg-[#080B0F] border border-[#202832]">
-              <div className="text-xs font-bold text-[#F3F5F7]">{detectedComponentsCount}</div>
-              <div className="text-[8px] text-[#9AA5B3] uppercase">COMPONENTS DETECTED</div>
+            <div className="p-1.5 rounded bg-[#080B10] border border-[#232B36]">
+              <div className="text-xs font-bold text-[#F4F6F8]">{detectedComponentsCount}</div>
+              <div className="text-[8px] text-[#A7B0BC] uppercase">COMPONENTS DETECTED</div>
             </div>
-            <div className="p-1.5 rounded bg-[#080B0F] border border-[#202832]">
-              <div className="text-xs font-bold text-[#F3F5F7]">{replacementPartsCount}</div>
-              <div className="text-[8px] text-[#9AA5B3] uppercase">REPLACEMENT PARTS</div>
+            <div className="p-1.5 rounded bg-[#080B10] border border-[#232B36]">
+              <div className="text-xs font-bold text-[#F4F6F8]">{replacementPartsCount}</div>
+              <div className="text-[8px] text-[#A7B0BC] uppercase">REPLACEMENT PARTS</div>
             </div>
-            <div className="p-1.5 rounded bg-[#080B0F] border border-[#202832]">
-              <div className="text-xs font-bold text-[#F3F5F7]">{repairOpsCount}</div>
-              <div className="text-[8px] text-[#9AA5B3] uppercase">REPAIR OPERATIONS</div>
+            <div className="p-1.5 rounded bg-[#080B10] border border-[#232B36]">
+              <div className="text-xs font-bold text-[#F4F6F8]">{repairOpsCount}</div>
+              <div className="text-[8px] text-[#A7B0BC] uppercase">REPAIR OPERATIONS</div>
             </div>
           </div>
         </div>
       )}
 
       {/* Live Technical Telemetry Matrix Grid */}
-      <div className="space-y-1.5 text-[10px] text-[#9AA5B3] pt-1">
-        <div className="flex items-center justify-between py-1 border-b border-[#202832]">
-          <span className="text-[#657180] uppercase tracking-wider font-mono">VISION ENGINE</span>
+      <div className="space-y-1.5 text-[10px] text-[#A7B0BC] pt-1">
+        <div className="flex items-center justify-between py-1 border-b border-[#19202A]">
+          <span className="text-[#687382] uppercase tracking-wider font-mono">VISION ENGINE</span>
           <span className="font-semibold" style={{ color: activeConf.statusColor }}>
             {activeConf.telemetry.visionEngine}
           </span>
         </div>
-        <div className="flex items-center justify-between py-1 border-b border-[#202832]">
-          <span className="text-[#657180] uppercase tracking-wider font-mono">IMAGE QUALITY</span>
-          <span className="text-[#9AA5B3] font-semibold">
+        <div className="flex items-center justify-between py-1 border-b border-[#19202A]">
+          <span className="text-[#687382] uppercase tracking-wider font-mono">IMAGE QUALITY</span>
+          <span className="text-[#A7B0BC] font-semibold">
             {activeConf.telemetry.imageQuality}
           </span>
         </div>
-        <div className="flex items-center justify-between py-1 border-b border-[#202832]">
-          <span className="text-[#657180] uppercase tracking-wider font-mono">DAMAGE DETECTION</span>
+        <div className="flex items-center justify-between py-1 border-b border-[#19202A]">
+          <span className="text-[#687382] uppercase tracking-wider font-mono">DAMAGE DETECTION</span>
           <span
             className="font-semibold"
             style={{
               color: isComplete
-                ? '#5C9B76'
+                ? '#55A477'
                 : isActivelyScanning
-                ? '#8195AA'
-                : '#657180',
+                ? '#7D91AA'
+                : '#687382',
             }}
           >
             {activeConf.telemetry.damageDetection}
           </span>
         </div>
-        <div className="flex items-center justify-between py-1 border-b border-[#202832]">
-          <span className="text-[#657180] uppercase tracking-wider font-mono">OBJECT TRACKING</span>
-          <span className="text-[#9AA5B3] font-semibold">
+        <div className="flex items-center justify-between py-1 border-b border-[#19202A]">
+          <span className="text-[#687382] uppercase tracking-wider font-mono">OBJECT TRACKING</span>
+          <span className="text-[#A7B0BC] font-semibold">
             {activeConf.telemetry.objectTracking}
           </span>
         </div>
         <div className="flex items-center justify-between py-1">
-          <span className="text-[#657180] uppercase tracking-wider font-mono">ANALYSIS STAGE</span>
-          <span className="text-[#F3F5F7] font-bold">
+          <span className="text-[#687382] uppercase tracking-wider font-mono">ANALYSIS STAGE</span>
+          <span className="text-[#F4F6F8] font-bold">
             {activeConf.telemetry.analysisStage}
           </span>
         </div>
