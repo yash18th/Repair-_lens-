@@ -1,15 +1,13 @@
 /**
  * RepairLens Server-Side Market-Based Repair Price Estimator
  * 
- * Generates realistic market-based preliminary estimates using:
- * 1. Vehicle / Hardware Identification & Tiering (Economy, Mid-Range, Premium, Luxury)
- * 2. Component-Level Action (Repair vs Replace)
- * 3. Market Parts Lookup (OEM, Aftermarket, Used)
- * 4. Labor Cost Calculation (R&R Flat-Rate Hours × Regional Hourly Rates)
- * 5. Multi-Step Paint & Bodywork Refinishing
- * 6. ADAS Calibration & Diagnostic Scans
- * 7. Potential Hidden Damage Contingency (Separated)
- * 8. Cost Sanity Validation
+ * Generates realistic market-based preliminary estimates for ALL categories:
+ * 1. Vehicles
+ * 2. Smartphones & Tablets
+ * 3. Computers & Laptops
+ * 4. Electronics & PCB
+ * 5. Home Appliances
+ * 6. Other Equipment
  */
 
 export const VEHICLE_CLASSES = {
@@ -55,10 +53,64 @@ export function detectVehicleClass(brand = '', model = '') {
   return VEHICLE_CLASSES.ECONOMY;
 }
 
+export function detectDeviceClass(category = '', brand = '', model = '') {
+  const normCat = String(category || '').toLowerCase();
+  const normBrand = String(brand || '').toLowerCase().trim();
+  const normModel = String(model || '').toLowerCase().trim();
+
+  if (normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car')) {
+    const vClass = detectVehicleClass(brand, model);
+    return { tierKey: vClass, isFlagship: vClass === VEHICLE_CLASSES.LUXURY || vClass === VEHICLE_CLASSES.PREMIUM };
+  }
+
+  if (normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile')) {
+    const isApple = normBrand.includes('apple') || normBrand.includes('iphone') || normModel.includes('iphone') || normModel.includes('ipad');
+    const isSamsungUltra = (normBrand.includes('samsung') || normModel.includes('galaxy')) && (normModel.includes('ultra') || normModel.includes('fold') || normModel.includes('flip'));
+    const isPixelPro = normBrand.includes('pixel') || normModel.includes('pixel pro');
+    if (isApple || isSamsungUltra || isPixelPro) return { tierKey: 'flagship', isFlagship: true };
+    const isMidRange = normBrand.includes('oneplus') || normBrand.includes('samsung') || normBrand.includes('xiaomi') || normBrand.includes('redmi') || normBrand.includes('vivo') || normBrand.includes('oppo');
+    if (isMidRange) return { tierKey: 'mid_range', isFlagship: false };
+    return { tierKey: 'budget', isFlagship: false };
+  }
+
+  if (normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc')) {
+    const isMacBook = normBrand.includes('apple') || normBrand.includes('macbook') || normModel.includes('macbook');
+    const isWorkstation = isMacBook || normBrand.includes('xps') || normModel.includes('xps') || normModel.includes('thinkpad x1') || normModel.includes('rog') || normBrand.includes('alienware');
+    if (isWorkstation) return { tierKey: 'workstation', isFlagship: true };
+    const isMainstream = normBrand.includes('dell') || normBrand.includes('hp') || normBrand.includes('lenovo') || normBrand.includes('asus') || normBrand.includes('acer');
+    if (isMainstream) return { tierKey: 'mainstream', isFlagship: false };
+    return { tierKey: 'entry', isFlagship: false };
+  }
+
+  if (normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit')) {
+    if (normModel.includes('inverter') || normModel.includes('controller') || normModel.includes('industrial') || normBrand.includes('siemens')) {
+      return { tierKey: 'industrial', isFlagship: true };
+    }
+    if (normModel.includes('smps') || normModel.includes('amplifier') || normModel.includes('power supply')) {
+      return { tierKey: 'consumer', isFlagship: false };
+    }
+    return { tierKey: 'basic', isFlagship: false };
+  }
+
+  if (normCat.includes('appliance')) {
+    if (normModel.includes('refrigerator') || normModel.includes('washing machine') || normModel.includes('air conditioner') || normModel.includes('dishwasher')) {
+      return { tierKey: 'major', isFlagship: true };
+    }
+    if (normModel.includes('microwave') || normModel.includes('oven') || normModel.includes('induction')) {
+      return { tierKey: 'kitchen', isFlagship: false };
+    }
+    return { tierKey: 'compact', isFlagship: false };
+  }
+
+  if (normModel.includes('rotary hammer') || normModel.includes('breaker') || normModel.includes('grinder') || normBrand.includes('bosch') || normBrand.includes('dewalt') || normBrand.includes('makita')) {
+    return { tierKey: 'industrial', isFlagship: true };
+  }
+  return { tierKey: 'general', isFlagship: false };
+}
+
 export const AUTO_COMPONENT_BENCHMARKS = {
   'front bumper': {
     name: 'Front Bumper Cover / Fascia',
-    category: 'Exterior Body',
     rrHours: 2.5,
     paintUnits: 1.0,
     pricing: {
@@ -70,7 +122,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'hood': {
     name: 'Hood / Engine Bonnet Assembly',
-    category: 'Sheet Metal',
     rrHours: 2.0,
     paintUnits: 1.5,
     pricing: {
@@ -82,7 +133,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'headlamp left': {
     name: 'Left Headlamp Assembly (LED/Matrix)',
-    category: 'Lighting / Electrical',
     rrHours: 1.0,
     paintUnits: 0,
     pricing: {
@@ -94,7 +144,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'headlamp right': {
     name: 'Right Headlamp Assembly (LED/Matrix)',
-    category: 'Lighting / Electrical',
     rrHours: 1.0,
     paintUnits: 0,
     pricing: {
@@ -106,7 +155,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'front grille': {
     name: 'Front Radiator Grille & Kidney Trim',
-    category: 'Exterior Trim',
     rrHours: 1.2,
     paintUnits: 0.3,
     pricing: {
@@ -118,7 +166,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'radiator support': {
     name: 'Radiator Core Support Structure',
-    category: 'Structural Front End',
     rrHours: 3.5,
     paintUnits: 0.5,
     pricing: {
@@ -130,7 +177,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'radiator': {
     name: 'Engine Cooling Radiator Assembly',
-    category: 'Cooling System',
     rrHours: 2.5,
     paintUnits: 0,
     pricing: {
@@ -142,7 +188,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'condenser': {
     name: 'A/C Condenser & Drier Assembly',
-    category: 'Climate System',
     rrHours: 2.5,
     paintUnits: 0,
     pricing: {
@@ -154,7 +199,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'crash absorber': {
     name: 'Front Bumper Reinforcement / Crash Beam',
-    category: 'Structural Safety',
     rrHours: 1.5,
     paintUnits: 0,
     pricing: {
@@ -166,7 +210,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'fender': {
     name: 'Front Quarter Panel / Fender',
-    category: 'Sheet Metal',
     rrHours: 2.0,
     paintUnits: 1.0,
     pricing: {
@@ -178,7 +221,6 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   },
   'parking sensors': {
     name: 'Ultrasonic Distance & ADAS Radar Sensor Pack',
-    category: 'Electronics & ADAS',
     rrHours: 1.5,
     paintUnits: 0,
     pricing: {
@@ -190,22 +232,33 @@ export const AUTO_COMPONENT_BENCHMARKS = {
   }
 };
 
-export function matchComponentKey(compName = '') {
+export function matchComponentKey(compName = '', category = 'Vehicles') {
   const norm = String(compName || '').toLowerCase().trim();
-  if (norm.includes('headlamp') || norm.includes('headlight') || norm.includes('light')) {
-    if (norm.includes('right')) return 'headlamp right';
-    return 'headlamp left';
+  const normCat = String(category || '').toLowerCase();
+
+  if (normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car')) {
+    if (norm.includes('headlamp') || norm.includes('headlight') || norm.includes('light')) {
+      if (norm.includes('right')) return 'headlamp right';
+      return 'headlamp left';
+    }
+    if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam') || norm.includes('impact bar')) return 'crash absorber';
+    if (norm.includes('bumper') || norm.includes('fascia')) return 'front bumper';
+    if (norm.includes('hood') || norm.includes('bonnet')) return 'hood';
+    if (norm.includes('grille') || norm.includes('intake') || norm.includes('kidney')) return 'front grille';
+    if (norm.includes('radiator support') || norm.includes('core support')) return 'radiator support';
+    if (norm.includes('condenser') || norm.includes('ac')) return 'condenser';
+    if (norm.includes('radiator') || norm.includes('cooling')) return 'radiator';
+    if (norm.includes('fender') || norm.includes('quarter panel')) return 'fender';
+    if (norm.includes('sensor') || norm.includes('radar') || norm.includes('adas') || norm.includes('parking')) return 'parking sensors';
+    return null;
   }
-  if (norm.includes('crash') || norm.includes('absorber') || norm.includes('reinforcement') || norm.includes('beam') || norm.includes('impact bar')) return 'crash absorber';
-  if (norm.includes('bumper') || norm.includes('fascia')) return 'front bumper';
-  if (norm.includes('hood') || norm.includes('bonnet')) return 'hood';
-  if (norm.includes('grille') || norm.includes('intake') || norm.includes('kidney')) return 'front grille';
-  if (norm.includes('radiator support') || norm.includes('core support')) return 'radiator support';
-  if (norm.includes('condenser') || norm.includes('ac')) return 'condenser';
-  if (norm.includes('radiator') || norm.includes('cooling')) return 'radiator';
-  if (norm.includes('fender') || norm.includes('quarter panel')) return 'fender';
-  if (norm.includes('sensor') || norm.includes('radar') || norm.includes('adas') || norm.includes('parking')) return 'parking sensors';
-  return null;
+
+  // Device / electronics / appliance matching
+  if (norm.includes('screen') || norm.includes('display') || norm.includes('panel') || norm.includes('oled') || norm.includes('amoled') || norm.includes('retina')) return 'display';
+  if (norm.includes('back glass') || norm.includes('rear glass') || norm.includes('housing') || norm.includes('casing') || norm.includes('door gasket')) return 'housing';
+  if (norm.includes('motherboard') || norm.includes('logic board') || norm.includes('board') || norm.includes('pcb') || norm.includes('control') || norm.includes('mosfet')) return 'board';
+  if (norm.includes('battery') || norm.includes('compressor') || norm.includes('motor') || norm.includes('armature')) return 'power_drive';
+  return 'general';
 }
 
 export function estimateRepairCost({
@@ -225,16 +278,57 @@ export function estimateRepairCost({
   const isVehicle = normCat.includes('vehicle') || normCat.includes('auto') || normCat.includes('car');
 
   if (!isVehicle) {
-    // Electronics / Phone / Laptop Engine
-    const isPhone = normCat.includes('phone') || normCat.includes('tablet');
-    const isLaptop = normCat.includes('laptop') || normCat.includes('computer');
-    const normBrand = String(brand || '').toLowerCase();
-    const isAppleOrFlagship = normBrand.includes('apple') || normBrand.includes('iphone') || normBrand.includes('samsung') || normBrand.includes('macbook');
+    const classDetection = detectDeviceClass(category, brand, model);
+    const isPhone = normCat.includes('phone') || normCat.includes('tablet') || normCat.includes('mobile');
+    const isLaptop = normCat.includes('laptop') || normCat.includes('computer') || normCat.includes('pc');
+    const isPCB = normCat.includes('electronic') || normCat.includes('pcb') || normCat.includes('circuit');
+    const isAppliance = normCat.includes('appliance');
 
-    let partsMin = isPhone ? (isAppleOrFlagship ? 6500 : 2200) : isLaptop ? (isAppleOrFlagship ? 12000 : 4500) : 1800;
-    let partsMax = isPhone ? (isAppleOrFlagship ? 18000 : 5500) : isLaptop ? (isAppleOrFlagship ? 32000 : 12000) : 6000;
-    let laborMin = isPhone ? 650 : isLaptop ? 950 : 500;
-    let laborMax = isPhone ? 1200 : isLaptop ? 1800 : 900;
+    let partsMin = 2500;
+    let partsMax = 5500;
+    let laborMin = 750;
+    let laborMax = 1400;
+
+    if (isPhone) {
+      if (classDetection.isFlagship) {
+        partsMin = 8500;
+        partsMax = 22000;
+        laborMin = 1100;
+        laborMax = 1900;
+      } else {
+        partsMin = 2800;
+        partsMax = 6500;
+        laborMin = 650;
+        laborMax = 1200;
+      }
+    } else if (isLaptop) {
+      if (classDetection.isFlagship) {
+        partsMin = 14000;
+        partsMax = 36000;
+        laborMin = 1500;
+        laborMax = 2600;
+      } else {
+        partsMin = 4800;
+        partsMax = 14000;
+        laborMin = 950;
+        laborMax = 1800;
+      }
+    } else if (isPCB) {
+      partsMin = classDetection.isFlagship ? 2800 : 1200;
+      partsMax = classDetection.isFlagship ? 7500 : 3500;
+      laborMin = 850;
+      laborMax = 1600;
+    } else if (isAppliance) {
+      partsMin = classDetection.isFlagship ? 4500 : 2000;
+      partsMax = classDetection.isFlagship ? 11000 : 4800;
+      laborMin = 800;
+      laborMax = 1500;
+    } else {
+      partsMin = 1800;
+      partsMax = 4500;
+      laborMin = 650;
+      laborMax = 1200;
+    }
 
     const sevMult = severity === 'Critical' ? 1.4 : severity === 'High' ? 1.25 : 1.0;
     const compCount = Array.isArray(affectedComponents) ? Math.max(1, affectedComponents.length) : 1;
@@ -281,7 +375,7 @@ export function estimateRepairCost({
 
   const seen = new Set();
   for (const item of compList) {
-    const key = matchComponentKey(item.component);
+    const key = matchComponentKey(item.component, 'Vehicles');
     const dedupeKey = key || String(item.component).toLowerCase();
     if (seen.has(dedupeKey)) continue;
     seen.add(dedupeKey);
@@ -309,19 +403,16 @@ export function estimateRepairCost({
   const laborMin = Math.round(totalHours * hourlyGeneral);
   const laborMax = Math.round(totalHours * hourlyAuthorized);
 
-  // Paint & bodywork
   const paintClassMult = vehicleClass === VEHICLE_CLASSES.LUXURY ? 1.9 : vehicleClass === VEHICLE_CLASSES.PREMIUM ? 1.4 : 1.0;
   const paintMin = Math.round(totalPaintUnits * 5500 * paintClassMult);
   const paintMax = Math.round(totalPaintUnits * 8500 * paintClassMult);
 
-  // Calibration & diagnostic scan
   const calMin = vehicleClass === VEHICLE_CLASSES.LUXURY ? 14000 : 4500;
   const calMax = vehicleClass === VEHICLE_CLASSES.LUXURY ? 22000 : 8000;
 
   let totalMin = Math.round(oemMinSum + laborMin + paintMin + calMin);
   let totalMax = Math.round(oemMaxSum + laborMax + paintMax + calMax);
 
-  // Sanity check floor for luxury collisions
   if (vehicleClass === VEHICLE_CLASSES.LUXURY && confirmedCount >= 3) {
     totalMin = Math.max(totalMin, 110000);
     totalMax = Math.max(totalMax, 185000);
