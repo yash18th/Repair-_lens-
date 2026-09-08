@@ -104,6 +104,8 @@ export default function Home({
   analysisError,
   onStartDiagnosisRequest,
   isAnalyzing,
+  diagnosticStage = 'idle',
+  analysisResult = null,
 }) {
   const hasAnyPhoto = Object.values(angles).some(Boolean);
   const activeCategoryInfo = CATEGORY_INFO[selectedCategory] || CATEGORY_INFO.phone;
