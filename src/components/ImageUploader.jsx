@@ -273,21 +273,30 @@ export default function ImageUploader({
             {/* Add More Drop Target Card if under limit */}
             {canAddMore && (
               <div
+                data-glow="true"
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={handleBrowseClick}
-                className={`rounded-lg border border-dashed p-5 flex flex-col items-center justify-center cursor-pointer transition-colors min-h-[100px] ${
+                className={`rounded-lg border border-dashed p-5 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 min-h-[100px] ${
                   isDragOver
                     ? 'border-[#8294AA] bg-[#141922]'
-                    : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
+                    : isGlowActive
+                      ? 'button-light-pulse border-[#DDE7F5] bg-[#1A222E]'
+                      : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
                 }`}
               >
-                <div className="w-8 h-8 rounded-full bg-[#141922] border border-[#202731] flex items-center justify-center mb-1.5 text-[#A7B0BD] pointer-events-none">
+                <div className={`w-8 h-8 rounded-full border flex items-center justify-center mb-1.5 transition-all duration-200 pointer-events-none ${
+                  isGlowActive
+                    ? 'bg-[#222C3A] border-[#DDE7F5] text-white shadow-[0_0_14px_rgba(184,215,255,0.7)]'
+                    : 'bg-[#141922] border-[#202731] text-[#A7B0BD]'
+                }`}>
                   <Plus className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-medium text-[#F5F7FA] pointer-events-none">
+                <span className={`text-xs font-medium pointer-events-none transition-all duration-200 ${
+                  isGlowActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#F5F7FA]'
+                }`}>
                   Add Additional Angle / Photo
                 </span>
                 <span className="text-[10px] text-[#667180] mt-0.5 pointer-events-none">
@@ -306,15 +315,28 @@ export default function ImageUploader({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={handleBrowseClick}
-          className={`relative group cursor-pointer overflow-hidden rounded-xl border border-dashed transition-colors duration-150 p-8 sm:p-12 text-center flex flex-col items-center justify-center select-none ${
+          className={`relative group cursor-pointer overflow-hidden rounded-xl border border-dashed transition-all duration-200 p-8 sm:p-12 text-center flex flex-col items-center justify-center select-none ${
             isDragOver
               ? 'border-[#8294AA] bg-[#141922]'
-              : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
+              : isGlowActive
+                ? 'border-[#DDE7F5] bg-[#141922] shadow-[0_0_40px_rgba(184,215,255,0.25)]'
+                : 'border-[#202731] hover:border-[#283240] bg-[#0C1015] hover:bg-[#10141A]'
           }`}
         >
+          {/* Luminous Glow Backdrop Wave when triggered */}
+          {isGlowActive && (
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent pointer-events-none animate-fadeIn" />
+          )}
+
           {/* Monochrome Icon */}
-          <div className="relative z-10 w-14 h-14 mb-3.5 rounded-xl bg-[#141922] border border-[#202731] flex items-center justify-center text-[#A7B0BD] pointer-events-none">
-            <UploadCloud className="w-7 h-7 text-[#A7B0BD]" />
+          <div className={`relative z-10 w-14 h-14 mb-3.5 rounded-xl border flex items-center justify-center transition-all duration-200 pointer-events-none ${
+            isGlowActive
+              ? 'bg-[#202937] border-[#DDE7F5] text-white shadow-[0_0_20px_rgba(184,215,255,0.6)]'
+              : 'bg-[#141922] border-[#202731] text-[#A7B0BD]'
+          }`}>
+            <UploadCloud className={`w-7 h-7 transition-all duration-200 ${
+              isGlowActive ? 'text-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#A7B0BD]'
+            }`} />
           </div>
 
           {/* Titles */}
@@ -325,10 +347,21 @@ export default function ImageUploader({
             Drag & drop single or multi-angle hardware photos, or click to browse. Supports close-ups, full overview, and component serial labels.
           </p>
 
-          {/* Classy Professional CTA Button */}
-          <div className="relative z-10 inline-flex items-center px-4 py-2.5 rounded-lg border border-[#283240] bg-[#141922] hover:bg-[#1A222E] text-[#F5F7FA] font-medium text-xs tracking-wide space-x-2 pointer-events-none shadow-sm">
-            <ImageIcon className="w-4 h-4 text-[#A7B0BD]" />
-            <span>Select Photo(s) to Upload</span>
+          {/* Classy Professional CTA Button with Luminous Light Glow */}
+          <div
+            data-glow="true"
+            className={`relative z-10 inline-flex items-center px-4 py-2.5 rounded-lg border text-[#F5F7FA] font-medium text-xs tracking-wide space-x-2 shadow-sm transition-all duration-200 pointer-events-none ${
+              isGlowActive
+                ? 'button-light-pulse'
+                : 'border-[#283240] bg-[#141922] group-hover:bg-[#1A222E] group-hover:border-[#384556]'
+            }`}
+          >
+            <ImageIcon className={`w-4 h-4 transition-all duration-200 ${
+              isGlowActive ? 'text-white filter drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : 'text-[#A7B0BD]'
+            }`} />
+            <span className={isGlowActive ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.85)]' : ''}>
+              Select Photo(s) to Upload
+            </span>
           </div>
 
           {/* Supported formats */}
