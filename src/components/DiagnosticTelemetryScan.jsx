@@ -36,7 +36,7 @@ export default function DiagnosticTelemetryScan({
     idle: {
       statusLabel: 'READY',
       statusSub: '○ SYSTEM READY',
-      statusColor: '#8195AA',
+      statusColor: '#7D91AA',
       progressPercent: 0,
       activePipelineIndex: -1,
       telemetry: {
@@ -50,7 +50,7 @@ export default function DiagnosticTelemetryScan({
     validating: {
       statusLabel: 'VALIDATING IMAGE',
       statusSub: '● CHECKING METADATA',
-      statusColor: '#8195AA',
+      statusColor: '#7D91AA',
       progressPercent: 20,
       activePipelineIndex: 0,
       telemetry: {
@@ -64,7 +64,7 @@ export default function DiagnosticTelemetryScan({
     analyzing: {
       statusLabel: 'ANALYZING IMAGE',
       statusSub: '● OPTICAL INFERENCE',
-      statusColor: '#8195AA',
+      statusColor: '#7D91AA',
       progressPercent: 40,
       activePipelineIndex: 1,
       telemetry: {
@@ -78,7 +78,7 @@ export default function DiagnosticTelemetryScan({
     detecting_damage: {
       statusLabel: 'DETECTING DAMAGE',
       statusSub: '● SURFACE VECTOR MAPPING',
-      statusColor: '#8195AA',
+      statusColor: '#7D91AA',
       progressPercent: 65,
       activePipelineIndex: 2,
       telemetry: {
@@ -92,7 +92,7 @@ export default function DiagnosticTelemetryScan({
     identifying_components: {
       statusLabel: 'IDENTIFYING COMPONENTS',
       statusSub: '● OEM SCHEMATIC MATCH',
-      statusColor: '#8195AA',
+      statusColor: '#7D91AA',
       progressPercent: 82,
       activePipelineIndex: 3,
       telemetry: {
@@ -106,7 +106,7 @@ export default function DiagnosticTelemetryScan({
     calculating_cost: {
       statusLabel: 'CALCULATING MARKET COST',
       statusSub: '● AGGREGATING PARTS/LABOR',
-      statusColor: '#B18A55',
+      statusColor: '#B28A50',
       progressPercent: 92,
       activePipelineIndex: 4,
       telemetry: {
@@ -120,7 +120,7 @@ export default function DiagnosticTelemetryScan({
     complete: {
       statusLabel: 'ANALYSIS COMPLETE',
       statusSub: '✓ ALL SYSTEMS RESOLVED',
-      statusColor: '#5C9B76',
+      statusColor: '#55A477',
       progressPercent: 100,
       activePipelineIndex: 5,
       telemetry: {
@@ -134,7 +134,7 @@ export default function DiagnosticTelemetryScan({
     error: {
       statusLabel: 'ANALYSIS INTERRUPTED',
       statusSub: '! SYSTEM EXCEPTION',
-      statusColor: '#A86464',
+      statusColor: '#B36262',
       progressPercent: 0,
       activePipelineIndex: -1,
       telemetry: {
