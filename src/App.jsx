@@ -35,23 +35,23 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4 py-8 backdrop-blur-sm">
-      <div className="w-full max-w-md overflow-hidden rounded-xl border border-[#202731] bg-[#10141A] shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
-        <div className="border-b border-[#202731] p-5 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#080B10]/80 px-4 py-8 backdrop-blur-sm">
+      <div className="w-full max-w-md overflow-hidden rounded-xl border border-[#232B36] bg-[#121720] shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
+        <div className="border-b border-[#232B36] p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#202731] bg-[#141922] text-[#A7B0BD]">
-                <LockKeyhole className="h-4 w-4 text-[#F5F7FA]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#232B36] bg-[#161C25] text-[#A7B0BC]">
+                <LockKeyhole className="h-4 w-4 text-[#F4F6F8]" />
               </div>
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8294AA]">Secure Access</div>
-                <h3 className="mt-0.5 text-base font-bold tracking-tight text-[#F5F7FA]">Sign in to start your diagnosis</h3>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7D91AA] font-mono">Secure Access</div>
+                <h3 className="mt-0.5 text-base font-bold tracking-tight text-[#F4F6F8]">Sign in to start your diagnosis</h3>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-[#202731] bg-[#0C1015] p-1.5 text-[#667180] transition-colors hover:text-[#F5F7FA] hover:border-[#283240]"
+              className="rounded-md border border-[#232B36] bg-[#0D1118] p-1.5 text-[#687382] transition-colors hover:text-[#F4F6F8] cursor-pointer"
               aria-label="Close authentication prompt"
             >
               <X className="h-3.5 w-3.5" />
@@ -60,7 +60,7 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
         </div>
 
         <div className="space-y-5 p-5 sm:p-6">
-          <div className="rounded-lg border border-[#202731] bg-[#0C1015] px-3.5 py-2.5 text-xs text-[#A7B0BD] leading-relaxed">
+          <div className="rounded-lg border border-[#232B36] bg-[#0D1118] px-3.5 py-2.5 text-xs text-[#A7B0BC] leading-relaxed">
             Create an account or sign in to save your diagnostic reports and scan history.
           </div>
 
@@ -68,14 +68,14 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
             <button
               type="button"
               onClick={() => handleAuthRoute('/login')}
-              className="premium-button justify-center"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] hover:border-[#7D91AA]/40 text-[#F4F6F8] font-semibold text-xs uppercase tracking-wider transition-colors cursor-pointer text-center"
             >
               Sign In
             </button>
             <button
               type="button"
               onClick={() => handleAuthRoute('/register')}
-              className="premium-button-secondary justify-center"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#0D1118] hover:bg-[#161C25] border border-[#232B36] hover:border-[#7D91AA]/40 text-[#A7B0BC] hover:text-[#F4F6F8] font-semibold text-xs uppercase tracking-wider transition-colors cursor-pointer text-center"
             >
               Create Account
             </button>
@@ -84,7 +84,7 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-lg border border-[#202731] bg-[#141922] px-3 py-2 text-xs font-medium text-[#A7B0BD] transition-colors hover:text-[#F5F7FA] hover:border-[#283240]"
+            className="w-full rounded-lg border border-[#232B36] bg-[#161C25] px-3 py-2 text-xs font-medium text-[#A7B0BC] transition-colors hover:text-[#F4F6F8] cursor-pointer"
           >
             Continue Browsing
           </button>
