@@ -5,47 +5,47 @@
 @tailwind utilities;
 
 :root {
-  /* High-End Professional AI Diagnostic Dashboard System */
-  --bg-primary: #080B10;
-  --bg-body: #080B10;
+  /* Soft, Spacious, Premium SaaS Diagnostic Theme */
+  --bg-primary: #090C11;
+  --bg-body: #090C11;
   --bg-sidebar: #0B0F15;
   --bg-secondary: #0B0F15;
-  --bg-main: #0D1118;
-  --bg-surface: #121720;
-  --bg-surface-strong: #161C25;
-  --bg-panel: #121720;
-  --bg-elevated: #161C25;
-  --bg-card: #121720;
-  --bg-card-elevated: #161C25;
-  --bg-input: #080B10;
+  --bg-main: #0D1219;
+  --bg-surface: #11161D;
+  --bg-surface-strong: #151B23;
+  --bg-panel: #11161D;
+  --bg-elevated: #151B23;
+  --bg-card: #11161D;
+  --bg-card-elevated: #151B23;
+  --bg-input: #090C11;
   --bg-subtle: #0B0F15;
 
-  --border-soft: #232B36;
-  --border-primary: #232B36;
-  --border-secondary: #19202A;
-  --border-strong: #2E3845;
+  --border-soft: #252D37;
+  --border-primary: #252D37;
+  --border-secondary: #1C232D;
+  --border-strong: #303945;
 
-  --text-primary: #F4F6F8;
-  --text-secondary: #A7B0BC;
+  --text-primary: #F1F3F5;
+  --text-secondary: #9CA6B3;
   --text-muted: #687382;
 
-  /* Restrained Steel Blue / Titanium Accent */
+  /* Restrained Steel Blue Accent */
   --accent: #7D91AA;
   --accent-hover: #95A6BC;
-  --accent-subtle: rgba(125, 145, 170, 0.14);
+  --accent-subtle: rgba(125, 145, 170, 0.12);
   --analysis: #7189B4;
 
-  /* Professional Status Colors */
-  --success: #55A477;
-  --success-subtle: rgba(85, 164, 119, 0.14);
+  /* Professional Muted Status Colors */
+  --success: #4E9A6E;
+  --success-subtle: rgba(78, 154, 110, 0.12);
   --warning: #B28A50;
-  --warning-subtle: rgba(178, 138, 80, 0.14);
-  --danger: #B36262;
-  --danger-subtle: rgba(179, 98, 98, 0.14);
+  --warning-subtle: rgba(178, 138, 80, 0.12);
+  --danger: #B35C5C;
+  --danger-subtle: rgba(179, 92, 92, 0.12);
 
-  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 10px 28px -4px rgba(0, 0, 0, 0.55);
-  --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.035);
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-elevated: 0 10px 28px -4px rgba(0, 0, 0, 0.5);
+  --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
 @layer base {
