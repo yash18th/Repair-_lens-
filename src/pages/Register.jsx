@@ -110,20 +110,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090C] text-[#F5F7FA] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#080B10] text-[#F4F6F8] flex flex-col lg:flex-row">
       {/* Left Column: Technical Enterprise Brand Panel */}
-      <div className="lg:w-1/2 bg-[#090C10] border-b lg:border-b-0 lg:border-r border-[#202731] p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden tech-grid">
+      <div className="lg:w-1/2 bg-[#0B0F15] border-b lg:border-b-0 lg:border-r border-[#232B36] p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden tech-grid">
         <div className="space-y-6 relative z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-[#141922] border border-[#202731] flex items-center justify-center text-[#F5F7FA] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]">
-              <Wrench className="w-3.5 h-3.5 text-[#8294AA]" />
+            <div className="w-8 h-8 rounded-lg bg-[#161C25] border border-[#232B36] flex items-center justify-center text-[#F4F6F8]">
+              <Wrench className="w-3.5 h-3.5 text-[#7D91AA]" />
             </div>
             <div>
               <div className="flex items-baseline space-x-1">
-                <span className="font-bold text-xs tracking-tight text-[#F5F7FA]">REPAIR</span>
-                <span className="font-semibold text-[#8294AA] text-[10px] tracking-[0.14em]">LENS</span>
+                <span className="font-bold text-xs tracking-tight text-[#F4F6F8]">REPAIR</span>
+                <span className="font-semibold text-[#7D91AA] text-[10px] tracking-[0.14em]">LENS</span>
               </div>
-              <div className="text-[9px] uppercase tracking-[0.14em] text-[#667180] font-mono">
+              <div className="text-[9px] uppercase tracking-[0.14em] text-[#687382] font-mono">
                 ENTERPRISE SYSTEM
               </div>
             </div>
@@ -134,51 +134,51 @@ export default function Register() {
               <span className="gold-dot"></span>
               <span>TECHNICIAN REGISTRATION</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.08] text-[#F5F7FA]">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.08] text-[#F4F6F8]">
               Certified access to{' '}
-              <span className="bg-gradient-to-r from-[#8294AA] to-[#B8C5D3] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#7D91AA] to-[#A7B0BC] bg-clip-text text-transparent">
                 repair intelligence.
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-[#A7B0BD] leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#A7B0BC] leading-relaxed">
               Register your technician profile to record persistent diagnostic telemetry, access OCR part decoding, and export repair estimates.
             </p>
           </div>
         </div>
 
         {/* Technical Specification Box */}
-        <div className="relative z-10 my-8 max-w-md rounded-xl border border-[#202731] bg-[#0C1015] p-5 font-mono text-[10px] space-y-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
-          <div className="flex items-center justify-between text-[#667180] border-b border-[#181E26] pb-2 text-[9px]">
+        <div className="relative z-10 my-8 max-w-md rounded-xl border border-[#232B36] bg-[#0D1118] p-5 font-mono text-[10px] space-y-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+          <div className="flex items-center justify-between text-[#687382] border-b border-[#1A222C] pb-2 text-[9px]">
             <span className="flex items-center gap-1.5">
-              <Activity className="w-3 h-3 text-[#8294AA]" />
+              <Activity className="w-3 h-3 text-[#7D91AA]" />
               PLATFORM PROVISIONING
             </span>
-            <span className="text-[#4F8A68]">● ACTIVE</span>
+            <span className="text-[#55A477]">● ACTIVE</span>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-[#A7B0BD]">
+          <div className="grid grid-cols-2 gap-3 text-[#A7B0BC]">
             <div>
-              <span className="text-[#667180] text-[9px] block">SECURITY LEVEL</span>
-              <span className="font-semibold text-[#F5F7FA]">ENTERPRISE SECURE</span>
+              <span className="text-[#687382] text-[9px] block">SECURITY LEVEL</span>
+              <span className="font-semibold text-[#F4F6F8]">ENTERPRISE SECURE</span>
             </div>
             <div>
-              <span className="text-[#667180] text-[9px] block">TELEMETRY RETENTION</span>
-              <span className="font-semibold text-[#8294AA]">UNLIMITED ARCHIVE</span>
+              <span className="text-[#687382] text-[9px] block">TELEMETRY RETENTION</span>
+              <span className="font-semibold text-[#7D91AA]">DATABASE ARCHIVE</span>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-[#667180] pt-4 border-t border-[#181E26]">
+        <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-[#687382] pt-4 border-t border-[#1A222C]">
           <span>REPAIRLENS CORE ENGINE</span>
-          <span className="text-[#8294AA]">VERSION 1.0</span>
+          <span className="text-[#7D91AA]">VERSION 1.0</span>
         </div>
       </div>
 
       {/* Right Column: Registration Form Container */}
-      <div className="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-[#07090C] overflow-y-auto">
+      <div className="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-[#080B10] overflow-y-auto">
         <div className="w-full max-w-md space-y-6">
           <div className="space-y-1.5">
-            <h2 className="text-xl font-bold tracking-tight text-[#F5F7FA]">Create Technician Account</h2>
-            <p className="text-xs text-[#A7B0BD] leading-relaxed">
+            <h2 className="text-xl font-bold tracking-tight text-[#F4F6F8]">Create Technician Account</h2>
+            <p className="text-xs text-[#A7B0BC] leading-relaxed">
               Register for verified hardware failure telemetry and report storage.
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function Register() {
             />
 
             {errors.form ? (
-              <p className="rounded-lg border border-[#A65D5D]/40 bg-[#A65D5D]/10 px-3 py-2 text-xs font-mono text-[#fca5a5]" role="alert">
+              <p className="rounded-lg border border-[#B36262]/40 bg-[#B36262]/10 px-3 py-2 text-xs font-mono text-[#B36262]" role="alert">
                 {errors.form}
               </p>
             ) : null}
@@ -255,22 +255,22 @@ export default function Register() {
             <button
               type="submit"
               disabled={isRegistering}
-              className="premium-button w-full"
+              className="w-full py-2.5 px-4 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] hover:border-[#7D91AA]/40 text-[#F4F6F8] font-semibold text-xs tracking-wider uppercase transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-sm disabled:opacity-50"
             >
               <span>{isRegistering ? 'Provisioning Account...' : 'Create Account'}</span>
-              <ArrowRight className="h-3.5 w-3.5 ml-2 text-[#8294AA]" />
+              <ArrowRight className="h-3.5 w-3.5 ml-2 text-[#7D91AA]" />
             </button>
           </form>
 
-          <div className="flex items-center justify-between pt-4 border-t border-[#181E26] text-xs">
-            <span className="text-[#667180]">Already have an account?</span>
-            <Link to="/login" className="font-semibold text-[#F5F7FA] hover:text-[#8294AA] transition-colors">
+          <div className="flex items-center justify-between pt-4 border-t border-[#1A222C] text-xs">
+            <span className="text-[#687382]">Already have an account?</span>
+            <Link to="/login" className="font-semibold text-[#F4F6F8] hover:text-[#7D91AA] transition-colors">
               Sign in
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-[#667180] pt-2">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#4F8A68]" />
+          <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono text-[#687382] pt-2">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#55A477]" />
             <span>ENCRYPTED LAB ACCESS PROTOCOL</span>
           </div>
         </div>
