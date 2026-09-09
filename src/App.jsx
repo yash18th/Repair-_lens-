@@ -446,7 +446,7 @@ function RepairLensDashboard({ initialTab }) {
   };
 
   const handleTabChange = (tabId) => {
-    if ((tabId === 'history' || tabId === 'profile' || tabId === 'settings' || tabId === 'subscription') && !isAuthenticated) {
+    if ((tabId === 'history' || tabId === 'profile' || tabId === 'settings') && !isAuthenticated) {
       window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({ path: '/dashboard', tab: tabId }));
       navigate('/login', { replace: false });
       return;
@@ -454,8 +454,17 @@ function RepairLensDashboard({ initialTab }) {
 
     setActiveTab(tabId);
 
-    if (tabId === 'studio' || tabId === 'subscription') {
+    if (tabId === 'subscription') {
       setCurrentView('home');
+      navigate('/payment');
+      return;
+    }
+
+    if (tabId === 'studio') {
+      setCurrentView('home');
+      if (location.pathname !== '/dashboard' && location.pathname !== '/') {
+        navigate('/dashboard');
+      }
       return;
     }
 
