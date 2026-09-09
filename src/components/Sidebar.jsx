@@ -189,6 +189,27 @@ export default function Sidebar({ activeTab, onTabChange, searchQuery, onSearchC
           </nav>
         </div>
 
+        {/* Quick Subscribe Card in Sidebar */}
+        <div className="px-3.5 pt-2 pb-2">
+          <div className="p-3 rounded-lg border border-[#252D37] bg-[#11161D] space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase text-[#7D91AA] font-bold">PRO LAB ACCESS</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#4E9A6E]/15 text-[#4E9A6E] font-semibold">FROM ₹99</span>
+            </div>
+            <p className="text-[11px] text-[#A7B0BC] leading-snug">Unlimited AI damage detection & cost intelligence.</p>
+            <button
+              type="button"
+              onClick={() => {
+                onTabChange('subscription');
+                if (onCloseMobile) onCloseMobile();
+              }}
+              className="w-full py-1.5 px-2.5 rounded-md bg-[#7D91AA] hover:bg-[#8EA3BD] text-[#080B10] font-bold text-[11px] uppercase tracking-wider text-center transition-colors cursor-pointer"
+            >
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+
         {/* Technician Profile Card in Footer */}
         <div className="p-3.5 border-t border-[#252D37] bg-[#090C11]">
           <div className="flex items-center justify-between p-2.5 bg-[#11161D] border border-[#252D37] rounded-lg">
