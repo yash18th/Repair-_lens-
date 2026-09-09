@@ -14,6 +14,7 @@ import {
   Plug,
   Car,
   Package,
+  CreditCard,
 } from 'lucide-react';
 
 const WORKSPACE_ITEMS = [
@@ -30,6 +31,7 @@ const MODULE_ITEMS = [
 ];
 
 const SYSTEM_ITEMS = [
+  { id: 'subscription', label: 'Subscription', icon: CreditCard },
   { id: 'history', label: 'Scan History', icon: History },
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'settings', label: 'Settings', icon: Settings },

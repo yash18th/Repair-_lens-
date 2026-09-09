@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, ChevronRight, Home, User, Settings, LogOut, ShieldCheck } from 'lucide-react';
+import { Mail, ChevronRight, Home, User, Settings, LogOut, ShieldCheck, CreditCard, Sparkles } from 'lucide-react';
 import { getApiBaseUrl } from '../services/config';
+import { getSubscriptionStatus } from '../services/subscriptionApi';
 
 const DASHBOARD_ITEMS = [
   { id: 'home', label: 'Home', icon: Home, description: 'Overview and studio entry' },
@@ -8,8 +9,9 @@ const DASHBOARD_ITEMS = [
   { id: 'settings', label: 'Settings', icon: Settings, description: 'Preferences and controls' }
 ];
 
-export default function Profile({ onSelectCategoryAndNavigate, onLogout }) {
+export default function Profile({ onSelectCategoryAndNavigate, onLogout, onNavigateSubscription }) {
   const [scanCount, setScanCount] = useState(null);
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -28,7 +30,20 @@ export default function Profile({ onSelectCategoryAndNavigate, onLogout }) {
         // Fallback safely
       }
     };
+
+    const loadSub = async () => {
+      try {
+        const data = await getSubscriptionStatus();
+        if (isMounted && data?.subscription) {
+          setSubscription(data.subscription);
+        }
+      } catch (e) {
+        // fallback
+      }
+    };
+
     loadScanData();
+    loadSub();
     return () => { isMounted = false; };
   }, []);
 
@@ -118,6 +133,89 @@ export default function Profile({ onSelectCategoryAndNavigate, onLogout }) {
         </div>
       </div>
 
+      {/* Subscription Status Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#A7B0BC]">
+            <span className="w-5 h-5 rounded-md bg-[#161C25] border border-[#232B36] text-[#7D91AA] flex items-center justify-center text-[10px] font-bold">2</span>
+            <span>Subscription</span>
+          </div>
+          <span className="text-[11px] font-mono text-[#687382]">LAB ACCESS ENTITLEMENT</span>
+        </div>
+
+        <div className="rounded-xl border border-[#232B36] bg-[#121720] p-6 space-y-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)]">
+          {subscription ? (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold font-mono tracking-tight text-[#F4F6F8] uppercase">
+                    {subscription.plan === 'two_month' ? '2 Months' : subscription.plan}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-[#55A477]/10 border border-[#55A477]/30 text-[10px] font-mono uppercase tracking-wider text-[#55A477]">
+                    {subscription.displayStatus || 'ACTIVE'}
+                  </span>
+                </div>
+
+                <div className="text-sm font-mono text-[#7D91AA] font-semibold">
+                  {subscription.plan === 'trial'
+                    ? '₹0 / 3 days'
+                    : subscription.plan === 'yearly'
+                    ? '₹599 / year'
+                    : subscription.plan === 'two_month'
+                    ? '₹299 / 2 months'
+                    : '₹99 / month'}
+                </div>
+
+                <div className="text-xs text-[#A7B0BC] font-mono">
+                  {subscription.plan === 'trial' ? 'Trial Expiry: ' : 'Next billing: '}
+                  <span className="text-[#F4F6F8]">
+                    {subscription.currentPeriodEnd || subscription.trialEnd
+                      ? new Date(subscription.currentPeriodEnd || subscription.trialEnd).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      : '--'}
+                  </span>
+                  {subscription.daysRemaining !== undefined && (
+                    <span className="ml-2 text-[#687382]">
+                      ({subscription.daysRemaining} {subscription.daysRemaining === 1 ? 'day' : 'days'} remaining)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {onNavigateSubscription && (
+                <button
+                  type="button"
+                  onClick={onNavigateSubscription}
+                  className="px-4 py-2 rounded-lg border border-[#232B36] bg-[#161C25] hover:bg-[#1D2430] hover:border-[#7D91AA]/40 text-xs font-semibold text-[#F4F6F8] uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Manage Subscription
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-base font-bold text-[#F4F6F8]">No Active Subscription</div>
+                <p className="text-xs text-[#A7B0BC]">
+                  Unlock unlimited AI-powered hardware diagnostics, OCR part decoding, and market pricing intelligence.
+                </p>
+              </div>
+              {onNavigateSubscription && (
+                <button
+                  type="button"
+                  onClick={onNavigateSubscription}
+                  className="px-4 py-2 rounded-lg bg-[#7D91AA] hover:bg-[#8EA3BD] text-[#080B10] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  Choose a Plan
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

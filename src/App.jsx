@@ -8,12 +8,15 @@ import Results from './pages/Results';
 import HistoryPage from './pages/History';
 import Profile from './pages/Profile';
 import SettingsPage from './pages/Settings';
+import SubscriptionPage from './pages/SubscriptionPage';
+import SubscriptionPaywallModal from './components/subscription/SubscriptionPaywallModal';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { useAuth } from './context/AuthContext';
 import { analyzeImage } from './services/api';
 import { getCurrentPositionPromise } from './services/locationService';
 import { getApiBaseUrl } from './services/config';
+import { startFreeTrial, getSubscriptionStatus } from './services/subscriptionApi';
 
 const INITIAL_ANGLES = {
   closeup: null,
@@ -107,6 +110,8 @@ function RepairLensDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [authGateOpen, setAuthGateOpen] = useState(false);
+  const [subscriptionPaywallOpen, setSubscriptionPaywallOpen] = useState(false);
+  const [isTrialEligible, setIsTrialEligible] = useState(true);
   const [pendingDiagnosisTarget, setPendingDiagnosisTarget] = useState(null);
   const activeRequestIdRef = useRef(0);
   const navigate = useNavigate();
@@ -299,7 +304,11 @@ function RepairLensDashboard() {
       setCurrentView('results');
     } catch (error) {
       console.error('Failed to analyze images:', error);
-      setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
+      const msg = error.message || 'AI diagnosis failed. Please try again.';
+      setAnalysisError(msg);
+      if (msg.includes('subscription') || msg.includes('free trial') || msg.includes('SUBSCRIPTION_REQUIRED')) {
+        setSubscriptionPaywallOpen(true);
+      }
       setIsAnalyzing(false);
       setDiagnosticStage('error');
     }
@@ -401,7 +410,11 @@ function RepairLensDashboard() {
     } catch (error) {
       if (activeRequestIdRef.current === requestId) {
         console.error('Failed to analyze images:', error);
-        setAnalysisError(error.message || 'AI diagnosis failed. Please try again.');
+        const msg = error.message || 'AI diagnosis failed. Please try again.';
+        setAnalysisError(msg);
+        if (msg.includes('subscription') || msg.includes('free trial') || msg.includes('SUBSCRIPTION_REQUIRED')) {
+          setSubscriptionPaywallOpen(true);
+        }
         setIsAnalyzing(false);
         setDiagnosticStage('error');
       }
@@ -421,7 +434,7 @@ function RepairLensDashboard() {
   };
 
   const handleTabChange = (tabId) => {
-    if ((tabId === 'history' || tabId === 'profile' || tabId === 'settings') && !isAuthenticated) {
+    if ((tabId === 'history' || tabId === 'profile' || tabId === 'settings' || tabId === 'subscription') && !isAuthenticated) {
       window.sessionStorage.setItem('repairlens.redirectAfterAuth', JSON.stringify({ path: '/dashboard', tab: tabId }));
       navigate('/login', { replace: false });
       return;
@@ -429,7 +442,7 @@ function RepairLensDashboard() {
 
     setActiveTab(tabId);
 
-    if (tabId === 'studio') {
+    if (tabId === 'studio' || tabId === 'subscription') {
       setCurrentView('home');
       return;
     }
@@ -494,6 +507,24 @@ function RepairLensDashboard() {
           setAuthGateOpen(false);
         }}
       />
+      <SubscriptionPaywallModal
+        isOpen={subscriptionPaywallOpen}
+        onClose={() => setSubscriptionPaywallOpen(false)}
+        onOpenSubscriptionPlans={() => {
+          setSubscriptionPaywallOpen(false);
+          handleTabChange('subscription');
+        }}
+        isTrialEligible={isTrialEligible}
+        onStartTrial={async () => {
+          try {
+            await startFreeTrial();
+            setSubscriptionPaywallOpen(false);
+            handleAnalyze();
+          } catch (err) {
+            setAnalysisError(err.message || 'Unable to start free trial.');
+          }
+        }}
+      />
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -541,11 +572,18 @@ function RepairLensDashboard() {
                 analysisError={analysisError}
                 onSelectSamplePreset={handleSelectSamplePreset}
                 onStartDiagnosisRequest={handleStartDiagnosisRequest}
+                onNavigateSubscription={() => handleTabChange('subscription')}
                 isAnalyzing={isAnalyzing}
                 diagnosticStage={diagnosticStage}
                 analysisResult={analysisResult}
               />
             )
+          )}
+
+          {activeTab === 'subscription' && (
+            <SubscriptionPage
+              onNavigateDashboard={() => handleTabChange('studio')}
+            />
           )}
 
           {activeTab === 'history' && (
@@ -561,6 +599,7 @@ function RepairLensDashboard() {
             <Profile
               onSelectCategoryAndNavigate={handleSelectCategoryAndNavigate}
               onLogout={handleLogout}
+              onNavigateSubscription={() => handleTabChange('subscription')}
             />
           )}
 

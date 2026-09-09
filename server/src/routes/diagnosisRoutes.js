@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import { requireAuth } from '../middleware/auth.js';
+import { requireActiveSubscription } from '../middleware/subscription.js';
 import { prisma } from '../db.js';
 import { analyzeUploadedImages } from '../services/diagnosisAI.js';
 import { estimateRepairCost } from '../services/repairPriceEstimator.js';
@@ -12,7 +13,7 @@ const schema = z.object({ images: z.array(z.object({ slot: z.string().optional()
 const MAX_IMAGE_BYTES = 7 * 1024 * 1024;
 function validateImages(images) { for (const image of images) { const bytes = Math.floor((image.dataUrl.split(',')[1]?.length || 0) * 0.75); if (bytes > MAX_IMAGE_BYTES) { const error = new Error('Each image must be 7 MB or smaller.'); error.statusCode = 413; throw error; } } }
 
-router.post('/analyze', requireAuth, async (req, res) => {
+router.post('/analyze', requireAuth, requireActiveSubscription, async (req, res) => {
   console.log('[Diagnosis] request received', {
     userId: req.user?.id,
     category: req.body?.category,

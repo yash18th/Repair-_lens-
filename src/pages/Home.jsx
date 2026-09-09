@@ -6,6 +6,7 @@ import DiagnosticTelemetryScan from '../components/DiagnosticTelemetryScan';
 import LiveDiagnosticEngine from '../components/LiveDiagnosticEngine';
 import { ITEM_CATEGORIES } from '../services/api';
 import { getApiBaseUrl } from '../services/config';
+import { getSubscriptionStatus } from '../services/subscriptionApi';
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,6 +18,11 @@ import {
   Package,
   Wrench,
   Check,
+  CreditCard,
+  Calendar,
+  Clock,
+  Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 
 const CATEGORY_ICON_COMPONENTS = {
@@ -57,12 +63,15 @@ export default function Home({
   onAnalyze,
   analysisError,
   onStartDiagnosisRequest,
+  onNavigateSubscription,
   isAnalyzing,
   diagnosticStage = 'idle',
   analysisResult = null,
 }) {
   const [recentScans, setRecentScans] = useState([]);
   const [loadingScans, setLoadingScans] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [isTrialEligible, setIsTrialEligible] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -88,7 +97,20 @@ export default function Home({
       }
     };
 
+    const loadSubscription = async () => {
+      try {
+        const data = await getSubscriptionStatus();
+        if (isMounted) {
+          if (data?.subscription) setSubscription(data.subscription);
+          if (typeof data?.isTrialEligible === 'boolean') setIsTrialEligible(data.isTrialEligible);
+        }
+      } catch (err) {
+        // graceful offline fallback
+      }
+    };
+
     loadRecentScans();
+    loadSubscription();
     return () => {
       isMounted = false;
     };
@@ -466,6 +488,93 @@ export default function Home({
                 </div>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* ================================================== */}
+        {/* 6. Professional Subscription & Entitlement Section */}
+        {/* ================================================== */}
+        <section className="rounded-xl border border-[#252D37] bg-[#11161D] p-6 sm:p-7 space-y-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#252D37]">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#A7B0BC]">
+                <span className="w-5 h-5 rounded-md bg-[#161C25] border border-[#232B36] text-[#7D91AA] flex items-center justify-center text-[10px] font-bold">6</span>
+                <span>Subscription & Lab Access</span>
+              </div>
+              <p className="text-xs text-[#687382]">
+                Active entitlement and diagnostic platform billing status
+              </p>
+            </div>
+
+            {onNavigateSubscription && (
+              <button
+                type="button"
+                onClick={onNavigateSubscription}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#232B36] bg-[#161C25] hover:bg-[#1D2430] hover:border-[#7D91AA]/40 text-xs font-semibold text-[#F1F3F5] uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-[#7D91AA]" />
+                <span>{subscription ? 'Manage Subscription' : 'View Plans'}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-lg bg-[#090C11] border border-[#252D37] space-y-1.5">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#687382]">
+                Current Plan
+              </div>
+              <div className="text-lg font-bold text-[#F1F3F5] font-mono capitalize">
+                {subscription ? (subscription.plan === 'two_month' ? '2 Months' : subscription.plan === 'trial' ? 'Free Trial' : subscription.plan) : 'No Plan'}
+              </div>
+              <div className="text-xs text-[#9CA6B3]">
+                {subscription?.price !== undefined ? (subscription.price === 0 ? '₹0 (Trial)' : `₹${subscription.price}`) : 'Choose a plan to diagnose'}
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-[#090C11] border border-[#252D37] space-y-1.5">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#687382]">
+                Status
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${subscription ? 'bg-[#4E9A6E]' : 'bg-[#687382]'}`}></span>
+                <span className="text-base font-bold font-mono text-[#F1F3F5]">
+                  {subscription?.displayStatus || 'Inactive'}
+                </span>
+              </div>
+              <div className="text-xs text-[#9CA6B3]">
+                {subscription ? 'Full AI lab unlocked' : 'Subscription required'}
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-[#090C11] border border-[#252D37] space-y-1.5">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#687382]">
+                Days Remaining
+              </div>
+              <div className="text-xl font-bold font-mono text-[#F1F3F5]">
+                {subscription?.daysRemaining !== undefined ? `${subscription.daysRemaining} days` : '0 days'}
+              </div>
+              <div className="text-xs text-[#9CA6B3]">
+                {subscription?.daysRemaining > 0 ? 'Active access period' : 'Expired / None'}
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-[#090C11] border border-[#252D37] space-y-1.5">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#687382]">
+                Renewal / Expiry Date
+              </div>
+              <div className="text-sm font-semibold font-mono text-[#F1F3F5] pt-0.5">
+                {subscription?.currentPeriodEnd || subscription?.trialEnd
+                  ? new Date(subscription.currentPeriodEnd || subscription.trialEnd).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })
+                  : '--'}
+              </div>
+              <div className="text-xs text-[#9CA6B3]">
+                {subscription?.cancelAtPeriodEnd ? 'Expires at period end' : 'Auto-renews periodically'}
+              </div>
+            </div>
           </div>
         </section>
 

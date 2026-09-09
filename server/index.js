@@ -10,6 +10,7 @@ import searchRoutes from './src/routes/searchRoutes.js';
 import savedRoutes from './src/routes/savedRoutes.js';
 import profileRoutes from './src/routes/profileRoutes.js';
 import diagnosisRoutes from './src/routes/diagnosisRoutes.js';
+import subscriptionRoutes from './src/routes/subscriptionRoutes.js';
 import { requireAuth } from './src/middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +24,12 @@ app.use(cors({
   credentials: true,
 }));
 app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  },
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/scans', scanRoutes);
@@ -31,6 +37,7 @@ app.use('/api/searches', searchRoutes);
 app.use('/api/saved', savedRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/diagnosis', diagnosisRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'repairlens-model-api' });
