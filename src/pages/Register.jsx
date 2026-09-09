@@ -324,6 +324,7 @@ export default function Register() {
               type="text"
               value={formValues.fullName}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.fullName}
               placeholder="e.g. Yashvanth"
               autoComplete="name"
@@ -337,6 +338,7 @@ export default function Register() {
               type="email"
               value={formValues.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.email}
               placeholder="you@repairlens.com"
               autoComplete="email"
@@ -349,6 +351,7 @@ export default function Register() {
               name="password"
               value={formValues.password}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.password}
               placeholder="At least 8 characters"
               autoComplete="new-password"
@@ -361,6 +364,7 @@ export default function Register() {
               name="confirmPassword"
               value={formValues.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.confirmPassword}
               placeholder="Re-enter your password"
               autoComplete="new-password"
@@ -374,6 +378,7 @@ export default function Register() {
               type="tel"
               value={formValues.phone}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.phone}
               placeholder="Optional contact number"
               autoComplete="tel"
@@ -387,10 +392,10 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={isRegistering}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] hover:border-[#7D91AA]/40 text-[#F4F6F8] font-semibold text-xs tracking-wider uppercase transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-sm disabled:opacity-50"
+              disabled={isRegistering || isSubmitting}
+              className="w-full py-2.5 px-4 rounded-lg bg-[#161C25] hover:bg-[#1D2430] border border-[#232B36] hover:border-[#7D91AA]/40 text-[#F4F6F8] font-semibold text-xs tracking-wider uppercase transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>{isRegistering ? 'Provisioning Account...' : 'Create Account'}</span>
+              <span>{isRegistering || isSubmitting ? 'Creating Account...' : 'Create Account'}</span>
               <ArrowRight className="h-3.5 w-3.5 ml-2 text-[#7D91AA]" />
             </button>
           </form>
