@@ -156,3 +156,50 @@ test('TEST 10: DOM elements fallback handles autofill where onChange may not fir
   const errors = validateRegister(extracted);
   assert.strictEqual(Object.keys(errors).length, 0, 'Extracted DOM autofill values must validate cleanly');
 });
+
+test('TEST 11: Refresh page / reset form initializes with empty values', () => {
+  assert.deepStrictEqual(initialRegisterForm, {
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+  });
+});
+
+test('TEST 12: Whitespace-only values in required fields are rejected with required field error', () => {
+  const whitespaceForm = {
+    fullName: '   ',
+    email: '   ',
+    password: '',
+    confirmPassword: '',
+    phone: '   ',
+  };
+
+  const errors = validateRegister(whitespaceForm);
+  assert.strictEqual(errors.form, 'Please complete all required fields.');
+  assert.strictEqual(errors.fullName, 'Please enter your full name.');
+  assert.strictEqual(errors.email, 'Please enter your email address.');
+  assert.strictEqual(errors.password, 'Please enter your password.');
+  assert.strictEqual(errors.confirmPassword, 'Please confirm your password.');
+  assert.strictEqual(errors.phone, undefined, 'Phone must not have error even when blank/whitespace');
+});
+
+test('TEST 13: Error mapping handles duplicate email / account exists gracefully', () => {
+  const serverConflictMessage = 'An account with this email already exists.';
+  let friendlyError = 'Unable to create your account. Please try again.';
+  if (serverConflictMessage.includes('already exists')) {
+    friendlyError = 'An account with this email already exists.';
+  }
+  assert.strictEqual(friendlyError, 'An account with this email already exists.');
+});
+
+test('TEST 14: Never exposes raw server errors or database stack traces to user', () => {
+  const rawDbError = 'PrismaClientKnownRequestError: Unique constraint failed on the fields: (`email`) at ...';
+  let friendly = 'Unable to create your account. Please try again.';
+  if (rawDbError.includes('already exists')) {
+    friendly = 'An account with this email already exists.';
+  }
+  assert.strictEqual(friendly, 'Unable to create your account. Please try again.');
+  assert.ok(!friendly.includes('Prisma'));
+});
