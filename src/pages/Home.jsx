@@ -510,10 +510,14 @@ export default function Home({
               <button
                 type="button"
                 onClick={onNavigateSubscription}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#232B36] bg-[#161C25] hover:bg-[#1D2430] hover:border-[#7D91AA]/40 text-xs font-semibold text-[#F1F3F5] uppercase tracking-wider transition-colors cursor-pointer"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm ${
+                  subscription
+                    ? 'border border-[#232B36] bg-[#161C25] hover:bg-[#1D2430] hover:border-[#7D91AA]/40 text-[#F1F3F5]'
+                    : 'bg-[#7D91AA] hover:bg-[#8EA3BD] text-[#080B10]'
+                }`}
               >
-                <CreditCard className="w-3.5 h-3.5 text-[#7D91AA]" />
-                <span>{subscription ? 'Manage Subscription' : 'View Plans'}</span>
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>{subscription ? 'Manage Subscription' : 'Subscribe Now (from ₹99)'}</span>
               </button>
             )}
           </div>
