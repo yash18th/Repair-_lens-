@@ -97,8 +97,11 @@ function AuthGateModal({ isOpen, onClose, onSelectAuthMode, pendingTarget, onCon
   );
 }
 
-function RepairLensDashboard() {
-  const [activeTab, setActiveTab] = useState('studio');
+function RepairLensDashboard({ initialTab }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isPaymentRoute = location.pathname === '/payment' || location.pathname === '/subscription';
+  const [activeTab, setActiveTab] = useState(isPaymentRoute || initialTab === 'subscription' ? 'subscription' : 'studio');
   const [currentView, setCurrentView] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState('phone');
   const [angles, setAngles] = useState(INITIAL_ANGLES);
@@ -114,8 +117,17 @@ function RepairLensDashboard() {
   const [isTrialEligible, setIsTrialEligible] = useState(true);
   const [pendingDiagnosisTarget, setPendingDiagnosisTarget] = useState(null);
   const activeRequestIdRef = useRef(0);
-  const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (location.pathname === '/payment' || location.pathname === '/subscription') {
+      setActiveTab('subscription');
+    } else if (location.pathname === '/dashboard' || location.pathname === '/') {
+      if (activeTab === 'subscription' && initialTab !== 'subscription') {
+        setActiveTab('studio');
+      }
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     try {
