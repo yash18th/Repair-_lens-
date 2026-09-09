@@ -562,6 +562,10 @@ function RepairLensDashboard({ initialTab }) {
           currentView={currentView}
           onToggleMobileSidebar={() => setMobileSidebarOpen(true)}
           onNewDiagnosis={handleNewDiagnosis}
+          onOpenPayment={() => {
+            setActiveTab('subscription');
+            navigate('/payment');
+          }}
           onSignIn={() => navigate('/login', { replace: false })}
           onOpenProfile={() => {
             setActiveTab('profile');
