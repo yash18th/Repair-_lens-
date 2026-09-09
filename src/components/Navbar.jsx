@@ -1,11 +1,12 @@
 import React from 'react';
-import { Menu, Plus, UserRound } from 'lucide-react';
+import { Menu, Plus, UserRound, CreditCard } from 'lucide-react';
 
 export default function Navbar({
   activeTab,
   isAuthenticated,
   onToggleMobileSidebar,
   onNewDiagnosis,
+  onOpenPayment,
   onSignIn,
   onOpenProfile,
 }) {
