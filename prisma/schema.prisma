@@ -19,6 +19,7 @@ model User {
   savedScans   SavedDiagnosis[]
   categoryUsages CategoryUsage[]
   profile      Profile?
+  subscriptions Subscription[]
 }
 
 model Profile {
@@ -88,3 +89,47 @@ model CategoryUsage {
   usageCount Int      @default(1)
   lastUsedAt DateTime @default(now())
 }
+
+enum SubscriptionPlan {
+  trial
+  monthly
+  two_month
+  yearly
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  cancelled
+  expired
+  pending
+  failed
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  userId                 String
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                   SubscriptionPlan
+  status                 SubscriptionStatus @default(pending)
+  provider               String             @default("razorpay")
+  providerSubscriptionId String?            @unique
+  providerCustomerId     String?
+  providerPlanId         String?
+  price                  Int                @default(0) // Price in INR (e.g. 0, 99, 299, 599)
+  currency               String             @default("INR")
+  trialStart             DateTime?
+  trialEnd               DateTime?
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  cancelledAt            DateTime?
+  metadata               Json?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
