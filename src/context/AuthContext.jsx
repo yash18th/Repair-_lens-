@@ -144,17 +144,29 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async ({ fullName, email, password, confirmPassword }) => {
-    const name = String(fullName || '').trim();
+  const register = async ({ fullName, name: propName, email, password, confirmPassword, phone }) => {
+    const name = String(fullName || propName || '').trim();
     const normalizedEmail = String(email || '').trim();
     const normalizedPassword = String(password || '');
-    const normalizedConfirmPassword = String(confirmPassword || '');
+    // If confirmPassword is provided, use it; otherwise fallback to password
+    const normalizedConfirmPassword = String(confirmPassword !== undefined ? confirmPassword : password || '');
 
     if (!name || !normalizedEmail || !normalizedPassword || !normalizedConfirmPassword) {
       const nextState = {
         status: 'registration_error',
         user: null,
         error: 'Please complete all required fields.',
+        isMockAuth: false,
+      };
+      setAuthState(nextState);
+      return { ok: false, error: nextState.error };
+    }
+
+    if (normalizedPassword !== normalizedConfirmPassword) {
+      const nextState = {
+        status: 'registration_error',
+        user: null,
+        error: 'Passwords do not match.',
         isMockAuth: false,
       };
       setAuthState(nextState);
@@ -176,6 +188,7 @@ export function AuthProvider({ children }) {
           email: normalizedEmail,
           password: normalizedPassword,
           confirmPassword: normalizedConfirmPassword,
+          ...(phone ? { phone: String(phone).trim() } : {}),
         }),
       });
 
@@ -183,7 +196,7 @@ export function AuthProvider({ children }) {
       const nextState = {
         status: user ? 'logged_in' : 'registration_error',
         user,
-        error: user ? null : payload.message || 'Unable to create your account.',
+        error: user ? null : payload.message || 'Unable to create your account. Please try again.',
         isMockAuth: false,
       };
 
@@ -191,10 +204,22 @@ export function AuthProvider({ children }) {
       persistSession(nextState);
       return { ok: Boolean(user), user, error: nextState.error };
     } catch (error) {
+      let friendlyError = 'Unable to create your account. Please try again.';
+      const msg = String(error?.message || '');
+      if (msg.includes('already exists') || error?.status === 409) {
+        friendlyError = 'An account with this email already exists.';
+      } else if (msg.includes('Passwords do not match') || msg.includes('match')) {
+        friendlyError = 'Passwords do not match.';
+      } else if (msg.includes('valid email')) {
+        friendlyError = 'Please enter a valid email address.';
+      } else if (msg && !msg.includes('failed') && !msg.includes('Internal') && !msg.includes('Prisma') && !msg.includes('500') && !msg.includes('HTML')) {
+        friendlyError = msg;
+      }
+
       const nextState = {
         status: 'registration_error',
         user: null,
-        error: error.message || 'Unable to create your account right now.',
+        error: friendlyError,
         isMockAuth: false,
       };
       setAuthState(nextState);
