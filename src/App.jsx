@@ -677,6 +677,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<RepairLensDashboard />} />
+      <Route path="/payment" element={<RepairLensDashboard initialTab="subscription" />} />
+      <Route path="/subscription" element={<RepairLensDashboard initialTab="subscription" />} />
       <Route path="/" element={<RepairLensDashboard />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
