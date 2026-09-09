@@ -64,6 +64,20 @@ export default function Navbar({
               <span>Service Desk</span>
             </span>
 
+            {/* Direct Subscribe Button */}
+            <button
+              onClick={onOpenPayment}
+              type="button"
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm whitespace-nowrap cursor-pointer ${
+                activeTab === 'subscription'
+                  ? 'border-[#7D91AA] bg-[#161C25] text-[#F1F3F5]'
+                  : 'border-[#252D37] bg-[#11161D] hover:bg-[#161C25] hover:border-[#7D91AA]/40 text-[#A7B0BC] hover:text-[#F1F3F5]'
+              }`}
+            >
+              <CreditCard className="w-3.5 h-3.5 text-[#7D91AA]" />
+              <span>Subscribe</span>
+            </button>
+
             {/* Standout Primary New Diagnosis button */}
             <button
               onClick={onNewDiagnosis}
