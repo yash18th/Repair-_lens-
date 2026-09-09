@@ -13,34 +13,82 @@ const initialForm = {
   phone: '',
 };
 
-function validateRegister(values) {
+export function validateRegister(values) {
   const nextErrors = {};
+  const fullName = String(values.fullName || '').trim();
+  const email = String(values.email || '').trim();
+  const password = String(values.password || '');
+  const confirmPassword = String(values.confirmPassword || '');
+  // Phone is strictly optional
 
-  if (!values.fullName.trim()) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isMissingRequired = !fullName || !email || !password || !confirmPassword;
+
+  if (!fullName) {
     nextErrors.fullName = 'Please enter your full name.';
-  } else if (values.fullName.trim().length < 2) {
+  } else if (fullName.length < 2) {
     nextErrors.fullName = 'Full name must be at least 2 characters.';
   }
 
-  if (!values.email.trim()) {
+  if (!email) {
     nextErrors.email = 'Please enter your email address.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+  } else if (!emailRegex.test(email)) {
     nextErrors.email = 'Please enter a valid email address.';
   }
 
-  if (!values.password) {
+  if (!password) {
     nextErrors.password = 'Please enter your password.';
-  } else if (values.password.length < 8) {
+  } else if (password.length < 8) {
     nextErrors.password = 'Password must contain at least 8 characters.';
   }
 
-  if (!values.confirmPassword) {
+  if (!confirmPassword) {
     nextErrors.confirmPassword = 'Please confirm your password.';
-  } else if (values.confirmPassword !== values.password) {
+  } else if (confirmPassword !== password) {
     nextErrors.confirmPassword = 'Passwords do not match.';
   }
 
+  // Precedence for top-level banner error:
+  if (isMissingRequired) {
+    nextErrors.form = 'Please complete all required fields.';
+  } else if (!emailRegex.test(email)) {
+    nextErrors.form = 'Please enter a valid email address.';
+  } else if (password.length < 8) {
+    nextErrors.form = 'Password must contain at least 8 characters.';
+  } else if (confirmPassword !== password) {
+    nextErrors.form = 'Passwords do not match.';
+  }
+
   return nextErrors;
+}
+
+export function validateSingleField(name, value, allValues = {}) {
+  const strVal = String(value || '');
+  const trimmed = strVal.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  switch (name) {
+    case 'fullName':
+      if (!trimmed) return 'Please enter your full name.';
+      if (trimmed.length < 2) return 'Full name must be at least 2 characters.';
+      return '';
+    case 'email':
+      if (!trimmed) return 'Please enter your email address.';
+      if (!emailRegex.test(trimmed)) return 'Please enter a valid email address.';
+      return '';
+    case 'password':
+      if (!strVal) return 'Please enter your password.';
+      if (strVal.length < 8) return 'Password must contain at least 8 characters.';
+      return '';
+    case 'confirmPassword':
+      if (!strVal) return 'Please confirm your password.';
+      if (strVal !== allValues.password) return 'Passwords do not match.';
+      return '';
+    case 'phone':
+      return ''; // Optional, no validation error
+    default:
+      return '';
+  }
 }
 
 export default function Register() {
@@ -48,6 +96,9 @@ export default function Register() {
   const { register, isRegistering, isAuthenticated } = useAuth();
   const [formValues, setFormValues] = useState(initialForm);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   React.useEffect(() => {
     if (isAuthenticated) {
@@ -68,44 +119,126 @@ export default function Register() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    setFormValues((prev) => {
+      const nextValues = { ...prev, [name]: value };
+      if (touched[name] || hasSubmitted) {
+        const fieldError = validateSingleField(name, value, nextValues);
+        setErrors((prevErrors) => {
+          const updated = { ...prevErrors };
+          if (fieldError) {
+            updated[name] = fieldError;
+          } else {
+            delete updated[name];
+          }
+          if (updated.form && !fieldError) {
+            delete updated.form;
+          }
+          return updated;
+        });
+      }
+      return nextValues;
+    });
+  };
+
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const fieldError = validateSingleField(name, value, formValues);
+    setErrors((prev) => {
+      const updated = { ...prev };
+      if (fieldError) {
+        updated[name] = fieldError;
+      } else {
+        delete updated[name];
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const nextErrors = validateRegister(formValues);
+    // Prevent duplicate submissions on rapid clicks
+    if (isSubmitting || isRegistering) {
+      return;
+    }
+
+    setHasSubmitted(true);
+
+    // Safeguard against browser autofill or password managers that didn't fire synthetic onChange:
+    // Read the current live values directly from DOM elements
+    const elements = event.currentTarget?.elements || {};
+    const currentValues = {
+      fullName: (elements['register-fullName']?.value ?? elements.fullName?.value ?? formValues.fullName ?? '').trim(),
+      email: (elements['register-email']?.value ?? elements.email?.value ?? formValues.email ?? '').trim(),
+      password: elements['register-password']?.value ?? elements.password?.value ?? formValues.password ?? '',
+      confirmPassword: elements['register-confirmPassword']?.value ?? elements.confirmPassword?.value ?? formValues.confirmPassword ?? '',
+      phone: (elements['register-phone']?.value ?? elements.phone?.value ?? formValues.phone ?? '').trim(),
+    };
+
+    // Ensure local state is synced
+    setFormValues(currentValues);
+
+    const nextErrors = validateRegister(currentValues);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
-    const result = await register({
-      fullName: formValues.fullName,
-      email: formValues.email,
-      password: formValues.password,
-      phone: formValues.phone,
-    });
+    setIsSubmitting(true);
 
-    if (result.ok) {
-      try {
-        const redirect = JSON.parse(window.sessionStorage.getItem('repairlens.redirectAfterAuth') || 'null');
-        if (redirect?.path) {
-          window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
-          navigate(redirect.path, { replace: true });
-          return;
-        }
-      } catch (error) {
-        console.warn('Unable to read redirectAfterAuth:', error);
-      }
-
-      navigate('/dashboard', { replace: true });
-    } else {
-      setErrors({
-        form: result.error || 'Unable to create account. Please try again.',
+    try {
+      const result = await register({
+        fullName: currentValues.fullName,
+        email: currentValues.email,
+        password: currentValues.password,
+        confirmPassword: currentValues.confirmPassword,
+        phone: currentValues.phone,
       });
+
+      if (result.ok) {
+        try {
+          const redirect = JSON.parse(window.sessionStorage.getItem('repairlens.redirectAfterAuth') || 'null');
+          if (redirect?.path) {
+            window.sessionStorage.removeItem('repairlens.redirectAfterAuth');
+            navigate(redirect.path, { replace: true });
+            return;
+          }
+        } catch (error) {
+          console.warn('Unable to read redirectAfterAuth:', error);
+        }
+
+        navigate('/dashboard', { replace: true });
+      } else {
+        const rawError = String(result.error || '');
+        if (rawError.includes('already exists')) {
+          setErrors({
+            email: 'An account with this email already exists.',
+            form: 'An account with this email already exists.',
+          });
+        } else if (rawError.includes('match')) {
+          setErrors({
+            confirmPassword: 'Passwords do not match.',
+            form: 'Passwords do not match.',
+          });
+        } else if (rawError.includes('valid email')) {
+          setErrors({
+            email: 'Please enter a valid email address.',
+            form: 'Please enter a valid email address.',
+          });
+        } else {
+          setErrors({
+            form: rawError || 'Unable to create your account. Please try again.',
+          });
+        }
+      }
+    } catch (err) {
+      setErrors({
+        form: 'Unable to create your account. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
